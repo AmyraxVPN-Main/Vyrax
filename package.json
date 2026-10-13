@@ -1,0 +1,30 @@
+{
+  "name": "vyrax",
+  "version": "0.1.17",
+  "private": true,
+  "license": "MIT",
+  "author": "Amyrax",
+  "repository": { "type":"git", "url":"https://github.com/AmyraxVPN-Main/Vyrax.git" },
+  "type": "module",
+  "description": "Vyrax — کلاینت ویندوز",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5273",
+    "build": "vite build",
+    "preview": "vite preview --port 5273"
+  },
+  "dependencies": {
+    "flag-icons": "^7.5.0",
+    "ip3country": "^5.0.0",
+    "liquid-gooey": "0.2.2",
+    "lucide-react": "^0.468.0",
+    "qrcode": "^1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vazirmatn": "^33.0.3",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^7.3.0"
+  }
+}

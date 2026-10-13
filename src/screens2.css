@@ -1,0 +1,724 @@
+/* ============================================================
+   Vyrax — صفحه‌ها (۲): ورود، مکان‌ها، تنظیمات، حساب
+   ============================================================ */
+
+/* ---------- مکان‌ها ---------- */
+
+.locations {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2px 16px 0;
+  animation: rise 0.4s var(--ease) both;
+}
+
+.loc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loc-head > .search {
+  flex: 1;
+  min-width: 0;
+}
+
+.icon-btn.back {
+  color: var(--text);
+}
+
+.icon-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.search {
+  height: 42px;
+  border-radius: 21px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 15px;
+  background: var(--liquid);
+  color: var(--faint);
+}
+
+.search svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--text);
+  font-size: 12.5px;
+  user-select: text;
+}
+
+.search input::placeholder {
+  color: var(--faint);
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--liquid);
+  color: var(--muted);
+  transition: 0.2s var(--ease);
+}
+
+.icon-btn:hover {
+  color: var(--text);
+}
+
+.icon-btn.spin svg {
+  animation: rot 0.9s linear infinite;
+}
+
+/* کنترل تب‌دار با thumbِ لغزان */
+
+.seg { position:relative; height:38px; flex:none; margin-top:10px; display:flex; }
+.seg-track,.seg-thumb-layer { position:absolute !important; inset:0; pointer-events:none; }
+.seg-bg { width:100%; height:38px; border-radius:19px; }
+.seg-thumb-layer { padding:4px; direction:ltr; }
+.seg-thumb { height:30px; border-radius:15px; transition:transform .42s var(--soft-spring); }
+.seg-btn { position:relative; flex:1; font-size:11.5px; font-weight:650; color:var(--faint); transition:color .3s; }
+.seg-btn.on { color:var(--accent-ink); }
+
+
+.check-row {
+  width: 100%;
+  height: 42px;
+  margin-top: 10px;
+  border-radius: 21px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 15px;
+  background: var(--liquid);
+  color: var(--muted);
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.check-row:hover {
+  background: var(--liquid-2);
+}
+
+.check-row:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.check-row .tick .spin {
+  animation: rot 0.9s linear infinite;
+}
+
+.check-row .tick {
+  color: var(--teal);
+  display: grid;
+  place-items: center;
+}
+
+.check-row .tick svg {
+  width: 14px;
+  height: 14px;
+}
+
+.check-row .spacer {
+  flex: 1;
+}
+
+.check-row .more {
+  display: grid;
+  place-items: center;
+  color: var(--faint);
+}
+
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 10px -6px 0;
+  padding: 0 6px 22px;
+  /* نوار باریک و دیده‌شدنی تا معلوم باشد لیست ادامه دارد */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list::-webkit-scrollbar-thumb {
+  border-radius: 7px;
+  background: var(--line-2);
+}
+
+.list::-webkit-scrollbar-thumb:hover {
+  background: var(--faint);
+}
+
+.empty {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.empty b {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.empty span {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.empty-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 20px;
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  border-radius: 14px;
+  background: var(--liquid);
+  transition: transform 0.25s var(--spring), background 0.2s;
+}
+
+.row:hover {
+  transform: translate(3px);
+}
+
+.row.on {
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+
+.row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-block: 10px;
+  padding-inline: 12px 4px;
+  text-align: start;
+  font-size: 12px;
+}
+
+.row .flag,
+.row .flag-blank {
+  width: 22px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row.on .row-name {
+  color: var(--green);
+  font-weight: 650;
+}
+
+.row-name em {
+  display: block;
+  margin-top: 1px;
+  font-size: 10px;
+  font-style: normal;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: ltr;
+  text-align: start;
+}
+
+.row-name b {
+  display: block;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ردیفی که همین حالا وصل است */
+.row.live {
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+
+.row.live .row-name b {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.row-act {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--faint);
+  opacity: 0;
+  transition: color 0.2s, opacity 0.2s, transform 0.25s var(--spring);
+}
+
+.row:hover .row-act {
+  opacity: 0.55;
+}
+
+.row-act:hover {
+  opacity: 1 !important;
+  transform: scale(1.15);
+}
+
+/* ستارهٔ سرور محبوب همیشه دیده می‌شود، بقیه با هاور */
+.row-act.fav {
+  color: var(--warn);
+}
+
+.row-act.fav.on {
+  opacity: 1 !important;
+}
+
+.row-act.fav svg {
+  fill: currentColor;
+}
+
+.row-act.danger:hover {
+  color: var(--bad);
+}
+
+/* برچسب تأخیر خودش دکمهٔ تست همان سرور است */
+.row-ping {
+  flex: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.row-ping.busy {
+  opacity: 0.45;
+}
+
+.row-tail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline-end: 8px;
+}
+
+[dir='rtl'] .row:hover {
+  transform: translate(-3px);
+}
+
+[dir='rtl'] .row-name em { text-align: right; }
+
+/* ---------- تنظیمات ---------- */
+
+.prefs {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: rise 0.4s var(--ease) both;
+  scrollbar-width: none;
+}
+
+.prefs::-webkit-scrollbar {
+  display: none;
+}
+
+.prefs-title {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 4px 6px 2px;
+}
+
+.pref-group {
+  border-radius: 20px;
+  background: var(--liquid);
+  padding: 4px 0;
+  transition: background 0.3s;
+}
+
+.pref-group.open {
+  background: var(--liquid-2);
+}
+
+.pref {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  width: 100%;
+  text-align: start;
+}
+
+.pref + .pref {
+  border-top: 1px solid var(--line);
+}
+
+.pref-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pref-text b {
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.pref-text span {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--faint);
+}
+
+.pref-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.caret {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--faint);
+  transition: transform 0.25s var(--ease), color 0.25s;
+}
+
+.pref-group.open .caret {
+  transform: rotate(90deg);
+  color: var(--teal);
+}
+
+[dir='rtl'] .caret {
+  transform: rotate(180deg);
+}
+
+[dir='rtl'] .pref-group.open .caret {
+  transform: rotate(90deg);
+}
+
+.pref-body {
+  padding: 2px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pref-foot {
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+
+.fav-ip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--liquid);
+  direction: ltr;
+}
+
+.fav-ip .meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.fav-ip b {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.fav-ip span {
+  display: block;
+  font-size: 10.5px;
+  color: var(--faint);
+}
+
+.fav-ip code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* کلید کشوییِ چسبناک */
+
+.toggle { position:relative; width:52px; height:30px; flex:none; border-radius:15px; direction:ltr; }
+.toggle-liquid { position:absolute !important; inset:0; }
+.toggle-liquid > * { position:absolute !important; top:0; left:0; }
+.toggle-track { display:block; width:52px; height:30px; border-radius:15px; background:var(--liquid-2); }
+.toggle-knob { display:grid; place-items:center; width:30px; height:30px; padding:8px; border-radius:50%; }
+.toggle-knob i { display:block; width:100%; height:100%; border-radius:50%; background:var(--faint); transition:background .25s; }
+.toggle.on .toggle-knob i { background:var(--accent-fill); }
+
+
+/* ---------- حساب ---------- */
+
+.account {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 24px 12px;
+  animation: rise 0.4s var(--ease) both;
+}
+
+.account::-webkit-scrollbar {
+  display: none;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 750;
+  color: var(--accent-ink);
+  background: linear-gradient(140deg, var(--teal), var(--green));
+  box-shadow: 0 14px 36px var(--glow-a);
+  animation: avatar-pop 0.32s var(--ease);
+}
+
+.acct-title {
+  width: 100%;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 4px 2px 0;
+}
+
+.acct-title + .acct-stats {
+  margin-top: 16px;
+}
+
+.acct-stats {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.acct-stats > div {
+  flex: 1;
+  padding: 14px 4px;
+  border-radius: 18px;
+  text-align: center;
+  background: var(--liquid);
+}
+
+.acct-stats b {
+  display: block;
+  font-size: 20px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.acct-stats span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.setting {
+  width: 100%;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--liquid);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: start;
+}
+
+.setting .meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.setting .meta span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--faint);
+}
+
+.devices {
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 18px;
+  background: var(--liquid);
+  padding: 6px 0;
+}
+
+.devices-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 6px 16px 4px;
+}
+
+.devices-head b {
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.devices-head span {
+  font-size: 10.5px;
+  color: var(--faint);
+}
+
+.device {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+}
+
+.device + .device {
+  border-top: 1px solid var(--line);
+}
+
+.device.ghost {
+  height: 44px;
+  justify-content: center;
+  color: var(--faint);
+  font-size: 11.5px;
+}
+
+.device-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--faint);
+}
+
+.device-dot.on {
+  background: var(--green);
+  box-shadow: 0 0 0 3px rgba(82, 216, 135, 0.22);
+}
+
+.device-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.device-text b {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.device-text span {
+  font-size: 10.5px;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.device.current .device-text span {
+  color: var(--teal);
+}
+
+.pill-danger {
+  width: 100%;
+  height: 48px;
+  margin-top: 16px;
+  border-radius: 24px;
+  background: rgba(255, 107, 91, 0.13);
+  color: var(--bad);
+  font-size: 13px;
+  font-weight: 650;
+  transition: background 0.2s var(--ease);
+}
+
+.pill-danger:hover,
+.pill-danger.arming {
+  background: rgba(255, 107, 91, 0.24);
+}
+
+/* ردیف تنظیماتی که کنترلِ تمام‌عرضش زیر متن می‌آید (انتخابگرِ حالت اتصال) */
+.pref-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+}
+
+/* .seg برای زیرِ نوار جست‌وجو حاشیهٔ بالا دارد؛ اینجا فاصله را خودِ gap می‌دهد */
+.pref-stack .seg {
+  margin-top: 0;
+}
+
+/* حالت VPN انتخاب شده ولی این پروسه دسترسی مدیر ندارد */
+.pref-stack.warn .pref-text span {
+  color: var(--warn);
+}

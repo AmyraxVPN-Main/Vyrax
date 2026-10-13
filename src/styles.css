@@ -1,0 +1,361 @@
+/* ============================================================
+   Vyrax — design system
+   متریک‌ها و توکن‌ها از اپ مرجع (Speedo) اندازه‌گیری شده‌اند.
+   ============================================================ */
+
+/* رنگ‌ها در themes.css هستند؛ اینجا فقط چیزهایی است که به تم ربطی ندارند. */
+:root {
+  --ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --soft-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --font: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-fa: "Vazirmatn", "Segoe UI", Tahoma, system-ui, sans-serif;
+
+  /* نشان Vyrax: یک «V» بولد با پژواکِ کوتاه؛ به‌صورت ماسک تا رنگش از currentColor بیاید */
+  --mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 20'%3E%3Cpath d='M1 1h10l5 9 5-9h10L18.6 19h-5.2L1 1Z'/%3E%3Cpath d='M13.4 1h5.2l-2.6 4.6L13.4 1Z' opacity='.45'/%3E%3C/svg%3E");
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+[dir='rtl'] body {
+  font-family: var(--font-fa);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- قاب دسکتاپ (فقط پیش‌نمایش مرورگر) ---------- */
+
+.frame {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  /* ردیف/ستون باید «معیّن» باشد، وگرنه `height: 100%` روی .shell به اندازهٔ
+     محتوا حل می‌شود: پوسته با لیست بزرگ می‌شود، نوار تب بیرون می‌رود و
+     لیست هیچ‌وقت اسکرول نمی‌خورد. */
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+}
+
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  background:
+    radial-gradient(58% 42% at 16% 10%, rgba(206, 148, 78, 0.55), transparent 62%),
+    radial-gradient(46% 34% at 84% 6%, rgba(158, 104, 60, 0.45), transparent 62%),
+    radial-gradient(40% 30% at 92% 52%, rgba(128, 86, 50, 0.32), transparent 66%),
+    linear-gradient(180deg, #1b1510, #080706);
+  filter: blur(34px) saturate(1.15);
+}
+
+/* در نسخهٔ نصب‌شده، پنجره بومی است: کاغذدیواری نمایشی را برمی‌داریم
+   و بدنه تمام پنجره را می‌گیرد (گوشه‌های گرد کارِ خود ویندوز است). */
+[data-platform='webview2'] .frame::before,
+[data-platform='tauri'] .frame::before {
+  display: none;
+}
+
+[data-platform='webview2'] .frame,
+[data-platform='tauri'] .frame {
+  padding: 0;
+}
+
+[data-platform='webview2'] .shell,
+[data-platform='tauri'] .shell {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* در تم روشن، پشتِ پنجره هم روشن می‌شود */
+[data-theme='light'] .frame::before {
+  background:
+    radial-gradient(58% 42% at 16% 10%, rgba(214, 196, 168, 0.6), transparent 62%),
+    radial-gradient(46% 34% at 84% 6%, rgba(196, 186, 172, 0.5), transparent 62%),
+    radial-gradient(40% 30% at 92% 52%, rgba(178, 176, 172, 0.4), transparent 66%),
+    linear-gradient(180deg, #cfd6d2, #aab2ae);
+}
+
+/* در اپ واقعی پنجره شفاف و گرد است و کاغذدیواری پشتش دیده می‌شود */
+.shell {
+  position: relative;
+  width: 380px;
+  height: 646px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  overflow: clip;
+  border-radius: 18px;
+  background: var(--bg);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--line);
+}
+
+/* درخشش آرام پشتِ همه‌چیز */
+.shell::before {
+  content: "";
+  position: absolute;
+  inset: -30% -20% auto;
+  height: 80%;
+  z-index: -2;
+  background:
+    radial-gradient(50% 55% at 30% 40%, var(--glow-a), transparent 70%),
+    radial-gradient(45% 50% at 75% 55%, var(--glow-b), transparent 70%);
+  filter: blur(8px);
+  animation: aurora 16s ease-in-out infinite alternate;
+}
+
+/* بافت دانه */
+.shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(-4%, 0, 0) rotate(-3deg);
+  }
+  to {
+    transform: translate3d(5%, 6%, 0) rotate(4deg);
+  }
+}
+
+/* ---------- نوار بالا ---------- */
+
+.bar {
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 16px;
+  -webkit-app-region: drag;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 15px;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  transition: color 0.3s var(--ease);
+}
+
+.mark .ico {
+  width: 22px;
+  height: 14px;
+  flex: none;
+  background: var(--text);
+  -webkit-mask: var(--mark) center / contain no-repeat;
+  mask: var(--mark) center / contain no-repeat;
+}
+
+[dir='rtl'] .tabs,
+[dir='rtl'] .bar {
+  direction: ltr;
+}
+
+.bar-btns {
+  display: flex;
+  gap: 6px;
+  -webkit-app-region: no-drag;
+}
+
+.bar-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  padding: 7px;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+
+.bar-btn:hover {
+  color: var(--text);
+}
+
+.bar-btn.close:hover {
+  color: var(--bad);
+}
+
+/* ---------- بدنه ---------- */
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.view {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: none;
+}
+
+.view::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ---------- ناوبری پایین ---------- */
+
+
+.tabs { position:relative; height:64px; flex:none; margin:0 14px 12px; }
+.tabs-liquid, .tabs-thumb-layer { position:absolute !important; inset:0; }
+.tabs-track { width:100%; height:64px; border-radius:32px; }
+.tabs-thumb-layer { padding:7px; pointer-events:none; }
+.tabs-thumb { width:25%; height:50px; border-radius:25px; transition:transform .45s var(--soft-spring); }
+.tabs-row { position:absolute; inset:7px; display:flex; }
+.tab { position:relative; flex:1; border-radius:25px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:var(--faint); transition:color .3s; }
+.tab svg { width:19px; height:19px; }
+.tab span { font-size:9.5px; font-weight:650; letter-spacing:.06em; }
+.tab.on { color:var(--accent-ink); }
+.tab-live { position:absolute; top:9px; right:calc(50% - 16px); width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 0 2px var(--liquid); }
+.tab.on .tab-live { background:var(--accent-ink); box-shadow:0 0 0 2px var(--accent-fill); }
+@keyframes throb { 50% { transform:scale(.5); opacity:.4; } }
+
+
+/* ---------- انیمیشن‌های مشترک ---------- */
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes rot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(1.5);
+    opacity: 0.6;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: translateY(6px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+}
+
+@keyframes toast-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.96);
+  }
+}
+
+@keyframes sheet-up {
+  0% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes avatar-pop {
+  0% {
+    transform: scale(0.8);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 400px), (max-height: 666px) {
+  .frame::before {
+    display: none;
+  }
+  .shell {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}

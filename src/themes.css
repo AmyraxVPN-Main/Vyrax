@@ -1,0 +1,180 @@
+/* ============================================================
+   Vyrax — تم‌ها
+   هر تم با data-theme روی <html> فعال می‌شود.
+   مقادیر رنگ از اپ مرجع گرفته شده‌اند.
+   ============================================================ */
+
+:root,
+:root[data-theme='dark'] {
+  --bg: #0a0f11;
+  --liquid: #1a2225;
+  --liquid-2: #222c30;
+  --text: #eaf3ef;
+  --muted: #93a8a1;
+  --faint: #5d706a;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.11);
+  --teal: #1ecab7;
+  --green: #52d887;
+  --accent-fill: #1fc7a6;
+  --accent-ink: #04201a;
+  --warn: #e7b24a;
+  --bad: #ef6f5b;
+  --glow-a: rgba(24, 201, 179, 0.28);
+  --glow-b: rgba(82, 216, 135, 0.16);
+  --grain: 0.06;
+  --scheme: dark;
+}
+
+/* Light uses the same surface and glow values as the Windows reference. */
+:root[data-theme='light'] {
+  --bg: #edf3f1;
+  --liquid: #ffffff;
+  --liquid-2: #f3f7f5;
+  --text: #11261f;
+  --muted: #5a7169;
+  --faint: #93a6a0;
+  --line: rgba(0, 0, 0, 0.06);
+  --line-2: rgba(0, 0, 0, 0.12);
+  --teal: #0eb09f;
+  --green: #36bf6a;
+  --accent-fill: #17b894;
+  --accent-ink: #ffffff;
+  --warn: #c98a12;
+  --bad: #d4513e;
+  --glow-a: rgba(24, 201, 179, 0.22);
+  --glow-b: rgba(82, 216, 135, 0.18);
+  --grain: 0.035;
+  --scheme: light;
+}
+
+:root[data-theme='black'] {
+  --bg: #000000;
+  --liquid: #121212;
+  --liquid-2: #1a1a1a;
+  --text: #f2f2f2;
+  --muted: #9a9a9a;
+  --faint: #5e5e5e;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.12);
+  --teal: #ffffff;
+  --green: #d9d9d9;
+  --accent-fill: #f2f2f2;
+  --accent-ink: #0a0a0a;
+  --warn: #f5b642;
+  --bad: #ff5f57;
+  --glow-a: rgba(255, 255, 255, 0.07);
+  --glow-b: rgba(255, 255, 255, 0.03);
+  --grain: 0.04;
+  --scheme: dark;
+}
+
+:root[data-theme='ocean'] {
+  --bg: #060a12;
+  --liquid: #131b29;
+  --liquid-2: #1a2434;
+  --text: #e8f0fb;
+  --muted: #8fa3bf;
+  --faint: #56677f;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.11);
+  --teal: #3b9bff;
+  --green: #22d3ee;
+  --accent-fill: #2f8cff;
+  --accent-ink: #ffffff;
+  --warn: #f5b642;
+  --bad: #ff6b6b;
+  --glow-a: rgba(56, 139, 253, 0.28);
+  --glow-b: rgba(34, 211, 238, 0.14);
+  --grain: 0.06;
+  --scheme: dark;
+}
+
+:root[data-theme='violet'] {
+  --bg: #0b0911;
+  --liquid: #1b1626;
+  --liquid-2: #231d31;
+  --text: #f0ebfb;
+  --muted: #a79bbd;
+  --faint: #685e7c;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.11);
+  --teal: #a371f7;
+  --green: #d58cff;
+  --accent-fill: #9b5cf6;
+  --accent-ink: #ffffff;
+  --warn: #f5b642;
+  --bad: #ff6b81;
+  --glow-a: rgba(163, 113, 247, 0.3);
+  --glow-b: rgba(236, 72, 153, 0.12);
+  --grain: 0.06;
+  --scheme: dark;
+}
+
+:root[data-theme='crimson'] {
+  --bg: #0a0708;
+  --liquid: #1c1416;
+  --liquid-2: #261b1e;
+  --text: #f6eced;
+  --muted: #b1999c;
+  --faint: #735f62;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.11);
+  --teal: #ff3b4f;
+  --green: #ff7a59;
+  --accent-fill: #ef2d43;
+  --accent-ink: #ffffff;
+  --warn: #f5b642;
+  --bad: #ff9f43;
+  --glow-a: rgba(229, 37, 56, 0.3);
+  --glow-b: rgba(255, 94, 77, 0.14);
+  --grain: 0.06;
+  --scheme: dark;
+}
+
+:root[data-theme='gold'] {
+  --bg: #0a0906;
+  --liquid: #1b1913;
+  --liquid-2: #24211a;
+  --text: #f7f1e3;
+  --muted: #b2a88f;
+  --faint: #726a55;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.11);
+  --teal: #e8b931;
+  --green: #ffd166;
+  --accent-fill: #e8b931;
+  --accent-ink: #1a1405;
+  --warn: #ff9f43;
+  --bad: #ff6b5b;
+  --glow-a: rgba(232, 185, 49, 0.24);
+  --glow-b: rgba(255, 153, 0, 0.1);
+  --grain: 0.06;
+  --scheme: dark;
+}
+
+:root[data-theme='rose'] {
+  --bg: #0f090c;
+  --liquid: #21181c;
+  --liquid-2: #2a1f24;
+  --text: #fbecf1;
+  --muted: #bb9ca7;
+  --faint: #7a5f69;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.11);
+  --teal: #ff5c8a;
+  --green: #ff8fab;
+  --accent-fill: #ff4f81;
+  --accent-ink: #ffffff;
+  --warn: #f5b642;
+  --bad: #ffa24d;
+  --glow-a: rgba(255, 92, 138, 0.28);
+  --glow-b: rgba(255, 143, 171, 0.12);
+  --grain: 0.06;
+  --scheme: dark;
+}
+
+/* رنگ نوار مرورگر و کنترل‌های سیستم هم با تم هماهنگ شود */
+:root {
+  color-scheme: var(--scheme, dark);
+}
