@@ -10,6 +10,16 @@ vendor/*
 !vendor/android-versions.json
 !vendor/linux-versions.json
 !vendor/macos-versions.json
+!vendor/ios-versions.json
+ios/build/
+ios/Resources/
+ios/Vyrax.xcodeproj/
+*.xcarchive/
+*.xcresult/
+*.ipa
+*.mobileprovision
+*.p12
+*.cer
 linux/node_modules/
 linux/build/
 macos/build/

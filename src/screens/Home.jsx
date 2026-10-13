@@ -5,7 +5,7 @@ import Flag from '../components/Flag.jsx';
 import Surface from '../components/Surface.jsx';
 import { useI18n } from '../i18n.jsx';
 import { countryOf, protoLabel, cleanName } from '../lib/geo.js';
-import { platform } from '../bridge.js';
+import { mobile } from '../bridge.js';
 
 const PICKS = [{ x: -122, y: -16 }, { x: -106, y: 60 }, { x: 106, y: 60 }, { x: 122, y: -16 }];
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
@@ -27,7 +27,7 @@ export default function Home({ state, server, orbit, selectionMode, onPower, onS
   const [quick, setQuick] = useState(false);
   const stageRef = useRef(null);
   useEffect(() => {
-    if (platform !== 'android' || !stageRef.current) return undefined;
+    if (!mobile || !stageRef.current) return undefined;
     const stage = stageRef.current;
     const observer = new ResizeObserver(() => stage.style.setProperty('--hero-midpoint', `${stage.clientHeight / 2}px`));
     observer.observe(stage);return () => observer.disconnect();
@@ -48,7 +48,7 @@ export default function Home({ state, server, orbit, selectionMode, onPower, onS
         <div className="aura" />
         {/* Use the Windows renderer for this small interactive surface only.
             The tighter filter bounds still include the orbit's spring overshoot. */}
-        <Surface liquidOnMobile blur={9} contrast={20} filterPadding={platform === 'android' ? 110 : 170} className="dial-liquid">
+        <Surface liquidOnMobile blur={9} contrast={20} filterPadding={mobile ? 110 : 170} className="dial-liquid">
           {nearby.map((p, i) => (
             <Surface.Item key={p.id} className="drop-motion" x={47 + (quick ? PICKS[i].x : 0)} y={47 + (quick ? PICKS[i].y : 0)}
               transition="bouncy" delay={quick ? i * 45 : (nearby.length - i) * 30}>
@@ -61,7 +61,7 @@ export default function Home({ state, server, orbit, selectionMode, onPower, onS
               </button>
             </Surface.Item>
           ))}
-          <Surface.Item className="dial-body" morph={platform === 'android' ? undefined : { shape: true, bounce: .45, contentBlur: 0 }}>
+          <Surface.Item className="dial-body" morph={mobile ? undefined : { shape: true, bounce: .45, contentBlur: 0 }}>
             <button type="button" className="dial" onClick={onPower}
               aria-label={t(connected || connecting ? 'home.disconnect' : 'home.connect')}>
               <span className="dial-ring" /><PowerIcon className="dial-ico" />

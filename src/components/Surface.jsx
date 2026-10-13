@@ -1,10 +1,9 @@
 import React, { createContext, useContext } from 'react';
 import { Liquid } from 'liquid-gooey';
-import { platform } from '../bridge.js';
+import { mobile } from '../bridge.js';
 
 export const SurfaceTheme = createContext('dark');
 const LiquidSurface = createContext(false);
-const mobile = platform === 'android';
 
 // Mobile defaults to compositor transforms. A small surface can opt into the
 // desktop renderer when merging silhouettes are part of its interaction.

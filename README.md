@@ -79,3 +79,7 @@ node .tools/selftest/verify-release.mjs
 Do not commit VPN credentials, subscriptions, user stores, tunnel logs or local
 diagnostic captures. The installed app's encrypted store is outside this source
 tree and is not part of the repository.
+
+### iPhone / iPad development build
+
+The iOS host and native Packet Tunnel extension are in `ios`. See [iOS build and signing guide](docs/ios.md). Unsigned device archives and the simulator app are development outputs; a publicly installable iPhone VPN still requires Apple signing/provisioning and real-device testing.

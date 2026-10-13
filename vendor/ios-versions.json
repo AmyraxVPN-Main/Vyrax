@@ -1,0 +1,7 @@
+{
+  "xray": {"version":"26.3.27","module":"github.com/xtls/xray-core","moduleVersion":"v1.260327.0","commit":"d2758a023cd7f4174a5a5fa4ff66e487d4342ba0","license":"MPL-2.0"},
+  "hev": {"repository":"https://github.com/heiher/hev-socks5-tunnel.git","commit":"50d7b41a4f53e72b5f53a5a262ff5e90f1b53cd3","license":"MIT"},
+  "minimumIOS":"16.0",
+  "deviceArchitectures":["arm64"],
+  "simulatorArchitectures":["arm64"]
+}

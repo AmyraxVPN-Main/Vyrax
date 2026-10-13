@@ -12,7 +12,7 @@ import Locations from './screens/Locations.jsx';
 import Settings from './screens/Settings.jsx';
 import Account from './screens/Account.jsx';
 import { INITIAL_STATE, DEMO_PROFILES } from './data.js';
-import { native, call, subscribe, platform } from './bridge.js';
+import { native, call, subscribe, platform, mobile } from './bridge.js';
 import { useI18n } from './i18n.jsx';
 import { parseImport, mergeProfiles } from './lib/profiles.mjs';
 import { needsGeo, countryOf, protoLabel, cleanName } from './lib/geo.js';
@@ -33,7 +33,7 @@ export default function App() {
   const [selectionBusy, setSelectionBusy] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const [refreshingId, setRefreshingId] = useState('');
-  const [state, setState] = useState(() => platform === 'android'
+  const [state, setState] = useState(() => mobile
     ? { ...INITIAL_STATE, settings:{ ...INITIAL_STATE.settings, mode:'tun' } } : INITIAL_STATE);
 
   const [adding, setAdding] = useState(false);
@@ -111,7 +111,7 @@ export default function App() {
         if (!started.current) {
           started.current = true;
           call('ready', {}, { timeout: 240000 }).then(snapshot => {
-            if (!alive || !snapshot || !['android','linux','macos'].includes(platform)) return;
+            if (!alive || !snapshot || !['android','ios','linux','macos'].includes(platform)) return;
             if (snapshot.profileId) setSelectedId(snapshot.profileId);
             if (snapshot.selectionMode) setSelectionMode(snapshot.selectionMode);
             const since = Date.parse(snapshot.since);

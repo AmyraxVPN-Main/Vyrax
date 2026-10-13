@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import I18nContext from './i18n-context.js';
-import { platform, call } from './bridge.js';
+import { platform, call, mobile } from './bridge.js';
 
 export const LANGS = [
   { id: 'en', label: 'English', short: 'EN' },
@@ -9,6 +9,7 @@ export const LANGS = [
 
 const STRINGS = {
   en: {
+    'set.iosModeSub': 'VPN protects the device using iOS VPN permission.',
     'err.proxyUnavailable': 'Desktop proxy settings are unavailable. Use TUN mode on this desktop.',
     'err.proxyRestore': 'Could not restore the desktop proxy settings.',
     'set.androidModeSub': 'VPN covers the device. Proxy creates local SOCKS/HTTP endpoints for apps configured to use them.',
@@ -275,6 +276,7 @@ const STRINGS = {
   },
 
   fa: {
+    'set.iosModeSub': 'VPN با مجوز اتصال iOS، ترافیک دستگاه را پوشش می‌دهد.',
     'err.proxyUnavailable': 'تنظیمات پروکسی این محیط دسکتاپ در دسترس نیست. از حالت TUN استفاده کن.',
     'err.proxyRestore': 'بازگرداندن تنظیمات پروکسی دسکتاپ انجام نشد.',
     'set.androidModeSub': 'VPN ترافیک دستگاه را پوشش می‌دهد. پروکسی یک اتصال محلی SOCKS/HTTP برای برنامه‌هایی می‌سازد که آن را تنظیم کنید.',
@@ -567,7 +569,7 @@ function read() {
   } catch {
     /* بی‌اهمیت */
   }
-  return platform === 'android' && navigator.language.startsWith('fa') ? 'fa' : 'en';
+  return mobile && navigator.language.startsWith('fa') ? 'fa' : 'en';
 }
 
 export function I18nProvider({ children }) {
@@ -576,7 +578,7 @@ export function I18nProvider({ children }) {
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
-    if (platform === 'android') call('language', { language:lang }).catch(() => {});
+    if (mobile) call('language', { language:lang }).catch(() => {});
     try {
       localStorage.setItem('vyrax-lang', lang);
     } catch {

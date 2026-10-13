@@ -1,0 +1,47 @@
+name: iOS builds and checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+          cache-dependency-path: ios/Engine/go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Prepare Apple build tools
+        run: |
+          brew install xcodegen
+          python3 -m pip install Pillow
+          xcodebuild -version
+      - name: Native frameworks, unsigned device archive and simulator
+        run: bash scripts/build-ios.sh
+      - name: Real WebKit host tests on iPhone simulator
+        run: bash scripts/test-ios.sh
+      - name: Package application and precise dependency sources
+        if: success()
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          git archive HEAD -o "release/ios-$version/Vyrax-$version-source.zip"
+          ditto -c -k --keepParent vendor/ios/sources "release/ios-$version/Vyrax-$version-ios-core-sources.zip"
+          cd "release/ios-$version"
+          shasum -a 256 *.zip > SHA256SUMS.txt
+      - name: Upload build outputs and verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vyrax-iOS-build-and-verification
+          path: release/ios-*/
+          if-no-files-found: error
+          retention-days: 14

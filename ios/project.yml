@@ -1,0 +1,74 @@
+name: Vyrax
+options:
+  bundleIdPrefix: com.amyrax
+  deploymentTarget:
+    iOS: '16.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    IPHONEOS_DEPLOYMENT_TARGET: '16.0'
+    MARKETING_VERSION: ${VYRAX_VERSION}
+    CURRENT_PROJECT_VERSION: '24'
+    DEVELOPMENT_TEAM: ${VYRAX_APPLE_TEAM}
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    OTHER_LDFLAGS: ['-lresolv', '-framework', 'Security']
+    TARGETED_DEVICE_FAMILY: '1,2'
+    SUPPORTS_MACCATALYST: NO
+targets:
+  Vyrax:
+    type: application
+    platform: iOS
+    sources: [App, Shared]
+    resources:
+      - path: Resources/ui
+        type: folder
+      - path: Resources/geo.bin
+      - path: Resources/Assets.xcassets
+      - path: Resources/licenses
+        type: folder
+      - path: PrivacyInfo.xcprivacy
+    dependencies:
+      - target: VyraxTunnel
+      - framework: build/VyraxCore.xcframework
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amyrax.vyrax
+        INFOPLIST_FILE: App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App/Vyrax.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  VyraxTunnel:
+    type: app-extension
+    platform: iOS
+    sources: [Tunnel, Shared]
+    dependencies:
+      - framework: build/VyraxCore.xcframework
+        embed: false
+      - framework: build/HevSocks5Tunnel.xcframework
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amyrax.vyrax.tunnel
+        INFOPLIST_FILE: Tunnel/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Tunnel/Vyrax.entitlements
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+  VyraxTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    dependencies:
+      - target: Vyrax
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amyrax.vyrax.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Vyrax:
+    build:
+      targets:
+        Vyrax: all
+        VyraxTests: [test]
+    test:
+      targets: [VyraxTests]

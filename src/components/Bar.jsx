@@ -1,6 +1,6 @@
 import React from 'react';
 import { Minus, X } from 'lucide-react';
-import { call, native, platform } from '../bridge.js';
+import { call, native, mobile } from '../bridge.js';
 import { useI18n } from '../i18n.jsx';
 
 export default function Bar({ live }) {
@@ -12,13 +12,13 @@ export default function Bar({ live }) {
 
   return (
     <header className="bar" onPointerDown={(e) => {
-      if (native && platform !== 'android' && e.button === 0 && !e.target.closest('button')) send('drag');
+      if (native && !mobile && e.button === 0 && !e.target.closest('button')) send('drag');
     }}>
       <span className="mark">
         <span className="ico" aria-hidden="true" />
         vyrax
       </span>
-      {platform !== 'android' && <div className="bar-btns">
+      {!mobile && <div className="bar-btns">
         <button
           type="button"
           className="bar-btn"

@@ -1,104 +1,104 @@
 /* The shared screens fill the Android content area, including tablets/rotation. */
-[data-platform='android'] .frame::before { display:none; }
-[data-platform='android'] .frame { padding:0; top:0; right:0; bottom:0; left:0; }
-[data-platform='android'] .shell {
+:is([data-platform='android'],[data-platform='ios']) .frame::before { display:none; }
+:is([data-platform='android'],[data-platform='ios']) .frame { padding:0; top:0; right:0; bottom:0; left:0; }
+:is([data-platform='android'],[data-platform='ios']) .shell {
   width:100%; height:100%; max-width:560px; max-height:none;
   border-radius:0; box-shadow:none; margin:auto; overflow:hidden; overflow:clip;
 }
-[data-platform='android'] .bar { height:44px; min-height:44px; touch-action:auto; justify-content:center; padding:0 20px; }
-[data-platform='android'] .bar .mark { font-size:16px; }
-[data-platform='android'] .home { justify-content:flex-start; }
+:is([data-platform='android'],[data-platform='ios']) .bar { height:44px; min-height:44px; touch-action:auto; justify-content:center; padding:0 20px; }
+:is([data-platform='android'],[data-platform='ios']) .bar .mark { font-size:16px; }
+:is([data-platform='android'],[data-platform='ios']) .home { justify-content:flex-start; }
 /* Keep the Windows proportions on tall phones instead of stretching the IP
    row into the empty area. Extra height surrounds the whole home composition. */
-[data-platform='android'] .home-stage { flex:1 0 450px; min-height:0; max-height:450px; margin-top:auto; contain:paint; }
-[data-platform='android'] .pill-liquid { flex:none; margin-top:0; margin-bottom:auto; }
-[data-platform='android'] .tabs { margin-bottom:12px; }
-[data-platform='android'] input,[data-platform='android'] textarea { font-size:16px; }
-[data-platform='android'] .search input { font-size:13px; }
-[data-platform='android'] .row-act { opacity:1; }
-[data-platform='android'] .row-act button { min-width:32px; min-height:36px; }
-[data-platform='android'] .sheet-close { width:36px; height:36px; }
-[data-platform='android'] .home .connection-details { top:250px; }
-[data-platform='android'] .home .ms b { font-size:38px; }
-[data-platform='android'] .home .readout-sub { margin-top:3px; }
-[data-platform='android'] .home .chips { margin-top:8px; }
-[data-platform='android'] .home .chips > div { padding:6px 4px; }
-[data-platform='android'] .connection-hero,[data-platform='android'] .connection-details { left:0; right:0; }
-[data-platform='android'] .tabs-liquid,[data-platform='android'] .tabs-thumb-layer { top:0; right:0; bottom:0; left:0; }
-[data-platform='android'] .tabs-row { top:7px; right:7px; bottom:7px; left:7px; }
-[data-platform='android'] [data-gooey-svg],[data-platform='android'] [data-gooey-overlay] { top:0; left:0; }
-[data-platform='android'] .sheet-backdrop { top:0; right:0; bottom:0; left:0; }
-[data-platform='android'] .sheet-close { right:16px; }
-[data-platform='android'][dir='rtl'] .sheet-close { right:auto; left:16px; }
-[data-platform='android'] .shell.has-update .home-stage { flex-basis:388px; max-height:388px; }
-[data-platform='android'] .shell.has-update .home .connection-details { top:220px; }
-[data-platform='android'] .shell.has-update .home .ms b { font-size:32px; }
-[data-platform='android'] .shell.has-update .home .chips { margin-top:6px; }
-[data-platform='android'] .shell.has-update .home .chips > div { padding:4px; }
+:is([data-platform='android'],[data-platform='ios']) .home-stage { flex:1 0 450px; min-height:0; max-height:450px; margin-top:auto; contain:paint; }
+:is([data-platform='android'],[data-platform='ios']) .pill-liquid { flex:none; margin-top:0; margin-bottom:auto; }
+:is([data-platform='android'],[data-platform='ios']) .tabs { margin-bottom:12px; }
+:is([data-platform='android'],[data-platform='ios']) input,:is([data-platform='android'],[data-platform='ios']) textarea { font-size:16px; }
+:is([data-platform='android'],[data-platform='ios']) .search input { font-size:13px; }
+:is([data-platform='android'],[data-platform='ios']) .row-act { opacity:1; }
+:is([data-platform='android'],[data-platform='ios']) .row-act button { min-width:32px; min-height:36px; }
+:is([data-platform='android'],[data-platform='ios']) .sheet-close { width:36px; height:36px; }
+:is([data-platform='android'],[data-platform='ios']) .home .connection-details { top:250px; }
+:is([data-platform='android'],[data-platform='ios']) .home .ms b { font-size:38px; }
+:is([data-platform='android'],[data-platform='ios']) .home .readout-sub { margin-top:3px; }
+:is([data-platform='android'],[data-platform='ios']) .home .chips { margin-top:8px; }
+:is([data-platform='android'],[data-platform='ios']) .home .chips > div { padding:6px 4px; }
+:is([data-platform='android'],[data-platform='ios']) .connection-hero,:is([data-platform='android'],[data-platform='ios']) .connection-details { left:0; right:0; }
+:is([data-platform='android'],[data-platform='ios']) .tabs-liquid,:is([data-platform='android'],[data-platform='ios']) .tabs-thumb-layer { top:0; right:0; bottom:0; left:0; }
+:is([data-platform='android'],[data-platform='ios']) .tabs-row { top:7px; right:7px; bottom:7px; left:7px; }
+:is([data-platform='android'],[data-platform='ios']) [data-gooey-svg],:is([data-platform='android'],[data-platform='ios']) [data-gooey-overlay] { top:0; left:0; }
+:is([data-platform='android'],[data-platform='ios']) .sheet-backdrop { top:0; right:0; bottom:0; left:0; }
+:is([data-platform='android'],[data-platform='ios']) .sheet-close { right:16px; }
+:is([data-platform='android'],[data-platform='ios'])[dir='rtl'] .sheet-close { right:auto; left:16px; }
+:is([data-platform='android'],[data-platform='ios']) .shell.has-update .home-stage { flex-basis:388px; max-height:388px; }
+:is([data-platform='android'],[data-platform='ios']) .shell.has-update .home .connection-details { top:220px; }
+:is([data-platform='android'],[data-platform='ios']) .shell.has-update .home .ms b { font-size:32px; }
+:is([data-platform='android'],[data-platform='ios']) .shell.has-update .home .chips { margin-top:6px; }
+:is([data-platform='android'],[data-platform='ios']) .shell.has-update .home .chips > div { padding:4px; }
 /* Tabs, toggles and other surfaces use compositor transforms. Only the dial
    keeps the bounded Windows liquid silhouette; it needs no shape observation. */
-[data-platform='android'] .mobile-surface { position:relative; }
-[data-platform='android'] .mobile-surface-item { position:relative; transition:transform .44s cubic-bezier(.2,.8,.25,1); }
-[data-platform='android'] .mobile-surface-item > .pill,
-[data-platform='android'] .mobile-surface-item > .drop,
-[data-platform='android'] .mobile-surface-item > .quick,
-[data-platform='android'] .mobile-surface-item > .toggle-knob,
-[data-platform='android'] .mobile-surface-item > .tabs-track,
-[data-platform='android'] .mobile-surface-item > .tabs-thumb,
-[data-platform='android'] .mobile-surface-item > .seg-bg,
-[data-platform='android'] .mobile-surface-item > .seg-thumb { background:var(--surface-fill); }
-[data-platform='android'] .seg-track,[data-platform='android'] .seg-thumb-layer { top:0; right:0; bottom:0; left:0; }
-[data-platform='android'] .toggle-liquid { top:0; right:0; bottom:0; left:0; }
-[data-platform='android'] .dial-body { z-index:2; }
-[data-platform='android'] .drop-motion { z-index:1; }
-[data-platform='android'] .quick-motion { z-index:3; }
-[data-platform='android'] .dial-ring { top:14px; right:14px; bottom:14px; left:14px; }
-[data-platform='android'] .connection-hero,
-[data-platform='android'] .home:not(.state-on) .connection-hero {
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface { position:relative; }
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item { position:relative; transition:transform .44s cubic-bezier(.2,.8,.25,1); }
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .pill,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .drop,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .quick,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .toggle-knob,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .tabs-track,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .tabs-thumb,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .seg-bg,
+:is([data-platform='android'],[data-platform='ios']) .mobile-surface-item > .seg-thumb { background:var(--surface-fill); }
+:is([data-platform='android'],[data-platform='ios']) .seg-track,:is([data-platform='android'],[data-platform='ios']) .seg-thumb-layer { top:0; right:0; bottom:0; left:0; }
+:is([data-platform='android'],[data-platform='ios']) .toggle-liquid { top:0; right:0; bottom:0; left:0; }
+:is([data-platform='android'],[data-platform='ios']) .dial-body { z-index:2; }
+:is([data-platform='android'],[data-platform='ios']) .drop-motion { z-index:1; }
+:is([data-platform='android'],[data-platform='ios']) .quick-motion { z-index:3; }
+:is([data-platform='android'],[data-platform='ios']) .dial-ring { top:14px; right:14px; bottom:14px; left:14px; }
+:is([data-platform='android'],[data-platform='ios']) .connection-hero,
+:is([data-platform='android'],[data-platform='ios']) .home:not(.state-on) .connection-hero {
   top:0; transform:translate3d(0,calc(var(--hero-midpoint,194px) - 50%),0);
   transition:transform .72s var(--ease);
 }
-[data-platform='android'] .state-on .connection-hero { top:0; transform:translate3d(0,0,0); }
-[data-platform='android'] .shell.has-update .state-on .connection-hero { transform:scale(.9); transform-origin:top center; }
-[data-platform='android'] .home,[data-platform='android'] .loc,[data-platform='android'] .prefs { animation-duration:.24s; }
-[data-platform='android'] .tabs-thumb,[data-platform='android'] .seg-thumb { transition-duration:.3s; }
-[data-platform='android'] .state-on .aura { animation:none; }
-[data-platform='android'] button { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-[data-platform='android'] .locations .row { content-visibility:auto; contain-intrinsic-size:60px; }
+:is([data-platform='android'],[data-platform='ios']) .state-on .connection-hero { top:0; transform:translate3d(0,0,0); }
+:is([data-platform='android'],[data-platform='ios']) .shell.has-update .state-on .connection-hero { transform:scale(.9); transform-origin:top center; }
+:is([data-platform='android'],[data-platform='ios']) .home,:is([data-platform='android'],[data-platform='ios']) .loc,:is([data-platform='android'],[data-platform='ios']) .prefs { animation-duration:.24s; }
+:is([data-platform='android'],[data-platform='ios']) .tabs-thumb,:is([data-platform='android'],[data-platform='ios']) .seg-thumb { transition-duration:.3s; }
+:is([data-platform='android'],[data-platform='ios']) .state-on .aura { animation:none; }
+:is([data-platform='android'],[data-platform='ios']) button { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+:is([data-platform='android'],[data-platform='ios']) .locations .row { content-visibility:auto; contain-intrinsic-size:60px; }
 /* Chrome 83 supports grid gap but predates flex gap and inset. */
 @supports not (inset:0) {
-  [data-platform='android'] .mark .ico { margin-right:8px; }
-  [data-platform='android'] .pill > .flag,[data-platform='android'] .pill-add { margin-right:11px; }
-  [data-platform='android'] .source-picker > svg:first-child { margin-inline-end:8px; }
-  [data-platform='android'] .search > svg { margin-inline-end:8px; }
-  [data-platform='android'] .loc-head > .icon-btn { margin-inline-start:8px; }
-  [data-platform='android'] .auto-option + .auto-option { margin-inline-start:8px; }
-  [data-platform='android'] .auto-option > svg:first-child { margin-inline-end:7px; }
-  [data-platform='android'] .group-head > .flag { margin-inline-end:10px; }
-  [data-platform='android'] .group-head .ms-tag { margin-inline:10px; }
-  [data-platform='android'] .subscriptions-list > * + * { margin-top:10px; }
-  [data-platform='android'] .check-row .tick { margin-inline-end:8px; }
-  [data-platform='android'] .drop-ms { margin-top:3px; }
-  [data-platform='android'] .ms i { margin-left:5px; }
-  [data-platform='android'] .chips.traffic > div + div { margin-inline-start:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .mark .ico { margin-right:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .pill > .flag,:is([data-platform='android'],[data-platform='ios']) .pill-add { margin-right:11px; }
+  :is([data-platform='android'],[data-platform='ios']) .source-picker > svg:first-child { margin-inline-end:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .search > svg { margin-inline-end:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .loc-head > .icon-btn { margin-inline-start:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .auto-option + .auto-option { margin-inline-start:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .auto-option > svg:first-child { margin-inline-end:7px; }
+  :is([data-platform='android'],[data-platform='ios']) .group-head > .flag { margin-inline-end:10px; }
+  :is([data-platform='android'],[data-platform='ios']) .group-head .ms-tag { margin-inline:10px; }
+  :is([data-platform='android'],[data-platform='ios']) .subscriptions-list > * + * { margin-top:10px; }
+  :is([data-platform='android'],[data-platform='ios']) .check-row .tick { margin-inline-end:8px; }
+  :is([data-platform='android'],[data-platform='ios']) .drop-ms { margin-top:3px; }
+  :is([data-platform='android'],[data-platform='ios']) .ms i { margin-left:5px; }
+  :is([data-platform='android'],[data-platform='ios']) .chips.traffic > div + div { margin-inline-start:8px; }
 }
 @media (max-height:720px) {
-  [data-platform='android'] .home-stage { flex-basis:438px; }
+  :is([data-platform='android'],[data-platform='ios']) .home-stage { flex-basis:438px; }
 }
 @media (max-height:600px) {
-  [data-platform='android'] .bar { height:40px; min-height:40px; }
-  [data-platform='android'] .home { overflow:auto; }
-  [data-platform='android'] .home-stage { flex:1 0 388px; max-height:388px; }
-  [data-platform='android'] .tabs { margin-bottom:6px; }
-  [data-platform='android'] .state-on .connection-hero { transform:scale(.9); transform-origin:top center; }
-  [data-platform='android'] .home .connection-details { top:204px; }
+  :is([data-platform='android'],[data-platform='ios']) .bar { height:40px; min-height:40px; }
+  :is([data-platform='android'],[data-platform='ios']) .home { overflow:auto; }
+  :is([data-platform='android'],[data-platform='ios']) .home-stage { flex:1 0 388px; max-height:388px; }
+  :is([data-platform='android'],[data-platform='ios']) .tabs { margin-bottom:6px; }
+  :is([data-platform='android'],[data-platform='ios']) .state-on .connection-hero { transform:scale(.9); transform-origin:top center; }
+  :is([data-platform='android'],[data-platform='ios']) .home .connection-details { top:204px; }
 }
 @media (prefers-reduced-motion:reduce) {
-  [data-platform='android'] .connection-hero,
-  [data-platform='android'] .connection-details > * { transition:none; }
+  :is([data-platform='android'],[data-platform='ios']) .connection-hero,
+  :is([data-platform='android'],[data-platform='ios']) .connection-details > * { transition:none; }
 }
 @media (orientation:landscape) and (max-height:500px) {
-  [data-platform='android'] .bar { height:32px; min-height:32px; }
-  [data-platform='android'] .home-stage { flex-basis:388px; }
-  [data-platform='android'] .account { overflow:auto; justify-content:flex-start; }
+  :is([data-platform='android'],[data-platform='ios']) .bar { height:32px; min-height:32px; }
+  :is([data-platform='android'],[data-platform='ios']) .home-stage { flex-basis:388px; }
+  :is([data-platform='android'],[data-platform='ios']) .account { overflow:auto; justify-content:flex-start; }
 }

@@ -6,7 +6,10 @@ Linux x64 and ARM64 desktop packages are implemented in `linux`; see
 `docs/linux.md` for installation, builds and verification limits.
 macOS ARM64 and x64 desktop bundles are implemented in `macos`; see
 `docs/macos.md` for DMG/ZIP builds, network permissions and signing limits.
-iOS is planned, not yet shipped.
+iOS has a native WKWebView host and Packet Tunnel extension in `ios`; see
+`docs/ios.md`. Device archives are unsigned developer outputs until Apple
+provisioning and actual iPhone VPN validation are available; iOS is not yet a
+publicly installable release.
 
 ## Shared application layer
 
@@ -29,7 +32,7 @@ local to the device, with platform secure storage for VPN credentials.
 | macOS | Implemented Electron host, Keychain storage, native Authorization Services network helper, Xray and sing-box `utun` lease. Initial bundles are ad-hoc signed, not notarized. |
 | Linux | Implemented Electron host, GNOME/KDE proxy integration, Xray transports and a Polkit-authorized sing-box TUN lease with IPv4/IPv6/DNS. |
 | Android | Implemented Java/WebView host, `VpnService`, foreground notification, Android permission flow, Xray library and hev-socks5-tunnel. |
-| iOS | Apple Network Extension / Packet Tunnel Provider, VPN entitlement, signed app/extension and supported core libraries. |
+| iOS | Implemented WKWebView host, Network Extension / Packet Tunnel Provider, embedded Xray/hev and public packet-flow adapter. Apple signing and real-device VPN validation remain required. |
 
 macOS and iOS signing/builds require an appropriate Apple development environment
 and entitlements; the Windows helper cannot provide these. Android and iOS need

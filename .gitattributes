@@ -8,3 +8,7 @@ scripts/*macos*.sh text eol=lf
 macos/native/* text eol=lf
 macos/tests/*.sh text eol=lf
 .github/workflows/*.yml text eol=lf
+ios/**/*.swift text eol=lf
+ios/**/*.go text eol=lf
+ios/*.yml text eol=lf
+scripts/*ios*.sh text eol=lf

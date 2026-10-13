@@ -84,9 +84,9 @@ export default function Settings({ settings, favoriteIps, saved, elevated, onTog
         <div className="pref pref-stack">
           <span className="pref-text">
             <b>{t('set.mode')}</b>
-            <span>{t(platform === 'android' ? 'set.androidModeSub' : blocked ? 'set.modeNeedsAdmin' : 'set.modeSub')}</span>
+            <span>{t(platform === 'ios' ? 'set.iosModeSub' : platform === 'android' ? 'set.androidModeSub' : blocked ? 'set.modeNeedsAdmin' : 'set.modeSub')}</span>
           </span>
-          <Segment
+          {platform !== 'ios' && <Segment
             gooId="vyrax-seg-mode"
             value={mode}
             onChange={onMode}
@@ -94,7 +94,7 @@ export default function Settings({ settings, favoriteIps, saved, elevated, onTog
               { id: 'proxy', label: t('set.modeProxy') },
               { id: 'tun', label: t('set.modeTun') }
             ]}
-          />
+          />}
         </div>
       </div>
 
@@ -145,7 +145,7 @@ export default function Settings({ settings, favoriteIps, saved, elevated, onTog
 
       <RoutePref settings={settings} settingKey="splitTunneling" listKey="splitAddresses" opposite="bypassSites" title="set.split" desc="set.splitSub" onChange={onChange} />
       <RoutePref settings={settings} settingKey="bypassSites" listKey="bypassAddresses" opposite="splitTunneling" title="set.bypass" desc="set.bypassSub" onChange={onChange} />
-      <div className="pref-group">
+      {platform !== 'ios' && <div className="pref-group">
         <Pref title={t('set.proxyShare')} desc={t('set.proxyShareSub')}>
           <Toggle on={!!settings.proxyShare} label={t('set.proxyShare')} onClick={() => onToggle('proxyShare')} />
         </Pref>
@@ -156,7 +156,7 @@ export default function Settings({ settings, favoriteIps, saved, elevated, onTog
           </> : <p className="pref-foot">{t('set.shareConnect')}</p>}
           <p className="pref-foot">{t('set.sharePrivate')}</p>
         </div>}
-      </div>
+      </div>}
     </fieldset>
   );
 }
