@@ -18,9 +18,10 @@ proxy transports; sing-box and Wintun provide TUN support. VLESS, VMess, Trojan
 and Shadowsocks configs can be imported as individual or grouped subscriptions.
 Automatic and balanced routing stay inside the selected group.
 
-Android, iOS, macOS and Linux are planned. The current Windows native host cannot
-be compiled unchanged for those platforms. See [the platform plan](docs/platforms.md)
-for the shared interface and the required platform VPN services.
+Android uses a separate Java/WebView host with Android VPN services. Builds cover
+`arm64-v8a`, `armeabi-v7a` and a universal APK; see [Android build details](docs/android.md)
+for requirements, behavior and testing limits. iOS, macOS and Linux are planned.
+See [the platform plan](docs/platforms.md) for their required VPN services.
 
 ## Windows build
 

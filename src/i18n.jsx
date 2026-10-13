@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import I18nContext from './i18n-context.js';
+import { platform, call } from './bridge.js';
 
 export const LANGS = [
   { id: 'en', label: 'English', short: 'EN' },
@@ -8,6 +9,8 @@ export const LANGS = [
 
 const STRINGS = {
   en: {
+    'set.androidModeSub': 'VPN covers the device. Proxy creates local SOCKS/HTTP endpoints for apps configured to use them.',
+    'err.vpnPermission': 'VPN permission was not granted.',
     'about.free': 'Free and open source, made by Amyrax.',
     'about.telegram': 'Telegram channel',
     'about.source': 'Source on GitHub',
@@ -270,6 +273,8 @@ const STRINGS = {
   },
 
   fa: {
+    'set.androidModeSub': 'VPN ترافیک دستگاه را پوشش می‌دهد. پروکسی یک اتصال محلی SOCKS/HTTP برای برنامه‌هایی می‌سازد که آن را تنظیم کنید.',
+    'err.vpnPermission': 'اجازهٔ اتصال VPN داده نشد.',
     'about.free': 'رایگان و متن‌باز، ساخته‌شده توسط Amyrax.',
     'about.telegram': 'کانال تلگرام',
     'about.source': 'کد منبع در گیت‌هاب',
@@ -539,7 +544,7 @@ function read() {
   } catch {
     /* بی‌اهمیت */
   }
-  return 'en';
+  return platform === 'android' && navigator.language.startsWith('fa') ? 'fa' : 'en';
 }
 
 export function I18nProvider({ children }) {
@@ -548,6 +553,7 @@ export function I18nProvider({ children }) {
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    if (platform === 'android') call('language', { language:lang }).catch(() => {});
     try {
       localStorage.setItem('vyrax-lang', lang);
     } catch {

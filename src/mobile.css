@@ -1,0 +1,57 @@
+/* The shared screens fill the Android content area, including tablets/rotation. */
+[data-platform='android'] .frame::before { display:none; }
+[data-platform='android'] .frame { padding:0; top:0; right:0; bottom:0; left:0; }
+[data-platform='android'] .shell {
+  width:100%; height:100%; max-width:560px; max-height:none;
+  border-radius:0; box-shadow:none; margin:auto; overflow:hidden;
+}
+[data-platform='android'] .bar { height:48px; min-height:48px; touch-action:auto; justify-content:center; padding:0 20px; }
+[data-platform='android'] .bar .mark { font-size:16px; }
+[data-platform='android'] .home { padding-top:8px; }
+[data-platform='android'] .home-stage { flex:1 1 auto; min-height:388px; }
+[data-platform='android'] .pill-liquid { flex:none; margin-top:6px; }
+[data-platform='android'] .home:not(.state-on) .connection-hero { top:50%; transform:translateY(-50%); }
+[data-platform='android'] .state-on .connection-hero { top:10px; }
+[data-platform='android'] .tabs { margin-bottom:12px; }
+[data-platform='android'] input,[data-platform='android'] textarea { font-size:16px; }
+[data-platform='android'] .search input { font-size:13px; }
+[data-platform='android'] .row-act { opacity:1; }
+[data-platform='android'] .row-act button { min-width:32px; min-height:36px; }
+[data-platform='android'] .sheet-close { width:36px; height:36px; }
+[data-platform='android'] .home .connection-details { top:240px; }
+[data-platform='android'] .connection-hero,[data-platform='android'] .connection-details { left:0; right:0; }
+[data-platform='android'] .tabs-liquid,[data-platform='android'] .tabs-thumb-layer { top:0; right:0; bottom:0; left:0; }
+[data-platform='android'] .tabs-row { top:7px; right:7px; bottom:7px; left:7px; }
+[data-platform='android'] [data-gooey-svg],[data-platform='android'] [data-gooey-overlay] { top:0; left:0; }
+[data-platform='android'] .sheet-backdrop { top:0; right:0; bottom:0; left:0; }
+[data-platform='android'] .sheet-close { right:16px; }
+[data-platform='android'][dir='rtl'] .sheet-close { right:auto; left:16px; }
+[data-platform='android'] .shell.has-update .home-stage { flex:1 1 auto; }
+[data-platform='android'] .shell.has-update .home .connection-details { top:220px; }
+/* Chrome 83 supports grid gap but predates flex gap and inset. */
+@supports not (inset:0) {
+  [data-platform='android'] .mark .ico { margin-right:8px; }
+  [data-platform='android'] .pill > .flag,[data-platform='android'] .pill-add { margin-right:11px; }
+  [data-platform='android'] .source-picker > svg:first-child { margin-inline-end:8px; }
+  [data-platform='android'] .search > svg { margin-inline-end:8px; }
+  [data-platform='android'] .loc-head > .icon-btn { margin-inline-start:8px; }
+  [data-platform='android'] .auto-option + .auto-option { margin-inline-start:8px; }
+  [data-platform='android'] .auto-option > svg:first-child { margin-inline-end:7px; }
+  [data-platform='android'] .group-head > .flag { margin-inline-end:10px; }
+  [data-platform='android'] .group-head .ms-tag { margin-inline:10px; }
+  [data-platform='android'] .subscriptions-list > * + * { margin-top:10px; }
+  [data-platform='android'] .check-row .tick { margin-inline-end:8px; }
+}
+@media (max-height:650px) {
+  [data-platform='android'] .bar { height:40px; min-height:40px; }
+  [data-platform='android'] .home { overflow:auto; }
+  [data-platform='android'] .home-stage { flex:0 0 388px; }
+  [data-platform='android'] .tabs { height:60px; margin-bottom:6px; }
+  [data-platform='android'] .state-on .connection-hero { transform:scale(.9); transform-origin:top center; }
+  [data-platform='android'] .home .connection-details { top:220px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  [data-platform='android'] .bar { height:32px; min-height:32px; }
+  [data-platform='android'] .home-stage { flex-basis:388px; }
+  [data-platform='android'] .account { overflow:auto; justify-content:flex-start; }
+}

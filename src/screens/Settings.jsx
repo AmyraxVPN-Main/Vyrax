@@ -4,6 +4,7 @@ import { Toggle } from '../ui.jsx';
 import Segment from '../components/Segment.jsx';
 import { useI18n } from '../i18n.jsx';
 import LanguagePicker from '../components/LanguagePicker.jsx';
+import { platform } from '../bridge.js';
 
 const TOP = [
   ['autoConnect', 'set.autoConnect', 'set.autoConnectSub'],
@@ -83,7 +84,7 @@ export default function Settings({ settings, favoriteIps, saved, elevated, onTog
         <div className="pref pref-stack">
           <span className="pref-text">
             <b>{t('set.mode')}</b>
-            <span>{t(blocked ? 'set.modeNeedsAdmin' : 'set.modeSub')}</span>
+            <span>{t(platform === 'android' ? 'set.androidModeSub' : blocked ? 'set.modeNeedsAdmin' : 'set.modeSub')}</span>
           </span>
           <Segment
             gooId="vyrax-seg-mode"

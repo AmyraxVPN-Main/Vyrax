@@ -69,7 +69,7 @@ export function subscriptionMetadata(response, url, previousName = '') {
   const plain = /(?:^|;)\s*filename\s*=\s*(?:"([^"\r\n]+)"|([^;\r\n]+))/i.exec(disposition);
   let filename = encoded || plain?.[1] || plain?.[2];
   if (filename) {
-    filename = subscriptionName(filename, url).split(/[\\/]/).at(-1).replace(/\.(?:txt|json|ya?ml|conf)$/i, '');
+    filename = subscriptionName(filename, url).split(/[\\/]/).pop().replace(/\.(?:txt|json|ya?ml|conf)$/i, '');
     candidate(filename, 'provider');
   }
   if (previousName) candidate(subscriptionName(previousName, url), 'saved');

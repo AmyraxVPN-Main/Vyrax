@@ -35,16 +35,16 @@ export default function SubscriptionSheet({ subscriptions, profiles, activeId, o
     catch { setQrError(true); }
   }
   function keyboard(e) {
-    if (e.key === 'Escape') { e.preventDefault(); if (qr) setQr(null); else if (!busy) onClose(); }
+    if (e.key === 'Escape') { e.preventDefault(); if (qr) setQr(null); else onClose(); }
     if (e.key !== 'Tab') return;
     const items = [...dialog.current.querySelectorAll('button:not(:disabled), input, textarea')].filter(el => el.offsetParent !== null);
-    if (e.shiftKey && document.activeElement === items[0]) { e.preventDefault(); items.at(-1)?.focus(); }
-    else if (!e.shiftKey && document.activeElement === items.at(-1)) { e.preventDefault(); items[0]?.focus(); }
+    if (e.shiftKey && document.activeElement === items[0]) { e.preventDefault(); items[items.length - 1]?.focus(); }
+    else if (!e.shiftKey && document.activeElement === items[items.length - 1]) { e.preventDefault(); items[0]?.focus(); }
   }
-  return <div className="sheet-backdrop" onClick={() => { if (!busy) onClose(); }} role="presentation">
+  return <div className="sheet-backdrop" onClick={onClose} role="presentation">
     <section className="sheet subscriptions-sheet" role="dialog" aria-modal="true" aria-label={t('sub.title')} ref={dialog} onClick={e => e.stopPropagation()} onKeyDown={keyboard}>
       <b className="sheet-title">{qr ? t('sub.qr') : t('sub.title')}</b>
-      <button className="sheet-close" aria-label={t('win.close')} disabled={busy} onClick={onClose}><X size={16} /></button>
+      <button className="sheet-close" aria-label={t('win.close')} onClick={onClose}><X size={16} /></button>
       {qr ? <div className="qr-share">
         <b>{qr.name}</b><img src={qr.image} width="224" height="224" alt={t('sub.qr')} />
         <textarea value={qr.content} readOnly aria-label={t(isLocalSubscription(qr) ? 'sub.configs' : 'sub.link')} spellCheck={false} />
@@ -68,8 +68,8 @@ export default function SubscriptionSheet({ subscriptions, profiles, activeId, o
               </button>
               <div className="sub-actions">
                 {!local && <button className={refreshingId === sub.id ? 'spin' : ''} disabled={busy} aria-busy={refreshingId === sub.id} aria-label={`${t('sub.refresh')} · ${sub.name}`} onClick={() => onRefresh(sub)}><RefreshCw size={15} /></button>}
-                <button disabled={busy || !count} aria-label={`${t(local ? 'sub.copyConfigs' : 'sub.copy')} · ${sub.name}`} onClick={() => onCopy(sub)}><Copy size={15} /></button>
-                <button disabled={busy || !count} aria-label={`${t('sub.qr')} · ${sub.name}`} onClick={() => showQr(sub)}><QrCode size={15} /></button>
+                <button disabled={!count} aria-label={`${t(local ? 'sub.copyConfigs' : 'sub.copy')} · ${sub.name}`} onClick={() => onCopy(sub)}><Copy size={15} /></button>
+                <button disabled={!count} aria-label={`${t('sub.qr')} · ${sub.name}`} onClick={() => showQr(sub)}><QrCode size={15} /></button>
                 <button className={arming === sub.id ? 'armed' : ''} disabled={busy} aria-label={`${t(arming === sub.id ? 'sub.confirmDelete' : 'sub.delete')} · ${sub.name}`} onClick={() => { if (arming === sub.id) { onDelete(sub); setArming(''); } else setArming(sub.id); }}><Trash2 size={15} />{arming === sub.id && <span>{t('sub.confirmDelete')}</span>}</button>
               </div>
             </article>;

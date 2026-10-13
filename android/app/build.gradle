@@ -1,0 +1,59 @@
+import groovy.json.JsonSlurper
+
+plugins { id 'com.android.application' }
+def appPackage = new JsonSlurper().parse(file('../../package.json'))
+android {
+    namespace 'com.amyrax.vyrax'
+    compileSdk 35
+    buildToolsVersion '35.0.0'
+    defaultConfig {
+        applicationId 'com.amyrax.vyrax'
+        minSdk 29
+        targetSdk 35
+        versionCode 18
+        versionName appPackage.version
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    signingConfigs {
+        owner {
+            if (System.getenv('VYRAX_ANDROID_KEYSTORE')) {
+                storeFile file(System.getenv('VYRAX_ANDROID_KEYSTORE'))
+                storePassword System.getenv('VYRAX_ANDROID_STORE_PASSWORD')
+                keyAlias System.getenv('VYRAX_ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('VYRAX_ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv('VYRAX_ANDROID_KEYSTORE')) signingConfig signingConfigs.owner
+            // The release build requires the owner's private signing key.
+            // Local debug APKs use a persistent, workspace-external development key.
+        }
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk true
+        }
+    }
+    packaging { jniLibs { useLegacyPackaging false } }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures { buildConfig true }
+    testOptions { unitTests.returnDefaultValues = true }
+}
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation files('../../vendor/android/libv2ray.aar')
+    implementation files('../../vendor/android/hev-socks5-tunnel.aar')
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}

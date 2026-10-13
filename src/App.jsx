@@ -12,7 +12,7 @@ import Locations from './screens/Locations.jsx';
 import Settings from './screens/Settings.jsx';
 import Account from './screens/Account.jsx';
 import { INITIAL_STATE, DEMO_PROFILES } from './data.js';
-import { native, call, subscribe } from './bridge.js';
+import { native, call, subscribe, platform } from './bridge.js';
 import { useI18n } from './i18n.jsx';
 import { parseImport, mergeProfiles } from './lib/profiles.mjs';
 import { needsGeo, countryOf, protoLabel, cleanName } from './lib/geo.js';
@@ -58,6 +58,19 @@ export default function App() {
   const metadataAsked = useRef(new Set());
   const subscriptionRequests = useRef(new Map());
 
+  useEffect(() => {
+    if (platform !== 'android') return undefined;
+    function back() {
+      if (adding) setAdding(false);
+      else if (subscriptionsOpen) setSubscriptionsOpen(false);
+      else if (aboutOpen) setAboutOpen(false);
+      else if (page !== 'home') setPage('home');
+      else call('minimize').catch(() => {});
+    }
+    window.addEventListener('vyrax-back', back);
+    return () => window.removeEventListener('vyrax-back', back);
+  }, [adding, subscriptionsOpen, aboutOpen, page]);
+
   function fetchSubscriptionResponse(url) {
     const pending = subscriptionRequests.current.get(url);
     if (pending) return pending;
@@ -96,7 +109,15 @@ export default function App() {
         setLoaded(true);
         if (!started.current) {
           started.current = true;
-          call('ready', {}, { timeout: 240000 }).catch((e) => flash(t('home.notConnected'), hostError(e)));
+          call('ready', {}, { timeout: 240000 }).then(snapshot => {
+            if (!alive || !snapshot || platform !== 'android') return;
+            if (snapshot.profileId) setSelectedId(snapshot.profileId);
+            if (snapshot.selectionMode) setSelectionMode(snapshot.selectionMode);
+            const since = Date.parse(snapshot.since);
+            setState(current => ({ ...current, connected:snapshot.status === 'connected', connecting:snapshot.status === 'connecting',
+              uptime:Number.isFinite(since) ? Math.max(0,Math.floor((Date.now()-since)/1000)) : 0,
+              exit:snapshot.exit || null, share:snapshot.share || null }));
+          }).catch((e) => flash(t('home.notConnected'), hostError(e)));
         }
       })
       .catch(e => flash(t('sub.error'), hostError(e)));
@@ -660,7 +681,7 @@ export default function App() {
 
         {subscriptionsOpen && <SubscriptionSheet subscriptions={subscriptions} profiles={profiles} activeId={activeSourceId}
           onSelect={id => selectRoute(selectionMode, null, id)} onRefresh={refreshSubscription} onDelete={deleteSubscription} onCopy={copySubscription}
-          onAdd={() => {setSubscriptionsOpen(false);setAdding(true);}} onClose={() => setSubscriptionsOpen(false)} refreshingId={refreshingId} busy={busy || selectionBusy || state.connecting || checking} />}
+          onAdd={() => {setSubscriptionsOpen(false);setAdding(true);}} onClose={() => setSubscriptionsOpen(false)} refreshingId={refreshingId} busy={busy || selectionBusy || state.connecting} />}
 
         {adding && (
           <AddSheet

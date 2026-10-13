@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        if (System.getenv('VYRAX_GOOGLE_MAVEN_MIRROR')) maven { url System.getenv('VYRAX_GOOGLE_MAVEN_MIRROR') }
+        else google()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        if (System.getenv('VYRAX_GOOGLE_MAVEN_MIRROR')) maven { url System.getenv('VYRAX_GOOGLE_MAVEN_MIRROR') }
+        else google()
+    }
+}
+rootProject.name = 'Vyrax'
+include ':app'

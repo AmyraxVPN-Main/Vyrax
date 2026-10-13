@@ -20,8 +20,8 @@ export default function AboutSheet({ onClose, onLink, updates }) {
     if (e.key === 'Escape') { e.preventDefault();onClose(); }
     if (e.key !== 'Tab') return;
     const items = [...dialog.current.querySelectorAll('button:not(:disabled), a[href], textarea, [tabindex="0"]')];
-    if (e.shiftKey && document.activeElement === items[0]) { e.preventDefault();items.at(-1)?.focus(); }
-    else if (!e.shiftKey && document.activeElement === items.at(-1)) { e.preventDefault();items[0]?.focus(); }
+    if (e.shiftKey && document.activeElement === items[0]) { e.preventDefault();items[items.length - 1]?.focus(); }
+    else if (!e.shiftKey && document.activeElement === items[items.length - 1]) { e.preventDefault();items[0]?.focus(); }
   }
   const link = (target, icon, title, detail) => <a className="about-link" href={links[target]} onClick={e => { e.preventDefault();onLink(target); }}>
     {icon}<span><b>{title}</b><small><bdi>{detail}</bdi></small></span><ArrowUpRight size={16} />

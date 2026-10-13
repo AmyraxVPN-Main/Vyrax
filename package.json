@@ -1,12 +1,15 @@
 {
   "name": "vyrax",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "private": true,
   "license": "MIT",
   "author": "Amyrax",
-  "repository": { "type":"git", "url":"https://github.com/AmyraxVPN-Main/Vyrax.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AmyraxVPN-Main/Vyrax.git"
+  },
   "type": "module",
-  "description": "Vyrax — کلاینت ویندوز",
+  "description": "Vyrax — free and open-source VPN client",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5273",
     "build": "vite build",

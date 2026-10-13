@@ -7,6 +7,7 @@ release/
 .inspect/
 vendor/*
 !vendor/versions.json
+!vendor/android-versions.json
 .tools/*
 !.tools/selftest/
 !.tools/parse-test.mjs
@@ -26,3 +27,11 @@ profiles*.json
 last-tunnel*
 *.zip
 *.nupkg
+android/.gradle/
+android/**/build/
+android/local.properties
+android/app/src/main/assets/
+*.apk
+*.aab
+*.keystore
+*.jks

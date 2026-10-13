@@ -38,3 +38,20 @@ Full npm dependency notices are shipped in `licenses`. Build-tool dependencies
 retain the licenses listed in their packages and are not relicensed by Vyrax.
 The full flag-icons copyright and MIT license for the SVG assets in `public/flags`
 also accompany the source tree in `third_party/flag-icons-MIT.txt`.
+
+## Android package
+
+- AndroidLibXrayLite 26.10.10: LGPL version 3. The native library embeds Xray-core
+  26.10.10, whose source is covered by MPL 2.0. Both retain upstream copyrights.
+  Source: https://github.com/2dust/AndroidLibXrayLite/tree/v26.10.10 and
+  https://github.com/XTLS/Xray-core/tree/v26.10.10 .
+- hev-socks5-tunnel 2.18.0: MIT, Copyright (c) hev. Source:
+  https://github.com/heiher/hev-socks5-tunnel/tree/2.18.0 .
+- AndroidX WebKit 1.12.1 and AndroidX support dependencies: Apache License 2.0.
+  Android System WebView is provided by the device and is not bundled.
+
+Full Android library license texts are in `third_party/android` and included in
+the APK's license assets. Pinned AAR hashes are in `vendor/android-versions.json`.
+The application code remains MIT. Android binaries must be accompanied by the
+corresponding library source and relinking/build instructions required by LGPL,
+including the application source; the Android build accepts replacement AARs.

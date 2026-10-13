@@ -7,6 +7,7 @@ export default defineConfig({
   server: { host: '127.0.0.1', port: 5273, strictPort: false },
   build: {
     target: 'es2022',
+    cssTarget: 'chrome80',
     sourcemap: false,
     outDir: 'dist',
     emptyOutDir: true,
