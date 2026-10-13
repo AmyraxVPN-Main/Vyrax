@@ -17,8 +17,8 @@
 }
 
 /* Native Chromium drag regions work on X11 and Wayland. */
-[data-platform='linux'] .bar { -webkit-app-region: drag; }
-[data-platform='linux'] .bar button { -webkit-app-region: no-drag; }
+[data-platform='linux'] .bar,[data-platform='macos'] .bar { -webkit-app-region: drag; }
+[data-platform='linux'] .bar button,[data-platform='macos'] .bar button { -webkit-app-region: no-drag; }
 
 * {
   box-sizing: border-box;
@@ -89,18 +89,21 @@ input {
 /* در نسخهٔ نصب‌شده، پنجره بومی است: کاغذدیواری نمایشی را برمی‌داریم
    و بدنه تمام پنجره را می‌گیرد (گوشه‌های گرد کارِ خود ویندوز است). */
 [data-platform='webview2'] .frame::before,
+[data-platform='macos'] .frame::before,
 [data-platform='linux'] .frame::before,
 [data-platform='tauri'] .frame::before {
   display: none;
 }
 
 [data-platform='webview2'] .frame,
+[data-platform='macos'] .frame,
 [data-platform='linux'] .frame,
 [data-platform='tauri'] .frame {
   padding: 0;
 }
 
 [data-platform='webview2'] .shell,
+[data-platform='macos'] .shell,
 [data-platform='linux'] .shell,
 [data-platform='tauri'] .shell {
   width: 100%;

@@ -7,6 +7,8 @@ const { pathToFileURL } = require('node:url');
 const root = path.resolve(__dirname,'..');
 protocol.registerSchemesAsPrivileged([{ scheme:'vyrax',privileges:{ standard:true,secure:true,supportFetchAPI:true } }]);
 app.setName('Vyrax');app.setAppUserModelId('com.amyrax.vyrax');
+// Each desktop test gets a separate store; production always uses the OS path.
+if(!app.isPackaged&&process.env.VYRAX_TEST_USER_DATA)app.setPath('userData',path.resolve(process.env.VYRAX_TEST_USER_DATA));
 if (process.getuid?.()===0) { console.error('Run the desktop as your regular user. TUN requests its own permission.');app.exit(1); }
 if (!app.requestSingleInstanceLock()) app.exit(0);
 let window,tray,backend,quitting=false,shutdown=false;
@@ -19,7 +21,7 @@ app.on('before-quit',event => {
 });
 for (const signal of ['SIGTERM','SIGINT']) process.on(signal,() => app.quit());
 app.whenReady().then(async () => {
-  const [{ Backend,fetchText },{ Store },{ projectLinks }] = await Promise.all([import('./backend.mjs'),import('./store.mjs'),import('../src/lib/releases.mjs')]);
+  const [{ Backend,fetchText },{ Store },{ projectLinks }] = await Promise.all([import(process.platform==='darwin' ? '../macos/backend.mjs' : './backend.mjs'),import('./store.mjs'),import('../src/lib/releases.mjs')]);
   const project=JSON.parse(await fs.readFile(path.join(root,'project.json'),'utf8'));
   const version=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8')).version;
   const links=projectLinks(project);
@@ -34,7 +36,7 @@ app.whenReady().then(async () => {
     headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
     return new Response(response.body,{ status:response.status,headers });
   });
-  const store=new Store(path.join(app.getPath('userData'),'data'),safeStorage);await store.init();
+  const store=new Store(path.join(app.getPath('userData'),'data'),safeStorage);store.requireEncryption=process.platform==='darwin';await store.init();
   window=new BrowserWindow({ width:380,height:646,minWidth:360,minHeight:620,frame:false,resizable:true,backgroundColor:'#121311',title:'Vyrax',icon:path.join(root,'ui','vyrax-icon.png'),webPreferences:{ preload:path.join(__dirname,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true,devTools:!app.isPackaged } });
   window.webContents.setWindowOpenHandler(() => ({ action:'deny' }));
   window.webContents.on('will-navigate',(event,url) => { if (url!=='vyrax://app/index.html') event.preventDefault(); });
@@ -58,7 +60,7 @@ app.whenReady().then(async () => {
     try { return await actions[action](args); } catch (e) { throw Error(e.message?.startsWith('err.') ? e.message : 'err.unknown'); }
   });
   try {
-    tray=new Tray(path.join(root,'ui','vyrax-icon.png'));tray.setToolTip('Vyrax');
+    tray=new Tray(path.join(root,'ui',process.platform==='darwin' ? 'trayTemplate.png' : 'vyrax-icon.png'));tray.setToolTip('Vyrax');
     tray.setContextMenu(Menu.buildFromTemplate([{ label:'Vyrax',click:show },{ label:'Disconnect',click:() => void backend.disconnect() },{ type:'separator' },{ label:'Quit',click:() => app.quit() }]));
     tray.on('click',() => window.isVisible() && window.isFocused() ? window.hide() : show());
   } catch { /* Desktops without a tray close cleanly instead of hiding forever. */ }

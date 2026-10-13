@@ -140,8 +140,8 @@ export class Backend {
         if (settings.mode==='tun') { this.state('stage.admin');await this.startTun(ports.socks,settings.mtu,controller.signal);this.state('stage.tunnel');await verify(0,{ signal:controller.signal,localAddress:'172.28.0.1' }); }
         else {
           this.state('stage.proxy');await this.proxy.enable(ports.http,ports.socks);
-          this.proxyLease=spawn(process.execPath,[path.join(path.dirname(fileURLToPath(import.meta.url)),'proxy-lease.mjs'),String(process.pid),this.store.root],{ env:{ ...process.env,ELECTRON_RUN_AS_NODE:'1' },stdio:'ignore' });
-          this.proxyLease.on('error',() => {});
+          this.proxyLease=this.startProxyLease();
+          this.proxyLease?.on('error',() => {});
         }
         controller.signal.throwIfAborted();this.status='connected';this.since=new Date().toISOString();this.activeTargets=[this.profileId];this.exit=net.isIP(built.selection.selected.host) ? built.selection.selected.host : '';
         if (ports.share) this.share={ port:ports.share,hosts:ports.shareHosts };
@@ -183,6 +183,9 @@ export class Backend {
       child.once('exit',code => done(reject)(Error(code===126||code===127 ? 'err.adminDeclined' : 'err.tunnelFailed')));
       child.once('error',() => done(reject)(Error('err.adminDeclined')));
     });
+  }
+  startProxyLease() {
+    return spawn(process.execPath,[path.join(path.dirname(fileURLToPath(import.meta.url)),'proxy-lease.mjs'),String(process.pid),this.store.root],{ env:{ ...process.env,ELECTRON_RUN_AS_NODE:'1' },stdio:'ignore' });
   }
   async command(verb,args=[]) { const { stdout }=await exec(path.join(this.nativeRoot,'cores','xray'),['api',verb,`--server=127.0.0.1:${this.ports.api}`,'--timeout=3',...args],{ timeout:5000,maxBuffer:262144 });return stdout; }
   select(profiles,selectedId,mode,source) {
@@ -238,7 +241,7 @@ export class Backend {
         try { return await subscriptionThroughCore(url,this.ports.subscription,4); }
         catch (e) { if (['err.tooBig','err.subUrl'].includes(e.message)) throw e;return await subscriptionThroughCore(url,this.ports.probe,12); }
       }
-      const { response,text }=await fetchText(this.transport,url,{ headers:{ 'User-Agent':'Vyrax (Linux; v2ray)','Accept':'*/*' } });
+      const { response,text }=await fetchText(this.transport,url,{ headers:{ 'User-Agent':`Vyrax (${process.platform==='darwin'?'macOS':'Linux'}; v2ray)`,'Accept':'*/*' } });
       return { text,title:response.headers.get('profile-title'),userInfo:response.headers.get('subscription-userinfo'),disposition:response.headers.get('content-disposition') };
     } catch (e) { throw Error(['err.tooBig','err.subUrl'].includes(e.message) ? e.message : 'err.subFailed'); }
   }

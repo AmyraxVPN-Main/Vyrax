@@ -1,0 +1,44 @@
+name: macOS builds and checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Native build and package
+        run: bash scripts/build-macos.sh '${{ matrix.arch }}'
+      - name: Shared and permission lifecycle checks
+        run: node --test linux/tests/config.test.mjs macos/tests/backend.test.mjs
+      - name: Disposable macOS network integration
+        run: node macos/tests/network.mjs '${{ matrix.arch }}'
+      - name: Install isolated UI test dependency
+        run: npm install --prefix macos/build/test-tools --no-audit --no-fund playwright-core@1.64.0
+      - name: Sandboxed desktop UI
+        run: node macos/tests/desktop.mjs '${{ matrix.arch }}'
+      - name: Upload packages, exact core sources and verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vyrax-macos-${{ matrix.arch }}
+          path: release/macos-*/
+          if-no-files-found: error
+          retention-days: 14

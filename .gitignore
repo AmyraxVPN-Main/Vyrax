@@ -9,8 +9,10 @@ vendor/*
 !vendor/versions.json
 !vendor/android-versions.json
 !vendor/linux-versions.json
+!vendor/macos-versions.json
 linux/node_modules/
 linux/build/
+macos/build/
 .tools/*
 !.tools/selftest/
 !.tools/parse-test.mjs

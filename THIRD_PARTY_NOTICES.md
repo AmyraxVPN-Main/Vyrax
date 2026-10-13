@@ -11,9 +11,10 @@ Vyrax does not relicense the components below.
 - sing-box 1.14.3: GNU GPL version 3 or later, with its upstream name/association
   notice. Source: https://github.com/SagerNet/sing-box/tree/v1.14.3
 
-Windows and Linux ship the corresponding platform builds of these separate
-executables. Linux runtime pins are in `vendor/linux-versions.json`. The Linux
-release includes exact core source archives and build/replacement instructions
+Windows, Linux and macOS ship their corresponding builds of these separate
+executables. Desktop runtime pins are in `vendor/linux-versions.json` and
+`vendor/macos-versions.json`. The Linux and macOS packages include exact core
+source archives and build/replacement instructions
 alongside the packages. Windows-only components follow:
 
 - Wintun 0.14.1: upstream prebuilt-binaries license. The driver is distributed
@@ -52,6 +53,17 @@ also accompany the source tree in `third_party/flag-icons-MIT.txt`.
   Source: https://github.com/electron/electron/tree/v44.7.0 .
 - Python 3, curl, Polkit and desktop settings utilities are system dependencies,
   not bundled interpreters/libraries. They keep their distributions' licenses.
+
+## macOS desktop host
+
+- Electron 44.7.0: MIT, with Chromium notices in
+  `licenses/LICENSES.chromium.html`. Source:
+  https://github.com/electron/electron/tree/v44.7.0 .
+- Foundation, AppKit, Security, SystemConfiguration, libproc and the system curl
+  are macOS SDK/system dependencies, not redistributed Apple SDK libraries.
+- Vyrax's native permission/process/network helpers are MIT licensed,
+  Copyright (c) 2026 Amyrax. Ad-hoc signatures do not change core licenses;
+  rebuilding and re-signing with replacement cores requires no publisher key.
 
 ## Android native components
 

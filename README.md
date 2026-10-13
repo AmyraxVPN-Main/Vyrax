@@ -25,7 +25,11 @@ for requirements, behavior and testing limits.
 Linux desktop packages are available as `.deb` and portable `.tar.gz` for x64 and
 ARM64. The Electron host shares the same interface and uses Xray plus a
 Polkit-authorized sing-box TUN helper. See [Linux installation/build details](docs/linux.md).
-iOS and macOS are planned.
+macOS ARM64 (Apple Silicon) and x64 (Intel) use the same desktop interface with
+native authorization, Keychain storage and a leased `utun` helper. Build outputs
+are DMG/ZIP packages; see [macOS installation/build details](docs/macos.md),
+including the initial ad-hoc signing and notarization limitation.
+iOS is planned.
 See [the platform plan](docs/platforms.md) for their required VPN services.
 
 ## Windows build
