@@ -60,6 +60,20 @@ try{
   }finally{clearInterval(heartbeat);owner.kill();lease.stdin.end('stop\n');}
   const rejected=await exec(path.join(nativeRoot,'vyrax-authorize'),['tun','2',String(process.getuid()),'23450','0','1280']).then(()=>false,()=>true);
   assert.equal(rejected,true);report.unauthorizedCallerRejected=true;
+  // Force-kill the root helper: its independent C lease must stop sing-box.
+  const crashed=spawn('sudo',['-n',path.join(nativeRoot,'vyrax-network'),'tun',String(process.pid),String(process.getuid()),'23450','0','1280'],{stdio:['pipe','pipe','pipe']});
+  crashed.stdin.on('error',()=>{});let crashText='';crashed.stdout.on('data',b=>{crashText+=b;});
+  const crashBeat=setInterval(()=>{if(!crashed.stdin.destroyed)crashed.stdin.write('alive\n');},500);
+  try{
+    for(let i=0;i<100&&!/VYRAX_NETWORK_PID=\d+/.test(crashText);i++)await pause(100);
+    const pid=crashText.match(/VYRAX_NETWORK_PID=(\d+)/)?.[1];assert.ok(pid,'Root helper must become ready');
+    await exec('sudo',['-n','/bin/kill','-9',pid]);
+    for(let i=0;i<150&&Object.values(os.networkInterfaces()).flat().some(v=>v.address==='172.28.0.1');i++)await pause(100);
+    assert.ok(!Object.values(os.networkInterfaces()).flat().some(v=>v.address==='172.28.0.1'));report.rootHelperCrashStopsTunnel=true;
+  }finally{clearInterval(crashBeat);crashed.stdin.end('stop\n');}
+  // The next authorized lease restores the root-owned DNS rollback journal.
+  await backend.startNetwork('proxy',23450,23451,1280);await backend.stopProxy();
+  assert.deepEqual(await state(),before);report.crashJournalRecovered=true;
   report.passed=true;console.log(JSON.stringify(report,null,2));
 }catch(error){console.error('Mac synthetic network test failed:',error.message);if(backend)console.error(backend.logs.join('\n'));throw error;}
 finally{

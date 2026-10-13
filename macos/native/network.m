@@ -17,6 +17,7 @@
 static NSString *const journal=@"/var/run/com.amyrax.vyrax-network.rollback";
 static volatile sig_atomic_t quitting=0;
 static void stop(int signalNumber){quitting=1;}
+#include "tunnel-lease.h"
 static void require(BOOL valid){if(!valid)@throw [NSException exceptionWithName:@"Vyrax" reason:@"Network operation failed" userInfo:nil];}
 static void saveJournal(NSArray *entries){
     NSData *data=[NSJSONSerialization dataWithJSONObject:entries options:0 error:nil];require(data!=nil);
@@ -89,7 +90,7 @@ static NSString *copyCore(NSString *base,NSString *folder){
     NSString *file=[folder stringByAppendingPathComponent:@"sing-box"];require([binary writeToFile:file options:NSDataWritingAtomic error:nil]);require(chmod(file.fileSystemRepresentation,0700)==0);return file;
 }
 int main(int argc,char **argv){@autoreleasepool{
-    int result=1,lock=-1;SCPreferencesRef preferences=NULL;NSTask *child=nil;NSString *folder=nil;
+    int result=1,lock=-1,status=0;pid_t child=-1;SCPreferencesRef preferences=NULL;NSString *folder=nil;
     @try {
         require(argc==7&&geteuid()==0);BOOL tun=!strcmp(argv[1],"tun");require(tun||!strcmp(argv[1],"proxy"));
         pid_t parent=(pid_t)number(argv[2],2,INT_MAX);uid_t uid=(uid_t)number(argv[3],1,INT_MAX);int socks=(int)number(argv[4],1,65535),http=(int)number(argv[5],0,65535),mtu=(int)number(argv[6],1280,1500);
@@ -103,22 +104,22 @@ int main(int argc,char **argv){@autoreleasepool{
             NSString *core=copyCore(base,folder),*config=[folder stringByAppendingPathComponent:@"tun.json"];
             NSDictionary *value=tunConfig(socks,mtu,[base stringByAppendingPathComponent:@"cores/xray"]);
             require([[NSJSONSerialization dataWithJSONObject:value options:0 error:nil] writeToFile:config options:NSDataWritingAtomic error:nil]);require(chmod(config.fileSystemRepresentation,0600)==0);
-            child=[NSTask new];child.executableURL=[NSURL fileURLWithPath:core];child.arguments=@[@"run",@"-c",config];child.standardInput=NSFileHandle.fileHandleWithNullDevice;require([child launchAndReturnError:nil]);
+            child=launchTunnel(core.fileSystemRepresentation,config.fileSystemRepresentation,lock);require(child>0);
         }
         struct pollfd input={STDIN_FILENO,POLLIN,0};NSMutableData *pending=[NSMutableData data];BOOL ready=NO;CFAbsoluteTime deadline=CFAbsoluteTimeGetCurrent()+10;
-        while(!quitting&&sameOwner(parent,&owner)&&(!child||child.running)){
+        while(!quitting&&sameOwner(parent,&owner)&&(!tun||tunnelRunning(&child,&status))){
             if(poll(&input,1,200)>0){
                 char bytes[4096];ssize_t count=read(STDIN_FILENO,bytes,sizeof(bytes));if(count<=0)break;
                 [pending appendBytes:bytes length:count];require(pending.length<=8192);
                 for(;;){const char *data=pending.bytes;const char *end=memchr(data,'\n',pending.length);if(!end)break;NSUInteger size=end-data;NSString *line=[[NSString alloc]initWithBytes:data length:size encoding:NSUTF8StringEncoding];[pending replaceBytesInRange:NSMakeRange(0,size+1) withBytes:NULL length:0];if([line isEqualToString:@"stop"]){quitting=1;break;}require([line isEqualToString:@"alive"]);deadline=CFAbsoluteTimeGetCurrent()+10;}
             }
             if(quitting||CFAbsoluteTimeGetCurrent()>deadline)break;
-            if(!ready&&(!tun||tunnelUp())){configure(preferences,tun,http,socks);puts("VYRAX_NETWORK_READY");fflush(stdout);ready=YES;}
+            if(!ready&&(!tun||tunnelUp())){configure(preferences,tun,http,socks);puts("VYRAX_NETWORK_READY");printf("VYRAX_NETWORK_PID=%d\n",getpid());fflush(stdout);ready=YES;}
         }
-        require(ready&&(!child||child.running||child.terminationStatus==0));result=0;
+        require(ready&&(!tun||child>0||(WIFEXITED(status)&&WEXITSTATUS(status)==0)));result=0;
     } @catch(NSException *error){fprintf(stderr,"err.tunnelFailed\n");}
     @finally {
-        if(child.running){[child terminate];for(int i=0;i<80&&child.running;i++)usleep(100000);if(child.running)kill(child.processIdentifier,SIGKILL);[child waitUntilExit];}
+        if(child>0){kill(child,SIGTERM);for(int i=0;i<100&&tunnelRunning(&child,&status);i++)usleep(100000);if(child>0){kill(child,SIGKILL);waitpid(child,&status,0);}}
         if(preferences){@try{recover(preferences);}@catch(NSException *error){result=1;fprintf(stderr,"err.proxyRestore\n");puts("VYRAX_NETWORK_RESTORE_FAILED");}CFRelease(preferences);}
         if(folder)[NSFileManager.defaultManager removeItemAtPath:folder error:nil];if(lock>=0)close(lock);
     }printf("VYRAX_NETWORK_EXIT=%d\n",result);fflush(stdout);return result;

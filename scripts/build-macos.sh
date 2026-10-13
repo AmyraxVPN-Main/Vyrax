@@ -55,10 +55,7 @@ swift scripts/macos-tray.swift "$res/app/ui"
 identity="${VYRAX_MAC_SIGN_IDENTITY:--}"
 sign() { codesign --force --sign "$identity" --options runtime --entitlements macos/entitlements.plist "$1"; }
 # Sign inner code first. The root helper pins the final signed sing-box bytes.
-while IFS= read -r -d '' file; do
-  if file -b "$file" | grep -q 'Mach-O'; then sign "$file"; fi
-done < <(find "$app/Contents" -type f ! -path '*/Contents/MacOS/*' -print0)
-while IFS= read -r bundle; do sign "$bundle"; done < <(find "$app/Contents/Frameworks" -depth \( -name '*.framework' -o -name '*.app' \) -type d)
+python3 scripts/sign-macos.py "$app" "$identity"
 hash=$(shasum -a 256 "$res/native/cores/sing-box" | cut -d ' ' -f 1)
 printf '#define SINGBOX_SHA256 "%s"\n' "$hash" > "$stage/core-pins.h"
 flags=(-arch "$machine" -mmacosx-version-min=13.0 -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter)

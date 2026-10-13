@@ -25,7 +25,8 @@ HTTP, HTTPS and SOCKS proxies on enabled network services.
 
 On disconnect or a normal exit, the helper stops the tunnel and restores the
 previous DNS/proxy configuration. A parent identity and heartbeat lease also
-clean up after the main app crashes. A root-owned rollback journal is recovered
+clean up after the main app crashes. An independent native process lease stops
+sing-box if the privileged helper crashes. A root-owned rollback journal is recovered
 at the next authorized connection after a helper/system crash. If another app
 changes those preferences in the meantime, its changes are preserved.
 
