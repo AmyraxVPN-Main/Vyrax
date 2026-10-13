@@ -57,7 +57,9 @@ targets:
   VyraxTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [Tests]
+    sources:
+      - path: Tests
+        excludes: ['*.mjs', '*.c']
     dependencies:
       - target: Vyrax
     settings:

@@ -24,8 +24,9 @@ import WebKit
         }
         let platform=try await host.web.evaluateJavaScript("document.documentElement.dataset.platform") as? String
         XCTAssertEqual(platform,"ios")
-        XCTAssertEqual(try await host.web.evaluateJavaScript("document.querySelectorAll('.bar-btn').length") as? Int,0)
-        XCTAssertEqual(try await host.web.evaluateJavaScript("getComputedStyle(document.querySelector('.shell')).borderRadius") as? String,"0px")
+        let controls=try await host.web.evaluateJavaScript("document.querySelectorAll('.bar-btn').length") as? Int
+        let radius=try await host.web.evaluateJavaScript("getComputedStyle(document.querySelector('.shell')).borderRadius") as? String
+        XCTAssertEqual(controls,0);XCTAssertEqual(radius,"0px")
         let result=try await host.web.callAsyncJavaScript("""
         return await new Promise(resolve => {
           const original=window.__vyraxNativeEvent;
@@ -36,7 +37,8 @@ import WebKit
         XCTAssertEqual(result?["mode"] as? String,"tun");XCTAssertEqual(result?["proxyShare"] as? Bool,false)
         _=try await host.web.evaluateJavaScript("document.querySelectorAll('.tabs-row button')[2].click()")
         try await Task.sleep(nanoseconds:400_000_000)
-        XCTAssertEqual(try await host.web.evaluateJavaScript("document.querySelectorAll('.prefs .seg').length") as? Int,0)
-        XCTAssertFalse((try await host.web.evaluateJavaScript("document.querySelector('.prefs').innerText")) as? String == nil)
+        let modes=try await host.web.evaluateJavaScript("document.querySelectorAll('.prefs .seg').length") as? Int
+        let text=try await host.web.evaluateJavaScript("document.querySelector('.prefs').innerText") as? String
+        XCTAssertEqual(modes,0);XCTAssertNotNil(text)
     }
 }

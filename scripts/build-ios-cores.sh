@@ -46,16 +46,17 @@ for source in pathlib.Path('vendor/ios/hev/third-part').rglob('*'):
     if source.is_file() and source.name.lower().startswith(('license','copying')):
         shutil.copyfile(source,notices/('hev-'+str(source.relative_to('vendor/ios/hev')).replace('/','-')))
 PY
-for sdk in iphoneos iphonesimulator; do
-  if [[ "$sdk" == iphoneos ]]; then target=arm64-apple-ios16.0; else target=arm64-apple-ios16.0-simulator; fi
+for sdk in iphoneos iphonesimulator macosx; do
+  if [[ "$sdk" == iphoneos ]]; then target=arm64-apple-ios16.0; elif [[ "$sdk" == iphonesimulator ]]; then target=arm64-apple-ios16.0-simulator; else target=arm64-apple-macos13.0; fi
   path="$PWD/ios/build/$sdk"
   mkdir -p "$path/core-headers" "$path/hev-headers/HevSocks5Tunnel"
   sdkpath=$(xcrun --sdk "$sdk" --show-sdk-path)
   export GOOS=ios GOARCH=arm64 CGO_ENABLED=1
+  if [[ "$sdk" == macosx ]]; then export GOOS=darwin; fi
   export CC="xcrun --sdk $sdk clang"
   export CGO_CFLAGS="-target $target -isysroot $sdkpath"
   export CGO_LDFLAGS="$CGO_CFLAGS"
-  (cd ios/Engine && go build -trimpath -tags=ios -ldflags='-s -w' -buildmode=c-archive -o "$path/libVyraxCore.a" ./cmd)
+  (cd ios/Engine && go build -trimpath -tags="$GOOS" -ldflags='-s -w' -buildmode=c-archive -o "$path/libVyraxCore.a" ./cmd)
   cp "$path/libVyraxCore.h" "$path/core-headers/"
   printf 'module VyraxCore { header "libVyraxCore.h" export * }\n' > "$path/core-headers/module.modulemap"
   (cd vendor/ios/hev && make clean && make -j3 PP="xcrun --sdk $sdk clang" CC="xcrun --sdk $sdk clang" CFLAGS="$CGO_CFLAGS -O2" LFLAGS="$CGO_LDFLAGS" static)
@@ -64,5 +65,8 @@ for sdk in iphoneos iphonesimulator; do
   printf 'module HevSocks5Tunnel { header "hev-main.h" export * }\n' > "$path/hev-headers/HevSocks5Tunnel/module.modulemap"
 done
 unset GOOS GOARCH CGO_ENABLED CC CGO_CFLAGS CGO_LDFLAGS
+clang -O2 -I ios/build/macosx/core-headers -I ios/build/macosx/hev-headers/HevSocks5Tunnel ios/Tests/packet-flow.c ios/build/macosx/libVyraxCore.a ios/build/macosx/libHevSocks5Tunnel.a -framework Security -framework CoreFoundation -lresolv -o ios/build/packet-flow-test
+version=$(node -p 'require("./package.json").version')
+ios/build/packet-flow-test | tee "release/ios-$version/packet-flow-tests.txt"
 xcodebuild -create-xcframework -library ios/build/iphoneos/libVyraxCore.a -headers ios/build/iphoneos/core-headers -library ios/build/iphonesimulator/libVyraxCore.a -headers ios/build/iphonesimulator/core-headers -output ios/build/VyraxCore.xcframework
 xcodebuild -create-xcframework -library ios/build/iphoneos/libHevSocks5Tunnel.a -headers ios/build/iphoneos/hev-headers -library ios/build/iphonesimulator/libHevSocks5Tunnel.a -headers ios/build/iphonesimulator/hev-headers -output ios/build/HevSocks5Tunnel.xcframework

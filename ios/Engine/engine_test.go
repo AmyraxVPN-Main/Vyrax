@@ -29,8 +29,12 @@ func TestSubscriptionsAndLiveProbes(t *testing.T){
  if len(nodes)!=1||len(probeRefs)!=0{t.Fatal("probe handlers leaked")}
  blocked:=invokeTest(t,"delay",map[string]any{"protocol":"blackhole"})
  if blocked["error"]!=nil||blocked["result"].(map[string]any)["latency"]!=nil{t.Fatal("delay must fail for blocked outbound")}
- // Atomically replace routing while preserving the running instance.
- if r:=invokeTest(t,"select",config);r["error"]!=nil{t.Fatal(r)}
+ // Replace routing while requests are actively being dispatched; -race must
+ // catch unsynchronized upstream router mutations, not merely test startup.
+ var traffic sync.WaitGroup
+ traffic.Add(1);go func(){defer traffic.Done();for i:=0;i<20;i++{cl:=client(server,"",2_000_000_000);r,e:=cl.Get(endpoint.URL);if e!=nil{t.Error("live route switch interrupted requests")}else{r.Body.Close()};cl.CloseIdleConnections()}}()
+ for i:=0;i<20;i++{if r:=invokeTest(t,"select",config);r["error"]!=nil{t.Fatal(r)}}
+ traffic.Wait()
  result=invokeTest(t,"http",map[string]any{"url":endpoint.URL})
  if result["error"]!=nil{t.Fatal("subscription failed while core active")}
 }

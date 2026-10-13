@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Amyrax
 import { validatePreferences } from './preferences.mjs';
+import { sha256 } from './sha256.mjs';
 const isIP = value => { try { const host = new URL('http://' + (value.includes(':') ? '[' + value + ']' : value)).hostname; return host.startsWith('[') || /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host); } catch { return false; } };
 
 export const PROBE_URL = 'https://www.gstatic.com/generate_204';
@@ -40,7 +41,7 @@ export function outbound(p) {
   if (network === 'xhttp') streamSettings.xhttpSettings = { path:p.path || '/', host:p.wsHost || '', mode:p.mode || 'auto' };
   return { tag:'proxy', protocol, settings, streamSettings };
 }
-export const nodeTag = p => 'node-' + Array.from(new TextEncoder().encode(p.id), b => b.toString(16).padStart(2,'0')).join('');
+export const nodeTag = p => 'node-' + sha256(p.id + JSON.stringify(outbound(p))).slice(0,24);
 export function catalog(profiles) {
   if (!Array.isArray(profiles) || !profiles.length || profiles.length > 512 || new Set(profiles.map(p => p.id)).size !== profiles.length) throw Error('err.catalog');
   for (const p of profiles) { validate(p);if (typeof p.id !== 'string' || !p.id || p.id.length > 256) throw Error('err.catalog'); }

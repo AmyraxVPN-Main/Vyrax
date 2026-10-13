@@ -27,7 +27,7 @@ has Apple's eligibility, signing and geographic conditions.
 
 ## Build on macOS
 
-Install Xcode with an iOS SDK + simulator, Node 22, Go 1.26, Python 3 with Pillow
+Install Xcode with an iOS SDK + simulator, Node 22, Go 1.27, Python 3 with Pillow
 and XcodeGen. Run `bash scripts/build-ios.sh`, then `bash scripts/test-ios.sh`.
 The workflow `.github/workflows/ios.yml` performs these steps on a disposable
 ARM64 Mac runner without touching the owner's desktop VPN or private profiles.

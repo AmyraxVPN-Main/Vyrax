@@ -1,8 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { iosRequest, nodeTag } from '../../src/lib/ios-config.mjs';
+import { sha256 } from '../../src/lib/sha256.mjs';
+import { createHash } from 'node:crypto';
 const profile = {id:'one',sourceId:'sub',protocol:'vless',host:'example.test',port:443,uuid:'00000000-0000-4000-8000-000000000001',tls:true};
 const settings = {_catalog:[profile],_source:'sub',_selection:'manual',preferencesVersion:1};
+test('outbound identity preserves streams on display changes and replaces changed credentials',()=>{
+ for(const text of ['', 'abc', 'فارسی', 'a'.repeat(4097)]) assert.equal(sha256(text),createHash('sha256').update(text).digest('hex'));
+ assert.equal(nodeTag(profile),nodeTag({...profile,name:'new title'}));assert.notEqual(nodeTag(profile),nodeTag({...profile,port:8443}));
+});
 test('iOS retains transport settings and defaults to full-device VPN',()=>{
  const r=iosRequest('connect',{profile,settings});assert.equal(r.settings.mode,'tun');assert.equal(r.config.inbounds[0].listen,'127.0.0.1');assert.equal(r.config.outbounds[0].streamSettings.tlsSettings.serverName,'example.test');
  const reality=iosRequest('ping',{profile:{...profile,reality:true,publicKey:'test-key',sni:'cover.test',transport:'xhttp',path:'/tunnel',mode:'packet-up'}});
