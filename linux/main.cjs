@@ -8,7 +8,7 @@ const root = path.resolve(__dirname,'..');
 protocol.registerSchemesAsPrivileged([{ scheme:'vyrax',privileges:{ standard:true,secure:true,supportFetchAPI:true } }]);
 app.setName('Vyrax');app.setAppUserModelId('com.amyrax.vyrax');
 // Each desktop test gets a separate store; production always uses the OS path.
-if(!app.isPackaged&&process.env.VYRAX_TEST_USER_DATA)app.setPath('userData',path.resolve(process.env.VYRAX_TEST_USER_DATA));
+if(process.env.GITHUB_ACTIONS==='true'&&process.env.VYRAX_TEST_USER_DATA)app.setPath('userData',path.resolve(process.env.VYRAX_TEST_USER_DATA));
 if (process.getuid?.()===0) { console.error('Run the desktop as your regular user. TUN requests its own permission.');app.exit(1); }
 if (!app.requestSingleInstanceLock()) app.exit(0);
 let window,tray,backend,quitting=false,shutdown=false;
@@ -25,6 +25,7 @@ app.whenReady().then(async () => {
   const project=JSON.parse(await fs.readFile(path.join(root,'project.json'),'utf8'));
   const version=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8')).version;
   const links=projectLinks(project);
+  if(process.platform==='darwin')Menu.setApplicationMenu(Menu.buildFromTemplate([{role:'appMenu'},{role:'editMenu'},{role:'windowMenu'}]));
   protocol.handle('vyrax',async request => {
     const url=new URL(request.url);
     if (url.hostname!=='app' || !['GET','HEAD'].includes(request.method)) return new Response('',{ status:403 });

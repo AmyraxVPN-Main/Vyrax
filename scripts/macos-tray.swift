@@ -10,14 +10,17 @@ for scale in [1, 2] {
         colorSpaceName:.deviceRGB, bytesPerRow:0, bitsPerPixel:0)!
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep:bitmap)
-    let path = NSBezierPath()
-    path.move(to:NSPoint(x:CGFloat(3*scale), y:CGFloat(14*scale)))
-    path.line(to:NSPoint(x:CGFloat(9*scale), y:CGFloat(4*scale)))
-    path.line(to:NSPoint(x:CGFloat(15*scale), y:CGFloat(14*scale)))
-    path.lineWidth = CGFloat(2*scale)
-    path.lineCapStyle = .round
-    path.lineJoinStyle = .round
-    NSColor.black.setStroke(); path.stroke()
+    func mark(_ points: [(Double, Double)]) {
+        let path = NSBezierPath()
+        for (index, point) in points.enumerated() {
+            let mapped = NSPoint(x:CGFloat((1 + point.0 / 32 * 16) * Double(scale)),
+                                 y:CGFloat((14 - point.1 / 20 * 10) * Double(scale)))
+            if index == 0 { path.move(to:mapped) } else { path.line(to:mapped) }
+        }
+        path.close();NSColor.black.setFill();path.fill()
+    }
+    mark([(1,1),(11,1),(16,10),(21,1),(31,1),(18.6,19),(13.4,19)])
+    mark([(13.4,1),(18.6,1),(16,5.6)])
     NSGraphicsContext.restoreGraphicsState()
     let name = scale == 1 ? "trayTemplate.png" : "trayTemplate@2x.png"
     try bitmap.representation(using:.png, properties:[:])!.write(to:URL(fileURLWithPath:directory).appendingPathComponent(name))

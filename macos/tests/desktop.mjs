@@ -12,8 +12,8 @@ const appdir=path.resolve(`macos/build/${arch}/Vyrax.app`),temporary=await fs.mk
 const output=path.resolve(`release/macos-${version}`),sockets=new Set();
 const stalled=net.createServer(socket=>{sockets.add(socket);socket.on('error',()=>{});socket.on('close',()=>sockets.delete(socket));});
 await new Promise(resolve=>stalled.listen(0,'127.0.0.1',resolve));
-const app=await _electron.launch({ executablePath:path.join(appdir,'Contents/MacOS/Vyrax'),args:[path.resolve('macos/tests/desktop-entry.cjs')],chromiumSandbox:true,
-  env:{...process.env,VYRAX_TEST_USER_DATA:temporary,VYRAX_TEST_APP_ROOT:path.join(appdir,'Contents/Resources/app'),ELECTRON_ENABLE_LOGGING:'1'} });
+const app=await _electron.launch({ executablePath:path.join(appdir,'Contents/MacOS/Vyrax'),chromiumSandbox:true,
+  env:{...process.env,VYRAX_TEST_USER_DATA:temporary,ELECTRON_ENABLE_LOGGING:'1'} });
 try{
   const page=await app.firstWindow(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.waitForSelector('.shell');await page.waitForTimeout(500);
