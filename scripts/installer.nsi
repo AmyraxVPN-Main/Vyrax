@@ -5,7 +5,7 @@
 !include "LogicLib.nsh"
 
 !define APPNAME    "Vyrax"
-!define APPVERSION "0.1.20"
+!define APPVERSION "0.1.21"
 !ifndef APPDIR
 !define APPDIR "..\release\Vyrax"
 !endif
@@ -26,10 +26,10 @@ Unicode true
 !define MUI_FINISHPAGE_RUN_TEXT "Run Vyrax now"
 !define MUI_FINISHPAGE_RUN_FUNCTION LaunchVyrax
 
-VIProductVersion "0.1.20.0"
+VIProductVersion "0.1.21.0"
 VIAddVersionKey /LANG=1033 "ProductName" "Vyrax"
 VIAddVersionKey /LANG=1033 "FileDescription" "Vyrax Installer"
-VIAddVersionKey /LANG=1033 "FileVersion" "0.1.20"
+VIAddVersionKey /LANG=1033 "FileVersion" "0.1.21"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) 2026 Amyrax"
 
 !insertmacro MUI_PAGE_DIRECTORY

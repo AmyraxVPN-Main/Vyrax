@@ -15,12 +15,47 @@ public class NativeSmokeTest {
     private JSONObject profile(){return Jsons.obj("id","test-only","protocol","vless","uuid","00000000-0000-4000-8000-000000000001","host","127.0.0.1","port",22539,"transport","tcp","sourceId","test-only");}
     @Test public void libraryStartsForAllRoutingModes()throws Exception{
         android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
-        VpnEngine.get(context).init();assertTrue(Libv2ray.checkVersionX().contains("26.10.10"));
+        VpnEngine.get(context).init();assertTrue(Libv2ray.checkVersionX().contains("26.3.27"));
         for(String mode:new String[]{"manual","fastest","balance"}){
             CoreController core=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
             JSONObject p=profile(),settings=Jsons.obj("_catalog",Jsons.arr(p),"_selection",mode,"_source","test-only");
             try{core.startLoop(XrayConfig.build(p,settings,VpnEngine.freePort(),VpnEngine.freePort(),0).toString(),0);assertTrue(core.getIsRunning());}
             finally{core.stopLoop();}
+        }
+    }
+    @Test public void publicPlaintextProfilesBuildAcrossProtocolsAndTransports()throws Exception{
+        VpnEngine.get(InstrumentationRegistry.getInstrumentation().getTargetContext()).init();
+        for(String protocol:new String[]{"vless","vmess","trojan","shadowsocks"})for(String transport:new String[]{"tcp","ws","grpc","httpupgrade","xhttp"}){
+            JSONObject p=profile();p.put("host","198.51.100.2");p.put("protocol",protocol);p.put("transport",transport);p.put("password","synthetic-test-password");p.put("method","aes-128-gcm");
+            CoreController core=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
+            try{core.startLoop(XrayConfig.probe(p,VpnEngine.freePort()).toString(),0);assertTrue(protocol+"/"+transport,core.getIsRunning());}
+            finally{core.stopLoop();}
+        }
+    }
+    @Test public void authenticatedDelayWorksAcrossProtocolTransportMatrix()throws Exception{
+        VpnEngine engine=VpnEngine.get(InstrumentationRegistry.getInstrumentation().getTargetContext());int index=0;
+        for(String protocol:new String[]{"vless","vmess","trojan","shadowsocks"})for(String transport:new String[]{"tcp","ws","grpc","httpupgrade","xhttp"}){
+            JSONObject p=profile();p.put("protocol",protocol);p.put("transport",transport);p.put("port",22550+index++);
+            p.put("password","synthetic-test-password");p.put("method","aes-128-gcm");p.put("path","/fixture");p.put("serviceName","fixture");
+            JSONObject result=(JSONObject)engine.delay(p,"http://vyrax-fixture.example/generate_204").get(12,java.util.concurrent.TimeUnit.SECONDS);
+            assertFalse(protocol+"/"+transport+" must carry an authenticated HEAD",result.isNull("latency"));
+        }
+    }
+    @Test public void automaticModesRoutePastDeadFirstProfile()throws Exception{
+        VpnEngine engine=VpnEngine.get(InstrumentationRegistry.getInstrumentation().getTargetContext());engine.init();
+        JSONObject dead=profile(),healthy=profile();dead.put("id","dead");dead.put("port",22541);healthy.put("id","healthy");
+        for(String mode:new String[]{"fastest","balance"}){
+            int port=VpnEngine.freePort();JSONObject config=XrayConfig.build(healthy,Jsons.obj("_catalog",Jsons.arr(dead,healthy),"_source","test-only","_selection",mode),0,port,0);
+            config.getJSONObject("observatory").put("probeURL","http://vyrax-fixture.example/generate_204");
+            CoreController core=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
+            try{
+                core.startLoop(config.toString(),0);
+                java.net.Proxy proxy=new java.net.Proxy(java.net.Proxy.Type.HTTP,new java.net.InetSocketAddress("127.0.0.1",port));
+                assertNotNull(mode+" must start on the chosen reachable profile",DelayProbe.measure(proxy,"http://vyrax-fixture.example/generate_204",1500));
+                Thread.sleep(300);
+                assertNotNull(mode+" must keep routing new connections",DelayProbe.measure(proxy,"http://vyrax-fixture.example/generate_204",1500));
+                assertTrue("legacy traffic API retains counters",core.queryStats("node-1","downlink")>0);
+            }finally{core.stopLoop();}
         }
     }
     @Test public void encryptedStoreRoundTrip()throws Exception{
@@ -31,7 +66,7 @@ public class NativeSmokeTest {
         finally{store.save(original);}
     }
     @Test public void tunLibraryLoads(){assertFalse(hev.htproxy.TProxyService.TProxyIsRunning());assertEquals(4,hev.htproxy.TProxyService.TProxyGetStats().length);}
-    @Test public void urlDelayReusesTunnelAndRejectsHttpErrors()throws Exception{
+    @Test public void urlDelayReusesTunnelAndAcceptsTargetResponses()throws Exception{
         VpnEngine engine=VpnEngine.get(InstrumentationRegistry.getInstrumentation().getTargetContext());
         Long warm=DelayProbe.measure(java.net.Proxy.NO_PROXY,"http://127.0.0.1:23040/warm",8000);
         assertNotNull(warm);assertTrue("warm measurement: "+warm,warm>=1&&warm<250);
@@ -40,7 +75,7 @@ public class NativeSmokeTest {
         JSONObject proxied=(JSONObject)engine.delay(profile(),"http://vyrax-fixture.example/warm").get(12,java.util.concurrent.TimeUnit.SECONDS);
         assertTrue(proxied.getLong("latency")>=1);
         JSONObject failed=(JSONObject)engine.delay(profile(),"http://vyrax-fixture.example/error").get(12,java.util.concurrent.TimeUnit.SECONDS);
-        assertTrue("503 is not a working profile",failed.isNull("latency"));
+        assertTrue("target HTTP status still measures a working route",failed.getLong("latency")>0);
         JSONObject bad=profile();bad.put("uuid","00000000-0000-4000-8000-000000000099");
         assertTrue(((JSONObject)engine.delay(bad,"http://vyrax-fixture.example/warm").get(12,java.util.concurrent.TimeUnit.SECONDS)).isNull("latency"));
     }

@@ -5,28 +5,28 @@ libraries retain their own copyright and license. The Android release directory
 includes exact upstream source archives for AndroidLibXrayLite and Xray-core,
 plus full license notices inside the APK. Keep those files with binary distributions.
 
-Pinned native sources for the 0.1.18–0.1.20 builds:
+Pinned native sources for the 0.1.21 Android build:
 
 | Component | Source commit | License |
 | --- | --- | --- |
-| AndroidLibXrayLite 26.10.10 | `0a02333081243df017453ccb432ad3cafcfd69e3` | LGPL-3.0 |
-| Xray-core 26.10.10 | `701af60772cda123492f86e383e1fdba066614a9` | MPL-2.0 |
+| AndroidLibXrayLite 26.3.27 | `880725442c1d4023a973ccbcdbf527c89ef83a32` | LGPL-3.0 |
+| Xray-core 26.3.27 | `d2758a023cd7f4174a5a5fa4ff66e487d4342ba0` | MPL-2.0 |
 | hev-socks5-tunnel 2.18.0 | `d9dca26c7ad0e494492244f0309e80ee583e739e` | MIT |
 
 AndroidLibXrayLite's exact Go module dependencies are pinned by `go.mod` and
 `go.sum` in its source archive. Go downloads those source modules and checks
 their recorded hashes. Its upstream build workflow is included in the archive.
-The original native build uses Go 1.27, Android NDK 29.0.14206865, gomobile and
+The original native build uses Go 1.26, Android NDK 28.2.13676358, gomobile and
 Android SDK. For a modified library, extract the archive, make changes, then:
 
 ```sh
-go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20260908204917-8b95e45f8d3e
+go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20260312152759-81488f6aeb60
 gomobile init
 mkdir -p assets data
 bash gen_assets.sh download
 cp data/*.dat assets/
 go mod download
-gomobile bind -v -androidapi 24 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' ./
+gomobile bind -v -androidapi 24 -trimpath -ldflags='-s -w -buildid=' ./
 ```
 
 To link a modified, interface-compatible AAR into Vyrax, replace

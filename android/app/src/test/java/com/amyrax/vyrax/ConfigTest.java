@@ -25,6 +25,22 @@ public class ConfigTest {
         assertFalse(config.has("observatory"));assertFalse(config.getJSONObject("routing").has("balancers"));
         assertEquals("proxy",config.getJSONArray("outbounds").getJSONObject(0).getString("tag"));
     }
+    @Test public void automaticFallbackUsesTheChosenHealthyProfile()throws Exception{
+        JSONObject dead=profile(),healthy=profile();dead.put("id","dead");healthy.put("id","healthy");
+        for(String mode:new String[]{"fastest","balance"}){
+            JSONObject config=XrayConfig.build(healthy,Jsons.obj("_catalog",Jsons.arr(dead,healthy),"_source","one","_selection",mode),10808,10809,0);
+            assertEquals("node-1",config.getJSONObject("routing").getJSONArray("balancers").getJSONObject(0).getString("fallbackTag"));
+        }
+    }
+    @Test public void realityDefaultsMatchDesktopForMissingAndEmptyFingerprint()throws Exception{
+        JSONObject p=profile();p.put("reality",true);p.put("sni","example.test");p.put("publicKey","synthetic-key");
+        for(String fingerprint:new String[]{null,"","firefox"}){
+            if(fingerprint==null)p.remove("fingerprint");else p.put("fingerprint",fingerprint);
+            JSONObject settings=XrayConfig.outbound(p,"proxy").getJSONObject("streamSettings").getJSONObject("realitySettings");
+            assertEquals(fingerprint==null||fingerprint.isEmpty()?"chrome":fingerprint,settings.getString("fingerprint"));
+            assertEquals("synthetic-key",settings.getString("publicKey"));
+        }
+    }
     @Test public void firstLaunchUsesTunAndKeepsExplicitMode(){
         assertEquals("tun",Preferences.normalize(null).optString("mode"));
         assertEquals("proxy",Preferences.normalize(Jsons.obj("mode","proxy")).optString("mode"));
@@ -33,6 +49,7 @@ public class ConfigTest {
         JSONObject probe=XrayConfig.probe(profile(),12345);
         assertFalse(probe.has("stats"));assertFalse(probe.has("policy"));
         assertFalse(probe.getJSONArray("inbounds").getJSONObject(0).has("sniffing"));
+        assertEquals("socks",probe.getJSONArray("inbounds").getJSONObject(0).getString("protocol"));
         assertEquals("proxy",probe.getJSONObject("routing").getJSONArray("rules").getJSONObject(0).getString("outboundTag"));
     }
     @Test public void splitRoutingKeepsDnsInProxy()throws Exception{

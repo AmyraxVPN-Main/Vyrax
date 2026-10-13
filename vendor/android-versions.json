@@ -1,4 +1,4 @@
 [
-  { "name":"AndroidLibXrayLite", "version":"26.10.10", "file":"libv2ray.aar", "url":"https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.10.10/libv2ray.aar", "sha256":"15db760bfbc24c0492ee997784b48a7b5e1bc5032950d617cd252fc2195f7ac7", "license":"LGPL-3.0", "source":"https://github.com/2dust/AndroidLibXrayLite/tree/v26.10.10" },
+  { "name":"AndroidLibXrayLite", "version":"26.3.27", "file":"libv2ray.aar", "url":"https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.3.27/libv2ray.aar", "sha256":"aac45dfc31e8c85fce14641afac9a1747fc88938bcf4bcaa5de005147880baa9", "license":"LGPL-3.0", "source":"https://github.com/2dust/AndroidLibXrayLite/tree/v26.3.27" },
   { "name":"hev-socks5-tunnel", "version":"2.18.0", "file":"hev-socks5-tunnel.aar", "url":"https://github.com/heiher/hev-socks5-tunnel/releases/download/2.18.0/hev-socks5-tunnel.aar", "sha256":"15ec8ed121663b562c99caa5bb602d1009f24e5b09e733438b81988f12feaaab", "license":"MIT", "source":"https://github.com/heiher/hev-socks5-tunnel/tree/2.18.0" }
 ]

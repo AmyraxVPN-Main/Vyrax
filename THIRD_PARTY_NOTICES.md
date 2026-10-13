@@ -55,10 +55,10 @@ also accompany the source tree in `third_party/flag-icons-MIT.txt`.
 
 ## Android native components
 
-- AndroidLibXrayLite 26.10.10: LGPL version 3. The native library embeds Xray-core
-  26.10.10, whose source is covered by MPL 2.0. Both retain upstream copyrights.
-  Source: https://github.com/2dust/AndroidLibXrayLite/tree/v26.10.10 and
-  https://github.com/XTLS/Xray-core/tree/v26.10.10 .
+- AndroidLibXrayLite 26.3.27: LGPL version 3. The native library embeds Xray-core
+  26.3.27, whose source is covered by MPL 2.0. Both retain upstream copyrights.
+  Source: https://github.com/2dust/AndroidLibXrayLite/tree/v26.3.27 and
+  https://github.com/XTLS/Xray-core/tree/v26.3.27 .
 - hev-socks5-tunnel 2.18.0: MIT, Copyright (c) hev. Source:
   https://github.com/heiher/hev-socks5-tunnel/tree/2.18.0 .
 - AndroidX WebKit 1.12.1 and AndroidX support dependencies: Apache License 2.0.

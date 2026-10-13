@@ -13,11 +13,24 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const corePath = process.env.VYRAX_TEST_XRAY || join(root, 'vendor/xray/xray.exe');
 const output = mkdtempSync(join(tmpdir(), 'vyrax-android-fixture-'));
 const configPath = join(output, 'xray.json');
+const matrix=[];
+for(const protocol of ['vless','vmess','trojan','shadowsocks'])for(const transport of ['tcp','ws','grpc','httpupgrade','xhttp']){
+  const settings=protocol==='vless'||protocol==='vmess'
+    ?{ clients:[{id:'00000000-0000-4000-8000-000000000001'}],...(protocol==='vless'?{decryption:'none'}:{}) }
+    :protocol==='trojan'?{ clients:[{password:'synthetic-test-password'}] }
+    :{method:'aes-128-gcm',password:'synthetic-test-password',network:'tcp,udp'};
+  const streamSettings={network:transport,security:'none'};
+  if(transport==='ws')streamSettings.wsSettings={path:'/fixture'};
+  if(transport==='httpupgrade')streamSettings.httpupgradeSettings={path:'/fixture'};
+  if(transport==='grpc')streamSettings.grpcSettings={serviceName:'fixture'};
+  if(transport==='xhttp')streamSettings.xhttpSettings={path:'/fixture',mode:'auto'};
+  matrix.push({listen:'127.0.0.1',port:22550+matrix.length,protocol,settings,streamSettings});
+}
 writeFileSync(configPath, JSON.stringify({
   log: { loglevel: 'none' },
   inbounds: [{ listen: '127.0.0.1', port: 22539, protocol: 'vless', settings: {
     clients: [{ id: '00000000-0000-4000-8000-000000000001' }], decryption: 'none'
-  } }],
+  } },...matrix],
   outbounds: [
     { tag: 'fixture', protocol: 'freedom', settings: { redirect: '127.0.0.1:23040' } },
     { tag: 'direct', protocol: 'freedom' }
@@ -54,5 +67,5 @@ server.listen(23040, '127.0.0.1', () => {
   core.on('error', error => { console.error(`Fixture core failed: ${error.code}`); stop(); process.exitCode = 1; });
   core.on('exit', code => { stop(); process.exitCode = code; });
   process.on('SIGINT', stop); process.on('SIGTERM', stop);
-  console.log('Synthetic Android fixture ready on loopback ports 22539, 23040 and 22541.');
+  console.log('Synthetic Android fixture ready on loopback ports 22539, 23040, 22541 and transport matrix 22550–22569.');
 });

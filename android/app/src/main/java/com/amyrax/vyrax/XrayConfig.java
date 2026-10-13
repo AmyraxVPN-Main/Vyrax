@@ -33,7 +33,7 @@ final class XrayConfig {
             if(!p.optString("fingerprint").isEmpty())put(tls,"fingerprint",p.optString("fingerprint"));
             put(stream,"tlsSettings",tls);
         }
-        if(p.optBoolean("reality"))put(stream,"realitySettings",Jsons.obj("serverName",p.optString("sni"),"fingerprint",p.optString("fingerprint","chrome"),"password",p.optString("publicKey"),"shortId",p.optString("shortId")));
+        if(p.optBoolean("reality"))put(stream,"realitySettings",Jsons.obj("serverName",p.optString("sni"),"fingerprint",p.optString("fingerprint").isEmpty()?"chrome":p.optString("fingerprint"),"password",p.optString("publicKey"),"publicKey",p.optString("publicKey"),"shortId",p.optString("shortId")));
         if(transport.equals("ws"))put(stream,"wsSettings",Jsons.obj("path",p.optString("path","/"),"headers",p.optString("wsHost").isEmpty()?new JSONObject():Jsons.obj("Host",p.optString("wsHost"))));
         if(transport.equals("grpc"))put(stream,"grpcSettings",Jsons.obj("serviceName",p.optString("serviceName"),"multiMode",false));
         if(transport.equals("httpupgrade"))put(stream,"httpupgradeSettings",Jsons.obj("path",p.optString("path","/"),"host",p.optString("wsHost")));
@@ -43,11 +43,12 @@ final class XrayConfig {
     static JSONObject build(JSONObject p,JSONObject raw,int socks,int http,int share){
         JSONObject options=Preferences.normalize(raw);String mode=options.optString("_selection","manual");
         if(!java.util.Arrays.asList("manual","fastest","balance").contains(mode))throw new IllegalArgumentException("err.config");
-        JSONArray outbounds=new JSONArray(),nodes=new JSONArray();
+        JSONArray outbounds=new JSONArray(),nodes=new JSONArray();String fallback="";
         JSONArray catalog=Jsons.array(options,"_catalog");String source=options.optString("_source");
         if(!mode.equals("manual"))for(int i=0;i<catalog.length();i++){
             JSONObject item=catalog.optJSONObject(i);if(item==null||!item.optString("sourceId").equals(source))continue;
             String tag="node-"+i;outbounds.put(outbound(item,tag));nodes.put(tag);
+            if(item.optString("id").equals(p.optString("id")))fallback=tag;
             if(nodes.length()>256)throw new IllegalArgumentException("err.tooBig");
         }
         if(nodes.length()==0){mode="manual";outbounds.put(outbound(p,"proxy"));}
@@ -73,14 +74,14 @@ final class XrayConfig {
         if(!mode.equals("manual")){
             JSONObject strategy=Jsons.obj("type",mode.equals("balance")?"leastLoad":"leastPing");
             if(mode.equals("balance"))put(strategy,"settings",Jsons.obj("expected",2));
-            put(routing,"balancers",Jsons.arr(Jsons.obj("tag","pool","selector",nodes,"fallbackTag",nodes.optString(0),"strategy",strategy)));
+            put(routing,"balancers",Jsons.arr(Jsons.obj("tag","pool","selector",nodes,"fallbackTag",fallback.isEmpty()?nodes.optString(0):fallback,"strategy",strategy)));
             put(result,"observatory",Jsons.obj("subjectSelector",nodes,"probeURL",PROBE_URL,"probeInterval","30s","enableConcurrency",true));
         }
         return result;
     }
     static JSONObject probe(JSONObject profile,int port){
         // A probe never follows LAN bypass/split rules or allocates traffic stats.
-        JSONObject config=build(profile,new JSONObject(),0,port,0);
+        JSONObject config=build(profile,new JSONObject(),port,0,0);
         config.remove("stats");config.remove("policy");
         put(config,"routing",Jsons.obj("rules",Jsons.arr(Jsons.obj("type","field","network","tcp,udp","outboundTag","proxy"))));
         JSONObject inbound=Jsons.array(config,"inbounds").optJSONObject(0);

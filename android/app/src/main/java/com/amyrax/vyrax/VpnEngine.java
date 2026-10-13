@@ -36,6 +36,7 @@ final class VpnEngine {
     volatile int httpPort,socksPort,sharePort;
     private boolean initialized;
     private CoreController core;
+    private JSONArray trafficOutbounds=new JSONArray();
     private long since,up,down,lastSample;
     JSONObject profile=new JSONObject(),options=new JSONObject();
     VyraxVpnService service;
@@ -57,11 +58,12 @@ final class VpnEngine {
                 status="connecting";state("stage.core","",false);init();
                 socksPort=freePort();httpPort=freePort();sharePort=options.optBoolean("proxyShare")?freePort():0;
                 core=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
-                core.startLoop(XrayConfig.build(profile,options,socksPort,httpPort,sharePort).toString(),0);
+                JSONObject config=XrayConfig.build(profile,options,socksPort,httpPort,sharePort);
+                trafficOutbounds=Jsons.array(config,"outbounds");core.startLoop(config.toString(),0);
                 if(!core.getIsRunning())throw new IllegalStateException("err.core");
                 state("stage.handshake","",false);
                 // An authenticated request must succeed before reporting Connected.
-                if(DelayProbe.measure(new Proxy(Proxy.Type.HTTP,new InetSocketAddress("127.0.0.1",httpPort)),XrayConfig.PROBE_URL,8000)==null)throw new IllegalStateException("err.core");
+                if(!verifyConnection())throw new IllegalStateException("err.core");
                 if(generation.get()!=token){stopCore();answer.complete(snapshot());return;}
                 if(mode.equals("tun"))host.establishTunnel(socksPort,options.optInt("mtu",1280));
                 if(generation.get()!=token){stopCore();answer.complete(snapshot());return;}
@@ -76,7 +78,11 @@ final class VpnEngine {
         try{
             if(core==null||!core.getIsRunning()||(mode.equals("tun")&&!hev.htproxy.TProxyService.TProxyIsRunning()))throw new IllegalStateException("err.tunStart");
             long addedUp=0,addedDown=0;String active="";long activeBytes=0;
-            for(String item:core.queryAllOutboundTrafficStats().split(";")){String[] parts=item.split(",");if(parts.length!=3||(!parts[0].equals("proxy")&&!parts[0].startsWith("node-")))continue;long count=Long.parseLong(parts[2]);if(parts[1].equals("uplink"))addedUp+=count;else if(parts[1].equals("downlink"))addedDown+=count;if(count>activeBytes&&parts[0].startsWith("node-")){active=parts[0];activeBytes=count;}}
+            for(int i=0;i<trafficOutbounds.length();i++){
+                String tag=trafficOutbounds.optJSONObject(i).optString("tag");if(!tag.equals("proxy")&&!tag.startsWith("node-"))continue;
+                long sent=core.queryStats(tag,"uplink"),received=core.queryStats(tag,"downlink");addedUp+=sent;addedDown+=received;
+                if(sent+received>activeBytes&&tag.startsWith("node-")){active=tag;activeBytes=sent+received;}
+            }
             if(!active.isEmpty()){JSONObject selected=Jsons.array(options,"_catalog").optJSONObject(Integer.parseInt(active.substring(5)));if(selected!=null&&!selected.optString("id").equals(profileId)){profile=selected;profileId=selected.optString("id");state("","",true);}}
             double seconds=Math.max(.1,(SystemClock.elapsedRealtime()-lastSample)/1000.0);lastSample=SystemClock.elapsedRealtime();up+=addedUp;down+=addedDown;
             emit(Jsons.obj("event","stats","up",up,"down",down,"upRate",(long)(addedUp/seconds),"downRate",(long)(addedDown/seconds)));
@@ -90,6 +96,16 @@ final class VpnEngine {
         JSONObject next=Jsons.copy(options);XrayConfig.put(next,"_catalog",profiles);XrayConfig.put(next,"_selection",args.optString("selectionMode","manual"));XrayConfig.put(next,"_source",args.optString("activeSourceId"));
         return connect(chosen,next,service);
     }
+    private boolean verifyConnection(){
+        Proxy proxy=new Proxy(Proxy.Type.HTTP,new InetSocketAddress("127.0.0.1",httpPort));
+        if(selectionMode.equals("manual"))return DelayProbe.measure(proxy,XrayConfig.PROBE_URL,8000)!=null;
+        // A first request can precede observatory results. Retry within the same
+        // total budget so a dead fallback cannot hide a newly discovered route.
+        long deadline=SystemClock.elapsedRealtime()+8000;
+        if(DelayProbe.measure(proxy,XrayConfig.PROBE_URL,2500)!=null)return true;
+        int remaining=(int)(deadline-SystemClock.elapsedRealtime());
+        return remaining>0&&DelayProbe.measure(proxy,XrayConfig.PROBE_URL,remaining)!=null;
+    }
     CompletableFuture<Object> delay(JSONObject selected){return delay(selected,XrayConfig.PROBE_URL);}
     CompletableFuture<Object> delay(JSONObject selected,String url){return CompletableFuture.supplyAsync(()->{
         CoreController probe=null;
@@ -97,7 +113,7 @@ final class VpnEngine {
             init();int port=freePort();
             probe=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
             probe.startLoop(XrayConfig.probe(selected,port).toString(),0);
-            Long latency=DelayProbe.measure(new Proxy(Proxy.Type.HTTP,new InetSocketAddress("127.0.0.1",port)),url,8000);
+            Long latency=DelayProbe.measure(new Proxy(Proxy.Type.SOCKS,new InetSocketAddress("127.0.0.1",port)),url,8000);
             return Jsons.obj("latency",latency==null?JSONObject.NULL:latency);
         }catch(Throwable error){return Jsons.obj("latency",JSONObject.NULL);}
         finally{if(probe!=null)try{probe.stopLoop();}catch(Exception ignored){}}
