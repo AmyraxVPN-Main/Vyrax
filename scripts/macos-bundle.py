@@ -22,7 +22,7 @@ for helper in (app / 'Contents/Frameworks').glob('Electron Helper*.app'):
     name = old_name.replace('Electron', 'Vyrax', 1)
     with (helper / 'Contents/Info.plist').open('rb') as stream:
         data = plistlib.load(stream)
-    executable = helper / 'Contents/MacOS' / data['CFBundleExecutable']
+    executable = helper / 'Contents/MacOS' / data.get('CFBundleExecutable', old_name)
     executable.rename(executable.with_name(name))
     suffix = old_name.removeprefix('Electron Helper').strip(' ()').lower()
     data.update(CFBundleExecutable=name, CFBundleName=name, CFBundleDisplayName=name,
