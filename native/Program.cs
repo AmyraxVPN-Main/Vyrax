@@ -159,7 +159,7 @@ public sealed class MainForm : Form {
                 case "connect": result=await connection.Connect((Dictionary<string,object>)args["profile"],args.ContainsKey("settings")?(Dictionary<string,object>)args["settings"]:Json.Obj("preferencesVersion",1,"mode",Json.Str(args,"mode","proxy"),"mtu",Json.Int(args,"mtu",1280)));break;
                 case "disconnect": result=await connection.Disconnect();break;
                 case "select": result=await connection.Select(Json.Items(args["profiles"]).OfType<Dictionary<string,object>>().ToArray(),Json.Str(args,"selectedId"),Json.Str(args,"selectionMode","manual"),Json.Str(args,"activeSourceId"));break;
-                case "subscription": result=await Engine.Fetch(Json.Str(args,"url"));break;
+                case "subscription": result=await engine.FetchSubscription(Json.Str(args,"url"));break;
                 case "ping": result=await Engine.Ping((Dictionary<string,object>)args["profile"]);break;
                 /* «تأخیر واقعی»: از داخل خود کانفیگ یک درخواست می‌رود */
                 case "delay": result=await Engine.RealDelay((Dictionary<string,object>)args["profile"],Path.Combine(baseDir,"cores"));break;

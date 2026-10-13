@@ -7,6 +7,7 @@ import http2 from 'node:http2';
 import net from 'node:net';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { gzipSync } from 'node:zlib';
 const [folder,core]=process.argv.slice(2);
 const tls=https.createServer({ key:fs.readFileSync(path.join(folder,'key.pem')),cert:fs.readFileSync(path.join(folder,'cert.pem')) },(request,response) => {
   if (request.url.startsWith('/dns-query')) {
@@ -22,6 +23,12 @@ const tls=https.createServer({ key:fs.readFileSync(path.join(folder,'key.pem')),
     });return;
   }
   if (request.url==='/stream') { response.writeHead(200);let count=0;const timer=setInterval(() => { response.write('packet\n');if (++count>=30) { clearInterval(timer);response.end(); } },100);response.on('close',() => clearInterval(timer));return; }
+  if (request.url.startsWith('/subscription-')) {
+    const fromProxy=request.socket.remoteAddress==='127.0.0.1';
+    if (fromProxy!==(request.url==='/subscription-proxy')) { response.writeHead(403);response.end();return; }
+    response.writeHead(200,{ 'Content-Encoding':'gzip','Profile-Title':'Fixture remote subscription' });
+    response.end(gzipSync(Buffer.from('synthetic compressed subscription')));return;
+  }
   setTimeout(() => { response.writeHead(204);response.end(); },20);
 });
 tls.listen(24443,'0.0.0.0');

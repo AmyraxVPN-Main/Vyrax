@@ -12,6 +12,7 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { catalog, preferences, routing, nodeTag, xray, PROBE_URL } from './config.mjs';
 import { DesktopProxy } from './desktop-proxy.mjs';
+import { subscriptionThroughCore } from './subscriptions.mjs';
 const exec = promisify(execFile);
 const pause = ms => new Promise(resolve => setTimeout(resolve,ms));
 const issuedPorts=new Map();
@@ -126,7 +127,7 @@ export class Backend {
       const deadline=setTimeout(() => controller.abort(),180000);
       try {
         this.folder=await fs.mkdtemp(path.join(this.runtimeRoot,'session-'));await fs.chmod(this.folder,0o700);
-        const used=new Set(),ports={};for (const key of ['socks','http','probe','api','metrics',...(settings.proxyShare ? ['share'] : [])]) { let port;do { port=await freePort(); } while (used.has(port));used.add(port);ports[key]=port; }
+        const used=new Set(),ports={};for (const key of ['socks','http','probe','subscription','api','metrics',...(settings.proxyShare ? ['share'] : [])]) { let port;do { port=await freePort(); } while (used.has(port));used.add(port);ports[key]=port; }
         if (ports.share) { ports.shareHosts=privateHosts();if (!ports.shareHosts.length) throw Error('err.shareNetwork'); }
         const built=xray(profiles,profile.id,raw._selection || 'manual',raw._source || profile.sourceId || '',settings,ports);
         this.ports=ports;this.routeSettings=settings;this.profiles=profiles;this.installed=new Set(profiles.map(nodeTag));this.revision=0;this.selection=built.selection;
@@ -231,7 +232,16 @@ export class Backend {
     } catch { return { latency:null,method:'urltest' }; }
     finally { clearTimeout(timer);this.probes.delete(controller);await this.stopChild(child);if (folder) await fs.rm(folder,{ recursive:true,force:true }); }
   }
-  async subscription(url) { try { const { response,text }=await fetchText(this.transport,url,{ headers:{ 'User-Agent':'Vyrax','Accept':'*/*' } });return { text,title:response.headers.get('profile-title'),userInfo:response.headers.get('subscription-userinfo'),disposition:response.headers.get('content-disposition') }; } catch (e) { throw Error(e.message==='err.tooBig' ? e.message : 'err.subFailed'); } }
+  async subscription(url) {
+    try {
+      if (this.status==='connected') {
+        try { return await subscriptionThroughCore(url,this.ports.subscription,4); }
+        catch (e) { if (['err.tooBig','err.subUrl'].includes(e.message)) throw e;return await subscriptionThroughCore(url,this.ports.probe,12); }
+      }
+      const { response,text }=await fetchText(this.transport,url,{ headers:{ 'User-Agent':'Vyrax (Linux; v2ray)','Accept':'*/*' } });
+      return { text,title:response.headers.get('profile-title'),userInfo:response.headers.get('subscription-userinfo'),disposition:response.headers.get('content-disposition') };
+    } catch (e) { throw Error(['err.tooBig','err.subUrl'].includes(e.message) ? e.message : 'err.subFailed'); }
+  }
   async geo(hosts) {
     if (!Array.isArray(hosts) || hosts.length>512) throw Error('err.tooBig');
     if (!this.geoTable) { const b=await fs.readFile(path.join(this.nativeRoot,'geo.bin'));const countries=b.readUInt16LE(0);this.geoTable={ b,countries,offset:2+countries*2+4,count:b.readUInt32LE(2+countries*2) }; }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Liquid } from 'liquid-gooey';
+import { MotionSurface as Liquid } from './Surface.jsx';
 import Surface from './Surface.jsx';
 import { useI18n } from '../i18n.jsx';
 

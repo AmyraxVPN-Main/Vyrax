@@ -25,6 +25,16 @@ public class ConfigTest {
         assertFalse(config.has("observatory"));assertFalse(config.getJSONObject("routing").has("balancers"));
         assertEquals("proxy",config.getJSONArray("outbounds").getJSONObject(0).getString("tag"));
     }
+    @Test public void firstLaunchUsesTunAndKeepsExplicitMode(){
+        assertEquals("tun",Preferences.normalize(null).optString("mode"));
+        assertEquals("proxy",Preferences.normalize(Jsons.obj("mode","proxy")).optString("mode"));
+    }
+    @Test public void delayAlwaysUsesProfileWithoutStatsOrSniffing()throws Exception{
+        JSONObject probe=XrayConfig.probe(profile(),12345);
+        assertFalse(probe.has("stats"));assertFalse(probe.has("policy"));
+        assertFalse(probe.getJSONArray("inbounds").getJSONObject(0).has("sniffing"));
+        assertEquals("proxy",probe.getJSONObject("routing").getJSONArray("rules").getJSONObject(0).getString("outboundTag"));
+    }
     @Test public void splitRoutingKeepsDnsInProxy()throws Exception{
         JSONObject config=XrayConfig.build(profile(),Jsons.obj("preferencesVersion",1,"splitTunneling",true,"splitAddresses",Jsons.arr("example.test")),10808,10809,0);
         JSONArray rules=config.getJSONObject("routing").getJSONArray("rules");

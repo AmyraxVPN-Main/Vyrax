@@ -19,7 +19,7 @@ namespace Vyrax {
 public sealed class Engine : IDisposable, IConnectionEngine, ISelectionEngine {
     readonly Store store;readonly ProxySettings proxy;readonly ChildJob job;readonly SemaphoreSlim gate=new SemaphoreSlim(1,1);
     readonly string coreRoot;Process xray,tun;CancellationTokenSource session;string configFolder;int metrics;bool connected;bool viaHelper;int tunCheckBusy;string profileId="";string exitIp="";DateTime since;long lastUp,lastDown;DateTime lastSample;
-    readonly ProxyShare share=new ProxyShare();int healthPort,healthFailures;DateTime nextHealth;
+    readonly ProxyShare share=new ProxyShare();int healthPort,subscriptionPort,healthFailures;DateTime nextHealth;
     RoutingPool routingPool;DateTime nextSelection;string[] activeTargets=new string[0];
     public event Action<object> Changed;
     public static bool Elevated { get { return Cores.Elevated; } }
@@ -110,10 +110,10 @@ public sealed class Engine : IDisposable, IConnectionEngine, ISelectionEngine {
             configFolder=Path.Combine(store.Root,"runtime-"+Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(configFolder);Store.Restrict(configFolder);
             int socks=Cores.FreePort(),http=Cores.FreePort();metrics=Cores.FreePort();
-            healthPort=Cores.FreePort();healthFailures=0;
+            healthPort=Cores.FreePort();subscriptionPort=Cores.FreePort();healthFailures=0;
             var sharePort=Json.Bool(settings,"proxyShare")?Cores.FreePort():0;
             var file=Path.Combine(configFolder,"xray.json");
-            var config=(Dictionary<string,object>)Config.Xray(profile,socks,http,metrics,settings,healthPort,sharePort,uplink==null?null:uplink.Name,uplink==null?null:uplink.Dns);
+            var config=(Dictionary<string,object>)Config.Xray(profile,socks,http,metrics,settings,healthPort,sharePort,uplink==null?null:uplink.Name,uplink==null?null:uplink.Dns,subscriptionPort);
             object catalog;
             if(settings!=null&&settings.TryGetValue("_catalog",out catalog)) {
                 routingPool=new RoutingPool(config,Path.Combine(coreRoot,"xray.exe"),configFolder,Cores.FreePort());
@@ -474,19 +474,34 @@ public sealed class Engine : IDisposable, IConnectionEngine, ISelectionEngine {
     static long Value(Dictionary<string,object> d,string name){ object raw;if(!d.TryGetValue(name,out raw))return 0;long v;return long.TryParse(Convert.ToString(raw),out v)?v:0; }
 
     static readonly HttpClient subscriptionClient=CreateSubscriptionClient();
-    static HttpClient CreateSubscriptionClient() {
-        var handler=new HttpClientHandler{UseProxy=false,AllowAutoRedirect=false,UseCookies=false,AutomaticDecompression=DecompressionMethods.GZip|DecompressionMethods.Deflate,MaxConnectionsPerServer=8,SslProtocols=SslProtocols.Tls12};
+    static HttpClient CreateSubscriptionClient(int port=0) {
+        var handler=new HttpClientHandler{UseProxy=port>0,Proxy=port>0?new WebProxy("http://127.0.0.1:"+port):null,AllowAutoRedirect=false,UseCookies=false,AutomaticDecompression=DecompressionMethods.GZip|DecompressionMethods.Deflate,MaxConnectionsPerServer=8,SslProtocols=SslProtocols.Tls12};
         var client=new HttpClient(handler){Timeout=Timeout.InfiniteTimeSpan};
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Vyrax/"+typeof(Engine).Assembly.GetName().Version.ToString(3));
         return client;
     }
+    public async Task<object> FetchSubscription(string url) {
+        if(!connected)return await Fetch(url);
+        // Xray's process already bypasses our TUN. Its dedicated local inbound
+        // reaches subscription panels over the uplink without routing user apps
+        // outside the VPN or changing their connections.
+        using(var direct=CreateSubscriptionClient(subscriptionPort))
+        using(var routed=CreateSubscriptionClient(healthPort)) {
+            try{return await FetchUsing(url,direct,4);}
+            catch(Exception error) {
+                if(error.Message=="err.subUrl"||error.Message=="err.subRedirect"||error.Message=="err.subSize")throw;
+            }
+            return await FetchUsing(url,routed,12);
+        }
+    }
     /* Reuse transport connections, never cached subscription contents. */
-    public static async Task<object> Fetch(string url) {
+    public static Task<object> Fetch(string url) { return FetchUsing(url,subscriptionClient,20); }
+    internal static async Task<object> FetchUsing(string url,HttpClient transport,int seconds) {
         Uri u;
         if(!Uri.TryCreate(url,UriKind.Absolute,out u)||(u.Scheme!="http"&&u.Scheme!="https")||!String.IsNullOrEmpty(u.UserInfo))throw new Exception("err.subUrl");
-        using(var deadline=new CancellationTokenSource(TimeSpan.FromSeconds(20))) {
+        using(var deadline=new CancellationTokenSource(TimeSpan.FromSeconds(seconds))) {
             for(int redirect=0;redirect<5;redirect++) {
-                using(var r=await subscriptionClient.GetAsync(u,HttpCompletionOption.ResponseHeadersRead,deadline.Token)) {
+                using(var r=await transport.GetAsync(u,HttpCompletionOption.ResponseHeadersRead,deadline.Token)) {
                     if((int)r.StatusCode>=300&&(int)r.StatusCode<400) {
                         var next=r.Headers.Location;
                         if(next==null)throw new Exception("err.subRedirect");

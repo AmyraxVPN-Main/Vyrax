@@ -33,7 +33,8 @@ export default function App() {
   const [selectionBusy, setSelectionBusy] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const [refreshingId, setRefreshingId] = useState('');
-  const [state, setState] = useState(INITIAL_STATE);
+  const [state, setState] = useState(() => platform === 'android'
+    ? { ...INITIAL_STATE, settings:{ ...INITIAL_STATE.settings, mode:'tun' } } : INITIAL_STATE);
 
   const [adding, setAdding] = useState(false);
   const [loaded, setLoaded] = useState(!native);

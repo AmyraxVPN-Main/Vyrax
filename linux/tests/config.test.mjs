@@ -43,6 +43,12 @@ test('preferences validate lists, conflicts and MTU; old experimental defaults m
   assert.ok(result.config.routing.rules.some(v => v.domain?.includes('domain:example.org') && v.outboundTag==='direct'));
   assert.ok(result.config.inbounds.every(v => v.listen==='127.0.0.1'));
 });
+test('subscription control traffic stays direct across selection modes',() => {
+  for (const mode of ['manual','fastest','balance']) {
+    const rules=routing(profiles,'a',mode,'first',preferences({ preferencesVersion:1,splitTunneling:true,splitAddresses:['example.org'] })).config.rules;
+    assert.equal(rules[0].outboundTag,'direct');assert.deepEqual(rules[0].inboundTag,['subscription']);
+  }
+});
 test('local store encrypts secrets, serializes writes and refuses corrupt data',async () => {
   const root=await fs.mkdtemp(path.join(os.tmpdir(),'vyrax-store-test-'));
   try {

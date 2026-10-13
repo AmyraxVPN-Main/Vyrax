@@ -10,7 +10,7 @@ android {
         applicationId 'com.amyrax.vyrax'
         minSdk 29
         targetSdk 35
-        versionCode 18
+        versionCode 20
         versionName appPackage.version
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -21,6 +21,9 @@ android {
                 storePassword System.getenv('VYRAX_ANDROID_STORE_PASSWORD')
                 keyAlias System.getenv('VYRAX_ANDROID_KEY_ALIAS')
                 keyPassword System.getenv('VYRAX_ANDROID_KEY_PASSWORD')
+                enableV1Signing false
+                enableV2Signing true
+                enableV3Signing true
             }
         }
     }
@@ -50,6 +53,7 @@ android {
 }
 dependencies {
     implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation files('../../vendor/android/libv2ray.aar')
     implementation files('../../vendor/android/hev-socks5-tunnel.aar')
     testImplementation 'junit:junit:4.13.2'

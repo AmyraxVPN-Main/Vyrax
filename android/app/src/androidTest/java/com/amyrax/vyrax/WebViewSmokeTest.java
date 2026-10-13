@@ -48,6 +48,16 @@ public class WebViewSmokeTest {
             assertEquals("true",js("Math.abs(document.querySelector('.dial').getBoundingClientRect().left+document.querySelector('.dial').getBoundingClientRect().width/2-innerWidth/2)<2"));
             assertEquals("true",js("document.querySelector('.tabs-row').getBoundingClientRect().width>innerWidth*.8"));
             screenshot("home-portrait.png");
+            assertEquals("0",js("document.querySelectorAll('[data-gooey-svg]').length"));
+            js("window.__orbitTrace=[];window.__orbitDone=false;document.querySelector('.quick').click();let start=performance.now();function sample(t){window.__orbitTrace.push({t:t-start,x:document.querySelector('.drop').getBoundingClientRect().left});if(t-start<800)requestAnimationFrame(sample);else window.__orbitDone=true;}requestAnimationFrame(sample)");
+            waitFor("window.__orbitDone");
+            assertEquals("true",js("new Set(window.__orbitTrace.map(v=>Math.round(v.x))).size>3"));
+            assertEquals("true",js("Math.abs(window.__orbitTrace[0].x-window.__orbitTrace[window.__orbitTrace.length-1].x)>80"));
+            screenshot("quick-orbit-open.png");
+            js("document.querySelector('.quick').click()");Thread.sleep(700);
+            assertEquals("true",js("Math.abs(document.querySelector('.drop').getBoundingClientRect().left+28-innerWidth/2)<2"));
+            assertEquals("true",js("document.elementFromPoint(innerWidth/2,document.querySelector('.dial').getBoundingClientRect().top+75).closest('.dial')!==null"));
+            try(java.io.FileWriter output=new java.io.FileWriter(new java.io.File(context.getFilesDir(),"orbit-animation.json"))){output.write(js("JSON.stringify(window.__orbitTrace)"));}
             js("document.querySelector('.tabs-row .tab:nth-child(2)').click()");waitFor("document.querySelector('.source-picker')");
             waitFor("document.querySelector('.source-picker').textContent.includes('Synthetic group')");
             js("document.querySelector('.loc-head .icon-btn').click()");waitFor("document.querySelector('.check-row.on')");

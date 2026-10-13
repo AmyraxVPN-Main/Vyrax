@@ -5,7 +5,10 @@
 !include "LogicLib.nsh"
 
 !define APPNAME    "Vyrax"
-!define APPVERSION "0.1.18"
+!define APPVERSION "0.1.20"
+!ifndef APPDIR
+!define APPDIR "..\release\Vyrax"
+!endif
 !define REGKEY     "Software\Microsoft\Windows\CurrentVersion\Uninstall\Vyrax"
 
 Name "${APPNAME}"
@@ -23,10 +26,10 @@ Unicode true
 !define MUI_FINISHPAGE_RUN_TEXT "Run Vyrax now"
 !define MUI_FINISHPAGE_RUN_FUNCTION LaunchVyrax
 
-VIProductVersion "0.1.18.0"
+VIProductVersion "0.1.20.0"
 VIAddVersionKey /LANG=1033 "ProductName" "Vyrax"
 VIAddVersionKey /LANG=1033 "FileDescription" "Vyrax Installer"
-VIAddVersionKey /LANG=1033 "FileVersion" "0.1.18"
+VIAddVersionKey /LANG=1033 "FileVersion" "0.1.20"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) 2026 Amyrax"
 
 !insertmacro MUI_PAGE_DIRECTORY
@@ -58,7 +61,7 @@ Section "Vyrax" SecMain
   ; قبل از کپی، خودِ پوشه را پاک می‌کنیم تا فایلِ کش‌ماندهٔ نسخهٔ قبلی (مثل
   ; ui/assets/index-XXXX قدیمی) روی پوشهٔ جدید سوار نشود و رابط را به قبل برنگرداند.
   RMDir /r "$INSTDIR"
-  File /r "..\release\Vyrax\*.*"
+  File /r "${APPDIR}\*.*"
 
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 

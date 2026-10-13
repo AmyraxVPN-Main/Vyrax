@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
+import path from 'node:path';
 
 // Inspect PE resources directly; never launch the installer or the elevated host.
 function resources(file) {
@@ -47,7 +48,7 @@ const iconImages = Array.from({ length: count }, (_, i) => {
   return ico.subarray(start, start + length);
 });
 const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
-const files = ['release/Vyrax/Vyrax.exe', `release/VyraxSetup-${version}.exe`];
+const files = [process.argv[2] || 'release/Vyrax/Vyrax.exe', `release/VyraxSetup-${version}.exe`];
 const result = files.map(file => {
   const { bytes, entries } = resources(file);
   const groups = entries.filter(e => e.keys[0] === 14);
@@ -63,6 +64,7 @@ const result = files.map(file => {
   return { file, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), iconSizesVerified: matchingImages, requestedLevel };
 });
 writeFileSync(`release/verification-${version}.json`, JSON.stringify(result, null, 2) + '\n');
-assert.match(readFileSync('release/Vyrax/licenses/LICENSE','utf8'), /MIT License[\s\S]*Copyright \(c\) 2026 Amyrax/);
-assert.ok(readFileSync('release/Vyrax/licenses/GPL-3.0.txt').equals(readFileSync('third_party/GPL-3.0.txt')), 'upstream full GPL text preserved');
+const bundle=path.dirname(files[0]);
+assert.match(readFileSync(path.join(bundle,'licenses/LICENSE'),'utf8'), /MIT License[\s\S]*Copyright \(c\) 2026 Amyrax/);
+assert.ok(readFileSync(path.join(bundle,'licenses/GPL-3.0.txt')).equals(readFileSync('third_party/GPL-3.0.txt')), 'upstream full GPL text preserved');
 console.log(JSON.stringify(result, null, 2));

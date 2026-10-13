@@ -78,6 +78,15 @@ final class XrayConfig {
         }
         return result;
     }
+    static JSONObject probe(JSONObject profile,int port){
+        // A probe never follows LAN bypass/split rules or allocates traffic stats.
+        JSONObject config=build(profile,new JSONObject(),0,port,0);
+        config.remove("stats");config.remove("policy");
+        put(config,"routing",Jsons.obj("rules",Jsons.arr(Jsons.obj("type","field","network","tcp,udp","outboundTag","proxy"))));
+        JSONObject inbound=Jsons.array(config,"inbounds").optJSONObject(0);
+        if(inbound!=null)inbound.remove("sniffing");
+        return config;
+    }
     private static JSONObject inbound(String tag,int port,String protocol,JSONObject settings,String listen){return Jsons.obj("tag",tag,"listen",listen,"port",port,"protocol",protocol,"settings",settings,"sniffing",Jsons.obj("enabled",true,"destOverride",Jsons.arr("http","tls","quic"),"routeOnly",true));}
     private static JSONObject route(JSONObject rule,String mode){put(rule,mode.equals("manual")?"outboundTag":"balancerTag",mode.equals("manual")?"proxy":"pool");return rule;}
     static void put(JSONObject object,String key,Object value){try{object.put(key,value);}catch(Exception error){throw new IllegalArgumentException("err.config");}}

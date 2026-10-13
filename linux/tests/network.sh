@@ -40,4 +40,7 @@ nsenter -t "$peer" -n ip addr add 8.8.8.8/32 dev lo
 nsenter -t "$peer" -n ip -6 addr add 2001:db8::10/128 dev lo nodad
 node linux/tests/network.mjs "$folder" "$native"
 cat "$folder/network-results.json"
-cp "$folder/network-results.json" release/linux-0.1.19/network-verification.json
+version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json","utf8")).version')
+mkdir -p "release/linux-$version"
+cp "$folder/network-results.json" "release/linux-$version/network-verification.json"
+chown --reference=. "release/linux-$version" "release/linux-$version/network-verification.json"

@@ -38,13 +38,13 @@ public final class MainActivity extends Activity {
     private CompletableFuture<Object> permissionResult,fileResult;
     private JSONObject permissionArgs;
     private long permissionGeneration;
-    private boolean ready;
+    private boolean ready,foreground;
     private static StartRequest starting;
     private static final class StartRequest {
         final VpnEngine engine;final JSONObject profile,settings;final CompletableFuture<Object> result;final long generation;
         StartRequest(VpnEngine engine,JSONObject profile,JSONObject settings,CompletableFuture<Object> result){this.engine=engine;this.profile=profile;this.settings=settings;this.result=result;generation=engine.generation.get();}
     }
-    private final Consumer<JSONObject> event=value->{if(view!=null&&ready)view.evaluateJavascript("window.__vyraxNativeEvent&&window.__vyraxNativeEvent("+value.toString()+")",null);};
+    private final Consumer<JSONObject> event=value->{if(view!=null&&ready&&foreground)view.evaluateJavascript("window.__vyraxNativeEvent&&window.__vyraxNativeEvent("+value.toString()+")",null);};
     @Override public void onCreate(Bundle saved){
         super.onCreate(saved);engine=VpnEngine.get(this);
         if(!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)){
@@ -87,7 +87,7 @@ public final class MainActivity extends Activity {
             case "disconnect":cancelPendingConnect();return engine.disconnect().thenApply(value->value);
             case "select":return engine.select(args).thenApply(value->value);
             case "delay":case "ping":return engine.delay(args.getJSONObject("profile"));
-            case "subscription":return background(()->NativeHttp.request(args.getString("url"),false,engine.proxy()));
+            case "subscription":return background(()->{try{return NativeHttp.request(args.getString("url"),false,engine.proxy());}catch(java.io.IOException error){throw new IllegalStateException("err.subFailed");}});
             case "checkUpdates":return background(()->NativeHttp.updates(this,engine.proxy()));
             case "openProjectLink":startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(NativeHttp.projectLink(this,args.getString("target")))));return CompletableFuture.completedFuture(true);
             case "geo":return background(()->{if(geo==null)geo=new Geo(this);return geo.lookup(Jsons.array(args,"hosts"));});
@@ -126,8 +126,8 @@ public final class MainActivity extends Activity {
         if(request==VPN_REQUEST&&permissionResult!=null){CompletableFuture<Object> answer=permissionResult;JSONObject args=permissionArgs;permissionResult=null;permissionArgs=null;if(result==RESULT_OK&&permissionGeneration==engine.generation.get())startVpn(args.optJSONObject("profile"),args.optJSONObject("settings"),answer);else answer.completeExceptionally(new IllegalStateException("err.vpnPermission"));}
         if(request==FILE_REQUEST&&fileResult!=null){CompletableFuture<Object> answer=fileResult;fileResult=null;if(result!=RESULT_OK||data==null||data.getData()==null)answer.complete(null);else{Uri uri=data.getData();background(()->{try(InputStream input=getContentResolver().openInputStream(uri)){if(input==null)throw new IllegalStateException("err.file");return NativeHttp.read(input,4*1024*1024);}}).whenComplete((value,error)->{if(error==null)answer.complete(value);else answer.completeExceptionally(error);});}}
     }
-    @Override protected void onResume(){super.onResume();if(view!=null){view.onResume();view.resumeTimers();if(ready){JSONObject state=engine.snapshot();XrayConfig.put(state,"event","state");XrayConfig.put(state,"switched",true);event.accept(state);}}if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED&&!getSharedPreferences("ui",MODE_PRIVATE).getBoolean("notificationAsked",false)){getSharedPreferences("ui",MODE_PRIVATE).edit().putBoolean("notificationAsked",true).apply();requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},NOTIFICATION_REQUEST);}}
-    @Override protected void onPause(){if(view!=null)view.onPause();super.onPause();}
+    @Override protected void onResume(){super.onResume();foreground=true;if(view!=null){view.onResume();view.resumeTimers();if(ready){JSONObject state=engine.snapshot();XrayConfig.put(state,"event","state");XrayConfig.put(state,"switched",true);event.accept(state);}}if(Build.VERSION.SDK_INT>=33&&checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED&&!getSharedPreferences("ui",MODE_PRIVATE).getBoolean("notificationAsked",false)){getSharedPreferences("ui",MODE_PRIVATE).edit().putBoolean("notificationAsked",true).apply();requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},NOTIFICATION_REQUEST);}}
+    @Override protected void onPause(){foreground=false;if(view!=null){view.onPause();view.pauseTimers();}super.onPause();}
     @Override public void onBackPressed(){if(view!=null&&ready)view.evaluateJavascript("window.dispatchEvent(new Event('vyrax-back'))",null);else super.onBackPressed();}
     @Override protected void onDestroy(){engine.listeners.remove(event);cancelPendingConnect();if(fileResult!=null)fileResult.complete(null);if(view!=null){view.destroy();view=null;}super.onDestroy();}
 }

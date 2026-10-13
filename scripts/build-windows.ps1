@@ -1,4 +1,5 @@
-﻿$ErrorActionPreference = 'Stop'
+param([string]$OutputDirectory='release\Vyrax')
+$ErrorActionPreference = 'Stop'
 $projectDir = Split-Path $PSScriptRoot -Parent
 Set-Location -LiteralPath $projectDir
 
@@ -7,10 +8,10 @@ Write-Output '1/6  building the UI'
 npm run build
 if ($LASTEXITCODE -ne 0) { throw 'UI build failed' }
 
-$bundleDir = Join-Path $projectDir 'release\Vyrax'
+$bundleDir = Join-Path $projectDir $OutputDirectory
 $bundleDir = [IO.Path]::GetFullPath($bundleDir)
-$expectedBundleDir = [IO.Path]::GetFullPath((Join-Path $projectDir 'release\Vyrax'))
-if ($bundleDir -ne $expectedBundleDir -or !(Split-Path $bundleDir -Parent).StartsWith($projectDir + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+$releaseRoot = [IO.Path]::GetFullPath((Join-Path $projectDir 'release'))+[IO.Path]::DirectorySeparatorChar
+if (!$bundleDir.StartsWith($releaseRoot,[StringComparison]::OrdinalIgnoreCase)) {
     throw 'Build output must stay inside the workspace release folder'
 }
 $runningBundle = Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -and $_.Path.StartsWith($bundleDir + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) }

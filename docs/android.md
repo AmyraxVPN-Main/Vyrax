@@ -12,7 +12,7 @@ config imports, subscriptions, QR sharing, routing lists, delay tests and About.
 - `universal`: ARM 32/64-bit plus x86/x86_64, selected automatically at install.
 - Separate x86/x86_64 builds are also generated for compatible devices/emulators.
 
-All variants share the application ID `com.amyrax.vyrax` and versionCode 18.
+All variants share the application ID `com.amyrax.vyrax` and versionCode 20.
 They replace each other when signed by the same key; switching variants does
 not create another app or remove its saved subscriptions.
 
@@ -45,6 +45,37 @@ traffic through the selected profile. The host is excluded from the VPN to
 prevent recursive core connections; the host's subscription/update requests
 use the active local proxy explicitly. DNS traffic routes through the proxy,
 including when split routing is enabled. No root permission is required.
+
+On a fresh installation, TUN is the initial UI and native connection mode.
+An explicitly saved Proxy choice remains selected after updating.
+Subscriptions first use the ordinary network (four-second budget while connected),
+then the active local proxy if the panel is blocked/unreachable there. This covers
+panels that reject VPN exit addresses without stopping the user's VPN. Downloads
+handle gzip, bounded redirects and a four-MiB decompressed response limit.
+
+Delay tests use the same HTTPS 204 URL as FlClash's default URL test, with two
+HEAD requests over a private proxy connection. The second successful response is
+the warmed delay; a failed second attempt retains the first successful result.
+The complete network probe has an eight-second budget. HTTP errors and failed
+authentication display Timeout, never a made-up delay. Probe configurations omit
+traffic counters and sniffing, with at most three simultaneous probes (two on
+Android low-RAM devices), independently of the UI/network workers.
+
+The Android interface uses CSS transforms for the dial, orbit, tab thumb, segments
+and toggles. Large SVG gooey filters and per-frame geometry sampling are disabled
+on Android. The opaque dial masks orbit items as they emerge/return. The connected
+hero moves using a transform, lists skip offscreen painting on supported WebViews,
+and UI timers/render events pause in the background while the VPN keeps running.
+
+## Installation prompt
+
+Release APKs are signed with the owner's persistent RSA key using APK v2/v3
+signatures, and are neither debug nor test-only packages. The 0.1.20 signature
+matches 0.1.18, allowing an in-place update that preserves encrypted subscriptions.
+An Android/Play Protect prompt about an unknown app or installation source is an
+external trust decision; valid signing cannot guarantee its removal. Do not disable
+Play Protect or rotate the signing key to work around it. Store publication and
+Google's review/reputation process are separate from building a signed APK.
 
 Proxy mode provides local SOCKS/HTTP listeners. Android does not let ordinary
 apps enable a device-wide system proxy; apps must opt into the local endpoint.
@@ -91,6 +122,13 @@ app UID through the actual VPN tunnel. The shared WebView regression test checks
 that subscriptions open, copy and close while delay probes remain pending.
 `scripts/verify-android.ps1` verifies signatures, package identity, ABIs,
 uncompressed native libraries and 16 KiB ELF/ZIP alignment for 64-bit libraries.
+
+The 0.1.20 checks add compressed/redirecting subscriptions during actual Proxy
+and TUN connections, direct-network preference and proxy fallback, warm HTTP
+measurement, HTTP error/authentication rejection, and orbit motion/occlusion on
+the Android 11 / WebView 83 emulator (2 cores, 2 GiB RAM). The reference FlClash
+0.8.99 ARM64 APK was inspected statically; its ARM64 UI was not executed in this
+x86_64 emulator. Real ARM phones and OEM background behavior remain device checks.
 
 Before running the native emulator tests, provide the loopback VLESS fixture on
 host port 22539 and HTTP 204 fixture on 23040 (test UUID in `NativeSmokeTest`),

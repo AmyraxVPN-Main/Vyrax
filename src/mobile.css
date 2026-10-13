@@ -28,6 +28,35 @@
 [data-platform='android'][dir='rtl'] .sheet-close { right:auto; left:16px; }
 [data-platform='android'] .shell.has-update .home-stage { flex:1 1 auto; }
 [data-platform='android'] .shell.has-update .home .connection-details { top:220px; }
+/* Static silhouettes and CSS transforms avoid repeated large SVG filter
+   paints and liquid-gooey's geometry sampling on the mobile main thread. */
+[data-platform='android'] .mobile-surface { position:relative; }
+[data-platform='android'] .mobile-surface-item { position:relative; transition:transform .44s cubic-bezier(.2,.8,.25,1); }
+[data-platform='android'] .mobile-surface-item > .pill,
+[data-platform='android'] .mobile-surface-item > .drop,
+[data-platform='android'] .mobile-surface-item > .quick,
+[data-platform='android'] .mobile-surface-item > .toggle-knob,
+[data-platform='android'] .mobile-surface-item > .tabs-track,
+[data-platform='android'] .mobile-surface-item > .tabs-thumb,
+[data-platform='android'] .mobile-surface-item > .seg-bg,
+[data-platform='android'] .mobile-surface-item > .seg-thumb { background:var(--surface-fill); }
+[data-platform='android'] .seg-track,[data-platform='android'] .seg-thumb-layer { top:0; right:0; bottom:0; left:0; }
+[data-platform='android'] .toggle-liquid { top:0; right:0; bottom:0; left:0; }
+[data-platform='android'] .dial-body { z-index:2; }
+[data-platform='android'] .drop-motion { z-index:1; }
+[data-platform='android'] .quick-motion { z-index:3; }
+[data-platform='android'] .dial-ring { top:14px; right:14px; bottom:14px; left:14px; }
+[data-platform='android'] .connection-hero,
+[data-platform='android'] .home:not(.state-on) .connection-hero {
+  top:0; transform:translate3d(0,calc(var(--hero-midpoint,194px) - 50%),0);
+  transition:transform .55s cubic-bezier(.2,.8,.25,1);
+}
+[data-platform='android'] .state-on .connection-hero { top:0; transform:translate3d(0,10px,0); }
+[data-platform='android'] .home,[data-platform='android'] .loc,[data-platform='android'] .prefs { animation-duration:.24s; }
+[data-platform='android'] .tabs-thumb,[data-platform='android'] .seg-thumb { transition-duration:.3s; }
+[data-platform='android'] .state-on .aura { animation:none; }
+[data-platform='android'] button { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+[data-platform='android'] .locations .row { content-visibility:auto; contain-intrinsic-size:60px; }
 /* Chrome 83 supports grid gap but predates flex gap and inset. */
 @supports not (inset:0) {
   [data-platform='android'] .mark .ico { margin-right:8px; }
@@ -47,7 +76,7 @@
   [data-platform='android'] .home { overflow:auto; }
   [data-platform='android'] .home-stage { flex:0 0 388px; }
   [data-platform='android'] .tabs { height:60px; margin-bottom:6px; }
-  [data-platform='android'] .state-on .connection-hero { transform:scale(.9); transform-origin:top center; }
+  [data-platform='android'] .state-on .connection-hero { transform:translate3d(0,10px,0) scale(.9); transform-origin:top center; }
   [data-platform='android'] .home .connection-details { top:220px; }
 }
 @media (orientation:landscape) and (max-height:500px) {

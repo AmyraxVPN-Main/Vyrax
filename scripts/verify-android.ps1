@@ -13,11 +13,18 @@ $results=foreach($apk in Get-ChildItem $output -Filter '*-release.apk'){
     $expected=if($abi -eq 'universal'){@('armeabi-v7a','arm64-v8a','x86','x86_64')}else{@($abi)}
     $badging=& "$buildTools\aapt.exe" dump badging $apk.FullName
     if($LASTEXITCODE -ne 0 -or $badging[0] -notmatch "name='com.amyrax.vyrax'.*versionName='$([regex]::Escape($version))'" -or $badging -notcontains "sdkVersion:'29'"){throw 'APK identity/minimum Android version is incorrect'}
+    if($badging -contains 'application-debuggable'){throw 'Distributable APK must not be debuggable'}
     $signature=& "$buildTools\apksigner.bat" verify --verbose --print-certs $apk.FullName
     if($LASTEXITCODE -ne 0){throw 'APK signature verification failed'}
     $digest=([regex]::Match(($signature -join "`n"),'certificate SHA-256 digest: ([a-f0-9]+)')).Groups[1].Value
     if(-not $digest -or ($certificate -and $digest -ne $certificate)){throw 'APK variants must have the same owner signature'}
     $certificate=$digest
+    $previous=Join-Path $projectDir 'release\android-0.1.18\Vyrax-0.1.18-arm64-v8a-release.apk'
+    if(Test-Path -LiteralPath $previous){
+        $previousSignature=& "$buildTools\apksigner.bat" verify --print-certs $previous
+        $previousDigest=([regex]::Match(($previousSignature -join "`n"),'certificate SHA-256 digest: ([a-f0-9]+)')).Groups[1].Value
+        if($LASTEXITCODE -ne 0 -or $previousDigest -ne $digest){throw 'Signing identity changed; existing users cannot upgrade'}
+    }
     & "$buildTools\zipalign.exe" -c -P 16 4 $apk.FullName
     if($LASTEXITCODE -ne 0){throw 'APK native-library page alignment failed'}
     $zip=[IO.Compression.ZipFile]::OpenRead($apk.FullName)

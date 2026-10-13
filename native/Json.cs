@@ -73,7 +73,7 @@ public static class Config {
         return Json.Obj("tag","proxy","protocol",protocol,"settings",settings,"streamSettings",stream);
     }
 
-    public static object Xray(Dictionary<string,object> p,int socks,int http,int metrics,Dictionary<string,object> options=null,int probe=0,int share=0,string networkInterface=null,string[] bootstrapDns=null) {
+    public static object Xray(Dictionary<string,object> p,int socks,int http,int metrics,Dictionary<string,object> options=null,int probe=0,int share=0,string networkInterface=null,string[] bootstrapDns=null,int subscription=0) {
         Preferences.Validate(options);
         var bootstrap=!String.IsNullOrEmpty(networkInterface)&&bootstrapDns!=null;
         if(!bootstrap)networkInterface=null;
@@ -83,7 +83,9 @@ public static class Config {
         if(share>0)inbounds.Add(Json.Obj("tag","share","listen","0.0.0.0","port",share,"protocol","http","settings",Json.Obj()));
         foreach(Dictionary<string,object> inbound in inbounds)inbound["sniffing"]=Json.Obj("enabled",true,"destOverride",new[]{"http","tls","quic"},"routeOnly",true);
         if(probe>0)inbounds.Add(Json.Obj("tag","probe","listen","127.0.0.1","port",probe,"protocol","http","settings",Json.Obj()));
+        if(subscription>0)inbounds.Add(Json.Obj("tag","subscription","listen","127.0.0.1","port",subscription,"protocol","http","settings",Json.Obj()));
         var rules=new List<object>();
+        if(subscription>0)rules.Add(Json.Obj("type","field","inboundTag",new[]{"subscription"},"outboundTag","direct"));
         // This tag belongs to internal transport-server lookups only. Send them
         // straight to the uplink DNS, ahead of the VPN and split/bypass rules.
         if(bootstrap)rules.Add(Json.Obj("type","field","inboundTag",new[]{"dns-bootstrap"},"outboundTag","bootstrap-direct"));

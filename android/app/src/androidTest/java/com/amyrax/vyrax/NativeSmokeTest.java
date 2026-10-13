@@ -31,6 +31,26 @@ public class NativeSmokeTest {
         finally{store.save(original);}
     }
     @Test public void tunLibraryLoads(){assertFalse(hev.htproxy.TProxyService.TProxyIsRunning());assertEquals(4,hev.htproxy.TProxyService.TProxyGetStats().length);}
+    @Test public void urlDelayReusesTunnelAndRejectsHttpErrors()throws Exception{
+        VpnEngine engine=VpnEngine.get(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        Long warm=DelayProbe.measure(java.net.Proxy.NO_PROXY,"http://127.0.0.1:23040/warm",8000);
+        assertNotNull(warm);assertTrue("warm measurement: "+warm,warm>=1&&warm<250);
+        // Plain HTTP forwarding may close between HEADs; HTTPS production tests
+        // reuse the CONNECT tunnel. Both must authenticate through the profile.
+        JSONObject proxied=(JSONObject)engine.delay(profile(),"http://vyrax-fixture.example/warm").get(12,java.util.concurrent.TimeUnit.SECONDS);
+        assertTrue(proxied.getLong("latency")>=1);
+        JSONObject failed=(JSONObject)engine.delay(profile(),"http://vyrax-fixture.example/error").get(12,java.util.concurrent.TimeUnit.SECONDS);
+        assertTrue("503 is not a working profile",failed.isNull("latency"));
+        JSONObject bad=profile();bad.put("uuid","00000000-0000-4000-8000-000000000099");
+        assertTrue(((JSONObject)engine.delay(bad,"http://vyrax-fixture.example/warm").get(12,java.util.concurrent.TimeUnit.SECONDS)).isNull("latency"));
+    }
+    @Test public void subscriptionsSupportCompressionRedirectsAndDirectWhileProxyIsUnavailable()throws Exception{
+        java.net.Proxy unavailable=new java.net.Proxy(java.net.Proxy.Type.HTTP,new java.net.InetSocketAddress("127.0.0.1",VpnEngine.freePort()));
+        JSONObject result=NativeHttp.request("http://127.0.0.1:23040/redirect",false,unavailable);
+        assertTrue(result.getString("text").startsWith("vless://"));assertEquals("base64:VGVzdCBTdWJzY3JpcHRpb24=",result.getString("title"));
+        try{NativeHttp.request("http://127.0.0.1:23040/too-big",false,java.net.Proxy.NO_PROXY);fail("size limit");}
+        catch(IllegalArgumentException expected){assertEquals("err.tooBig",expected.getMessage());}
+    }
     @Test public void authenticProxyRequestThroughSyntheticServer()throws Exception{
         // Runs against a loopback-only synthetic Xray server on the emulator host.
         android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();VpnEngine.get(context).init();
@@ -47,11 +67,19 @@ public class NativeSmokeTest {
                 java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<?>> answer=new java.util.concurrent.atomic.AtomicReference<>();
                 instrumentation.runOnMainSync(()->{try{answer.set((java.util.concurrent.CompletableFuture<?>)connect.invoke(activity,Jsons.obj("profile",profile(),"settings",Jsons.obj("preferencesVersion",1,"mode",mode))));}catch(Exception error){throw new RuntimeException(error);}});
                 JSONObject state=(JSONObject)answer.get().get(40,java.util.concurrent.TimeUnit.SECONDS);assertEquals("connected",state.getString("status"));
+                JSONObject subscription=NativeHttp.request("http://127.0.0.1:23040/redirect",false,engine.proxy());
+                assertTrue("subscription refresh while "+mode,subscription.getString("text").startsWith("vless://"));
+                JSONObject proxied=NativeHttp.request("http://vyrax-fixture.example/subscription",false,engine.proxy());
+                assertEquals("base64:VGVzdCBTdWJzY3JpcHRpb24=",proxied.getString("title"));
                 if(mode.equals("proxy")){
                     java.net.HttpURLConnection request=(java.net.HttpURLConnection)new java.net.URL("http://vyrax-fixture.example/generate_204").openConnection(engine.proxy());
                     try{request.setConnectTimeout(5000);request.setReadTimeout(5000);assertEquals(204,request.getResponseCode());}finally{request.disconnect();}
                 }else{
                     assertTrue(hev.htproxy.TProxyService.TProxyIsRunning());
+                    instrumentation.runOnMainSync(()->activity.moveTaskToBack(true));Thread.sleep(400);
+                    assertEquals("VPN survives UI pause","connected",engine.status);
+                    instrumentation.runOnMainSync(()->context.startActivity(new android.content.Intent(context,MainActivity.class).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK|android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT|android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)));
+                    Thread.sleep(400);assertEquals("connected",engine.status);
                     // Use the separately installed test package UID, since the
                     // host process itself is deliberately excluded from the VPN.
                     // The proxy server redirects this reserved IP to the fixture.

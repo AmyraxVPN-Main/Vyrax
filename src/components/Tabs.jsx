@@ -1,6 +1,6 @@
 import React from 'react';
 import { Home, Globe, Sun, User } from 'lucide-react';
-import { Liquid } from 'liquid-gooey';
+import { MotionSurface as Liquid } from './Surface.jsx';
 import { useI18n } from '../i18n.jsx';
 import Surface from './Surface.jsx';
 

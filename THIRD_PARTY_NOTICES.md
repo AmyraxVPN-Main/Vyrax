@@ -63,6 +63,11 @@ also accompany the source tree in `third_party/flag-icons-MIT.txt`.
   https://github.com/heiher/hev-socks5-tunnel/tree/2.18.0 .
 - AndroidX WebKit 1.12.1 and AndroidX support dependencies: Apache License 2.0.
   Android System WebView is provided by the device and is not bundled.
+- OkHttp 4.12.0 and Okio 3.6.0: Apache License 2.0, Copyright Square, Inc.
+  Sources: https://github.com/square/okhttp/tree/parent-4.12.0 and
+  https://github.com/square/okio/tree/parent-3.6.0 . Kotlin standard library
+  1.9.10: Apache License 2.0, Copyright JetBrains s.r.o. and contributors.
+  Source: https://github.com/JetBrains/kotlin/tree/v1.9.10 .
 
 Full Android library license texts are in `third_party/android` and included in
 the APK's license assets. Pinned AAR hashes are in `vendor/android-versions.json`.

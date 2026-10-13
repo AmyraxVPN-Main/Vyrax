@@ -28,6 +28,13 @@ const subscription=http.createServer((_q,r) => { r.writeHead(200,{ 'profile-titl
 await new Promise(r => subscription.listen(22542,'127.0.0.1',r));
 try {
   const start=Date.now();await backend.connect(first,raw);assert.equal(backend.status,'connected');assert.ok(Date.now()-start<5000);console.log('Proxy: verified HTTPS through VLESS');
+  async function checkSubscriptionPaths() {
+    for (const lane of ['direct','proxy']) {
+      const before=Date.now(),data=await backend.subscription(`https://www.gstatic.com/subscription-${lane}`);
+      assert.equal(data.text,'synthetic compressed subscription');assert.equal(data.title,'Fixture remote subscription');assert.ok(Date.now()-before<2000);
+    }
+  }
+  await checkSubscriptionPaths();console.log('Subscriptions prefer uplink and fall back to selected proxy without reconnecting');
   const measured=await backend.delay(first);assert.ok(measured.latency>0 && measured.latency<1000);console.log('Delay: warmed HEAD measures real proxy traffic');
   const stalled=backend.delay({ ...first,id:'stalled',port:22541 });const before=Date.now();
   const fetched=await backend.subscription('http://127.0.0.1:22542/test');assert.equal(fetched.title,'Fixture subscription');assert.ok(Date.now()-before<1000);console.log('Subscription fetch remains responsive during stalled delay');
@@ -39,6 +46,7 @@ try {
   assert.equal((await stalled).latency,null);
   await backend.disconnect();
   await backend.connect(first,{ ...raw,mode:'tun' });assert.equal(backend.status,'connected');
+  await checkSubscriptionPaths();console.log('Both subscription paths work after TUN captures application traffic');
   assert.ok(await fs.stat('/sys/class/net/Vyrax'));console.log('TUN: real interface, policy routing and bound verified HTTPS');
   const v6=await exec('curl',['--silent','--fail','--noproxy','*','--interface','fdfe:dcba:9876::1','--resolve','www.gstatic.com:443:[2001:db8::10]','--max-time','8','--head','https://www.gstatic.com/generate_204']);assert.match(v6.stdout,/204/);console.log('IPv6 traffic traverses the tunnel');
   const query=Buffer.from('abcd0100000100000000000003777777076773746174696303636f6d0000010001','hex');

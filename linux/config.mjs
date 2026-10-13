@@ -56,7 +56,7 @@ export function routing(profiles, selectedId, mode, source, settings, revision =
   const balancer = `${mode === 'balance' ? 'balance' : 'fast'}-${revision}`;
   const target = mode === 'manual' ? { outboundTag:nodeTag(selected) } : { balancerTag:balancer };
   const rule = fields => ({ type:'field', ...fields });
-  const rules = [rule({ inboundTag:['dns-bootstrap'],outboundTag:'direct' }), rule({ inboundTag:['probe'], ...target }), rule({ port:'53', ...target }), rule({ ip:['127.0.0.0/8','10.0.0.0/8','172.16.0.0/12','192.168.0.0/16','::1/128','fc00::/7'], outboundTag:'direct' })];
+  const rules = [rule({ inboundTag:['subscription'],outboundTag:'direct' }), rule({ inboundTag:['dns-bootstrap'],outboundTag:'direct' }), rule({ inboundTag:['probe'], ...target }), rule({ port:'53', ...target }), rule({ ip:['127.0.0.0/8','10.0.0.0/8','172.16.0.0/12','192.168.0.0/16','::1/128','fc00::/7'], outboundTag:'direct' })];
   const split = settings.splitTunneling, bypass = settings.bypassSites;
   if (split || bypass) {
     const entries = settings[split ? 'splitAddresses' : 'bypassAddresses'];
@@ -74,7 +74,7 @@ export function xray(profiles, selectedId, mode, source, raw, ports) {
   const inbound = (tag, port, protocol, listen = '127.0.0.1') => ({ tag, port, protocol, listen, settings:protocol === 'socks' ? { auth:'noauth', udp:true } : {}, sniffing:{ enabled:true, destOverride:['http','tls','quic'], routeOnly:true } });
   return { selection, config:{
     log:{ loglevel:'none' },
-    inbounds:[inbound('socks',ports.socks,'socks'), inbound('http',ports.http,'http'), inbound('probe',ports.probe,'http'), ...(ports.share ? ports.shareHosts.map((host,i) => inbound('share-'+i,ports.share,'http',host)) : [])],
+    inbounds:[inbound('socks',ports.socks,'socks'), inbound('http',ports.http,'http'), inbound('probe',ports.probe,'http'), ...(ports.subscription ? [inbound('subscription',ports.subscription,'http')] : []), ...(ports.share ? ports.shareHosts.map((host,i) => inbound('share-'+i,ports.share,'http',host)) : [])],
     outbounds:[...profiles.map(p => ({ ...outbound(p), tag:nodeTag(p) })), { tag:'direct', protocol:'freedom' }],
     routing:selection.config,
     // Resolve transport domains independently of the system resolver after TUN

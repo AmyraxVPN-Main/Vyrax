@@ -1,6 +1,6 @@
 # Linux desktop
 
-Vyrax 0.1.19 ships an Electron desktop host with the same React interface,
+Vyrax 0.1.20 ships an Electron desktop host with the same React interface,
 Persian/English translations, themes and animations as Windows. Packages are
 available for x86-64 (`x64`, most Intel/AMD PCs) and ARM64 (`arm64`).
 
@@ -9,7 +9,7 @@ available for x86-64 (`x64`, most Intel/AMD PCs) and ARM64 (`arm64`).
 On Ubuntu 22.04+/Debian 12+ with a graphical desktop, install the matching `.deb`:
 
 ```sh
-sudo apt install ./Vyrax-0.1.19-linux-x64.deb
+sudo apt install ./Vyrax-0.1.20-linux-x64.deb
 vyrax
 ```
 
@@ -73,7 +73,13 @@ bash scripts/build-linux.sh arm64
 Upstream runtime downloads are pinned by SHA-256 in `vendor/linux-versions.json`.
 The script verifies them before extraction, builds the shared interface, includes
 licenses/offline country data and outputs packages and exact core sources in
-`release/linux-0.1.19`. Building ARM64 packages does not require executing ARM code.
+`release/linux-0.1.20`. Building ARM64 packages does not require executing ARM code.
+
+Subscription refresh during a connection uses a dedicated local core inbound to
+reach the ordinary uplink first, then falls back through the selected proxy when
+needed. This keeps panels that reject datacenter exits accessible without changing
+user traffic routing or stopping the VPN. Downloads retain gzip, safe redirects,
+title/usage headers and a four-MiB limit.
 
 ## Verification limits
 
