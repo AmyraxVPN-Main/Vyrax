@@ -33,6 +33,7 @@ jobs:
       - name: Install isolated UI test dependency
         run: npm install --prefix macos/build/test-tools --no-audit --no-fund playwright-core@1.64.0
       - name: Sandboxed desktop UI
+        timeout-minutes: 3
         run: node macos/tests/desktop.mjs '${{ matrix.arch }}'
       - name: Upload packages, exact core sources and verification reports
         if: always()
