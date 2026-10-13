@@ -5,7 +5,7 @@ libraries retain their own copyright and license. The Android release directory
 includes exact upstream source archives for AndroidLibXrayLite and Xray-core,
 plus full license notices inside the APK. Keep those files with binary distributions.
 
-Pinned native sources for the 0.1.21 Android build:
+Pinned native sources for the 0.1.22 Android build:
 
 | Component | Source commit | License |
 | --- | --- | --- |

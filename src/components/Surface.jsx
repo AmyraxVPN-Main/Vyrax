@@ -3,16 +3,18 @@ import { Liquid } from 'liquid-gooey';
 import { platform } from '../bridge.js';
 
 export const SurfaceTheme = createContext('dark');
+const LiquidSurface = createContext(false);
 const mobile = platform === 'android';
 
-// Mobile uses compositor transforms instead of SVG blur/morph sampling on each
-// frame. The same geometry, colours and controls remain shared with desktop.
-export function MotionSurface({ children, className='', fill='var(--liquid)', style, blur, contrast, shadow, filterPadding, ...props }) {
-  if (!mobile) return <Liquid {...{ className, fill, style, blur, contrast, shadow, filterPadding, ...props }}>{children}</Liquid>;
+// Mobile defaults to compositor transforms. A small surface can opt into the
+// desktop renderer when merging silhouettes are part of its interaction.
+export function MotionSurface({ children, className='', fill='var(--liquid)', style, blur, contrast, shadow, filterPadding, liquidOnMobile=false, ...props }) {
+  if (!mobile || liquidOnMobile) return <LiquidSurface.Provider value={true}><Liquid {...{ className, fill, style, blur, contrast, shadow, filterPadding, ...props }}>{children}</Liquid></LiquidSurface.Provider>;
   return <div {...props} className={`mobile-surface ${className}`} style={{ '--surface-fill':fill, ...style }}>{children}</div>;
 }
 function SurfaceItem({ children, x=0, y=0, delay=0, className='', style, transition, morph, effect, move, observe, ...props }) {
-  if (!mobile) return <Liquid.Item {...{ x,y,delay,className,style,transition,morph,effect,move,observe,...props }}>{children}</Liquid.Item>;
+  const liquid = useContext(LiquidSurface);
+  if (!mobile || liquid) return <Liquid.Item {...{ x,y,delay,className,style,transition,morph,effect,move,observe,...props }}>{children}</Liquid.Item>;
   return <div {...props} className={`mobile-surface-item ${className}`} style={{ ...(x || y ? { transform:`translate3d(${x}px,${y}px,0)` } : {}), transitionDelay:`${delay}ms`, ...style }}>{children}</div>;
 }
 MotionSurface.Item = SurfaceItem;

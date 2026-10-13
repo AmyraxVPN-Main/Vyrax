@@ -10,7 +10,7 @@ android {
         applicationId 'com.amyrax.vyrax'
         minSdk 29
         targetSdk 35
-        versionCode 21
+        versionCode 22
         versionName appPackage.version
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

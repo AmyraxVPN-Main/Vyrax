@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vyrax home geometry fixture</title></head>
+<body><div id="root"></div><script type="module">
+// In-memory bridge for UI comparisons. No VPN, user store or external requests.
+const profiles = ['de','nl','us','tr'].map((cc,i) => ({id:`ui-${i}`,cc,name:`Sample ${i+1}`,latency:42+i*12,sourceId:'ui',host:`${cc}.example.test`,port:443,protocol:'vless'}));
+const listeners = new Set();
+const emit = data => listeners.forEach(fn => fn({data}));
+window.__testEmit = emit;
+const post = ({id,action}) => {
+  const result = action==='load' ? {profiles,subscriptions:[{id:'ui',kind:'local',name:'UI sample'}],selectedId:'ui-0',activeSourceId:'ui',selectionMode:'manual'}
+    : action==='status' ? {elevated:true,status:'disconnected'}
+    : action==='ready' ? {status:'disconnected'}
+    : action==='projectInfo' ? {version:'0.0.0'} : action==='checkUpdate' ? {available:false}
+    : action==='geo' ? {} : true;
+  queueMicrotask(() => emit({id,result}));
+};
+if(new URLSearchParams(location.search).get('platform')==='android') {
+  window.VyraxAndroid = {postMessage: text => post(JSON.parse(text))};
+  listeners.add(({data}) => window.__vyraxNativeEvent?.(data));
+} else window.chrome = {...window.chrome,webview:{addEventListener:(_,fn)=>listeners.add(fn),postMessage:post}};
+await import('/src/main.jsx');
+</script></body></html>

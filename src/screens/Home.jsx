@@ -46,7 +46,9 @@ export default function Home({ state, server, orbit, selectionMode, onPower, onS
       </p>
       <div className="dial-zone">
         <div className="aura" />
-        <Surface blur={9} contrast={20} filterPadding={170} className="dial-liquid">
+        {/* Use the Windows renderer for this small interactive surface only.
+            The tighter filter bounds still include the orbit's spring overshoot. */}
+        <Surface liquidOnMobile blur={9} contrast={20} filterPadding={platform === 'android' ? 110 : 170} className="dial-liquid">
           {nearby.map((p, i) => (
             <Surface.Item key={p.id} className="drop-motion" x={47 + (quick ? PICKS[i].x : 0)} y={47 + (quick ? PICKS[i].y : 0)}
               transition="bouncy" delay={quick ? i * 45 : (nearby.length - i) * 30}>
@@ -59,7 +61,7 @@ export default function Home({ state, server, orbit, selectionMode, onPower, onS
               </button>
             </Surface.Item>
           ))}
-          <Surface.Item className="dial-body" morph={{ shape: true, bounce: .45, contentBlur: 0 }}>
+          <Surface.Item className="dial-body" morph={platform === 'android' ? undefined : { shape: true, bounce: .45, contentBlur: 0 }}>
             <button type="button" className="dial" onClick={onPower}
               aria-label={t(connected || connecting ? 'home.disconnect' : 'home.connect')}>
               <span className="dial-ring" /><PowerIcon className="dial-ico" />

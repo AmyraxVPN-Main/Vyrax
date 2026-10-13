@@ -12,7 +12,7 @@ config imports, subscriptions, QR sharing, routing lists, delay tests and About.
 - `universal`: ARM 32/64-bit plus x86/x86_64, selected automatically at install.
 - Separate x86/x86_64 builds are also generated for compatible devices/emulators.
 
-All variants share the application ID `com.amyrax.vyrax` and versionCode 21.
+All variants share the application ID `com.amyrax.vyrax` and versionCode 22.
 They replace each other when signed by the same key; switching variants does
 not create another app or remove its saved subscriptions.
 
@@ -64,17 +64,21 @@ intermediate HTTP proxy's synthetic error as a target response. Probe configurat
 traffic counters and sniffing, with at most three simultaneous probes (two on
 Android low-RAM devices), independently of the UI/network workers.
 
-The Android interface uses CSS transforms for the dial, orbit, tab thumb, segments
-and toggles. Large SVG gooey filters and per-frame geometry sampling are disabled
-on Android. The opaque dial masks orbit items as they emerge/return. The connected
+The Android home dial uses the Windows liquid renderer, orbit geometry and spring
+timing. Only this bounded surface has an SVG filter; its filter padding includes
+spring overshoot, and its items do not use per-frame shape observation. The opaque
+dial masks flags as they emerge/return. Tabs, segments and toggles retain the lighter
+CSS renderer. Connected home content keeps the compact Windows proportions on tall
+phones; short screens adapt without overlapping the picker. Paint containment also
+prevents orbit overflow from scrolling the Persian interface sideways. The connected
 hero moves using a transform, lists skip offscreen painting on supported WebViews,
 and UI timers/render events pause in the background while the VPN keeps running.
 
 ## Installation prompt
 
 Release APKs are signed with the owner's persistent RSA key using APK v2/v3
-signatures, and are neither debug nor test-only packages. The 0.1.21 signature
-matches the prior releases; a signed 0.1.20 → 0.1.21 upgrade retains the encrypted store.
+signatures, and are neither debug nor test-only packages. The 0.1.22 signature
+matches the prior releases, allowing an in-place upgrade with saved subscriptions.
 An Android/Play Protect prompt about an unknown app or installation source is an
 external trust decision; valid signing cannot guarantee its removal. Do not disable
 Play Protect or rotate the signing key to work around it. Store publication and
