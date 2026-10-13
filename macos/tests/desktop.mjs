@@ -27,6 +27,7 @@ const stalled=net.createServer(socket=>{sockets.add(socket);socket.on('error',()
 await new Promise(resolve=>stalled.listen(0,'127.0.0.1',resolve));
 const app=await _electron.launch({ executablePath:path.join(appdir,'Contents/MacOS/Vyrax'),chromiumSandbox:true,
   env:{...process.env,VYRAX_TEST_USER_DATA:temporary,ELECTRON_ENABLE_LOGGING:'1'} });
+let report;
 try{
   const page=await app.firstWindow(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   console.log('macOS first window created');
@@ -54,11 +55,19 @@ try{
   await page.getByRole('button',{name:'settings',exact:true}).click();await page.getByRole('button',{name:'فارسی',exact:true}).click();
   assert.equal(await page.evaluate(()=>document.documentElement.dir),'rtl');await page.waitForTimeout(600);
   await page.screenshot({path:path.join(output,`desktop-fa-${arch}.png`)});assert.deepEqual(errors,[]);
-  await fs.writeFile(path.join(output,`desktop-verification-${arch}.json`),JSON.stringify({architecture:arch,launch:true,platform:'macos',sandbox:true,contextIsolation:true,nodeIntegration:false,keychainEncryption:true,clipboard:true,draggableTitlebar:true,nonblockingDialogClose:true,QR:true,toastAboveDialog:true,persianRTL:true,rendererErrors:errors},null,2));
+  report={architecture:arch,launch:true,platform:'macos',sandbox:true,contextIsolation:true,nodeIntegration:false,keychainEncryption:true,clipboard:true,draggableTitlebar:true,nonblockingDialogClose:true,QR:true,toastAboveDialog:true,persianRTL:true,rendererErrors:errors};
   console.log('macOS sandbox, Keychain store, clipboard, QR, nonblocking dialog, English/Persian and titlebar verified');
 }finally{
   for(const socket of sockets)socket.destroy();stalled.close();
-  let timeout;await Promise.race([app.close(),new Promise(resolve=>{timeout=setTimeout(()=>{app.process().kill('SIGKILL');resolve();},10000);})]);clearTimeout(timeout);
+  // Closing a window intentionally hides to the menu bar. Verify native Quit.
+  console.log('Requesting native macOS Quit');
+  await app.evaluate(({app})=>{setImmediate(()=>app.quit());return true;});
+  const child=app.process();let timeout;
+  try{
+    if(child.exitCode===null&&!child.signalCode)await Promise.race([new Promise(resolve=>child.once('exit',resolve)),new Promise((_,reject)=>{timeout=setTimeout(()=>{child.kill('SIGKILL');reject(Error('macOS host did not quit cleanly'));},15000);})]);
+    if(report){report.gracefulQuit=true;await fs.writeFile(path.join(output,`desktop-verification-${arch}.json`),JSON.stringify(report,null,2));}
+    console.log('Native Quit completed and cores stopped');
+  }finally{clearTimeout(timeout);}
   await exec('security',['default-keychain','-d','user','-s',previousDefault]);
   await exec('security',['list-keychains','-d','user','-s',...previousList]);
   await exec('security',['delete-keychain',keychain]);await fs.rm(temporary,{recursive:true,force:true});
