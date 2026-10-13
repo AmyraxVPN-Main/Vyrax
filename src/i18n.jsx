@@ -541,6 +541,25 @@ const STRINGS = {
   }
 };
 
+const MAC_STRINGS = {
+  en: {
+    'set.modeSub': 'Proxy covers apps that use the system proxy; VPN routes the whole device.',
+    'set.modeNeedsAdmin': 'macOS asks for administrator approval when connecting. Vyrax runs as your regular user.',
+    'set.sharePrivate': 'Both devices must use the same trusted network. Allow local-network access if macOS requests it.',
+    'err.admin': 'macOS administrator approval is required to configure the VPN.',
+    'err.sharePrivate': 'Proxy sharing needs a trusted local network.',
+    'err.shareFirewall': 'macOS could not allow proxy sharing. Check the app’s local-network and firewall permissions.'
+  },
+  fa: {
+    'set.modeSub': 'پروکسی روی برنامه‌هایی کار می‌کند که از پروکسی سیستم استفاده می‌کنند؛ VPN ترافیک کل دستگاه را عبور می‌دهد.',
+    'set.modeNeedsAdmin': 'هنگام اتصال، macOS تأیید مدیر می‌خواهد؛ خودِ Vyrax با دسترسی معمولی اجرا می‌شود.',
+    'set.sharePrivate': 'هر دو دستگاه باید روی یک شبکهٔ مطمئن باشند. اگر macOS درخواست دسترسی به شبکهٔ محلی داد، آن را تأیید کن.',
+    'err.admin': 'برای تنظیم VPN، تأیید مدیر macOS لازم است.',
+    'err.sharePrivate': 'اشتراک پروکسی به یک شبکهٔ محلی مطمئن نیاز دارد.',
+    'err.shareFirewall': 'macOS اجازهٔ اشتراک پروکسی را نداد؛ مجوز شبکهٔ محلی و فایروال برنامه را بررسی کن.'
+  }
+};
+
 function read() {
   try {
     const saved = localStorage.getItem('vyrax-lang');
@@ -566,7 +585,7 @@ export function I18nProvider({ children }) {
   }, [lang]);
 
   function t(key, vars) {
-    const s = STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+    const s = (platform === 'macos' ? MAC_STRINGS[lang]?.[key] : undefined) ?? STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
     return vars ? s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? '')) : s;
   }
 

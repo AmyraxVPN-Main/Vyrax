@@ -14,7 +14,8 @@ data.update(CFBundleIdentifier='com.amyrax.vyrax', CFBundleName='Vyrax', CFBundl
             CFBundleVersion=version, NSHumanReadableCopyright='Copyright (c) 2026 Amyrax — MIT',
             LSMinimumSystemVersion='13.0', LSApplicationCategoryType='public.app-category.utilities',
             NSHighResolutionCapable=True, NSSupportsAutomaticGraphicsSwitching=True,
-            NSRequiresAquaSystemAppearance=False)
+            NSRequiresAquaSystemAppearance=False,
+            NSLocalNetworkUsageDescription='Vyrax can share your connection with devices on the same trusted network when you enable Proxy Sharing.')
 with file.open('wb') as stream:
     plistlib.dump(data, stream)
 for helper in (app / 'Contents/Frameworks').glob('Electron Helper*.app'):
