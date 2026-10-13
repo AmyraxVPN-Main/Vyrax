@@ -1,0 +1,68 @@
+[
+  {
+    "name": "xray",
+    "url": "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/Xray-linux-64.zip",
+    "sha256": "23cd9af937744d97776ee35ecad4972cf4b2109d1e0fe6be9930467608f7c8ae",
+    "version": "26.3.27",
+    "verifiedReleaseDigest": true,
+    "arch": "x64"
+  },
+  {
+    "name": "sing-box",
+    "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.3/sing-box-1.14.3-linux-amd64.tar.gz",
+    "sha256": "e2bdf179c15a3652955dc44867e33ca0965c9c9b91b34267dcc5a5d639a5feee",
+    "version": "1.14.3",
+    "verifiedReleaseDigest": true,
+    "arch": "x64"
+  },
+  {
+    "name": "electron",
+    "url": "https://github.com/electron/electron/releases/download/v44.7.0/electron-v44.7.0-linux-x64.zip",
+    "sha256": "3ae7d5bdad61c664486c6ab61361dd084d064c8c08af8d13a687096e18ce555a",
+    "version": "44.7.0",
+    "verifiedReleaseDigest": true,
+    "arch": "x64"
+  },
+  {
+    "name": "xray",
+    "url": "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/Xray-linux-arm64-v8a.zip",
+    "sha256": "4d30283ae614e3057f730f67cd088a42be6fdf91f8639d82cb69e48cde80413c",
+    "version": "26.3.27",
+    "verifiedReleaseDigest": true,
+    "arch": "arm64"
+  },
+  {
+    "name": "sing-box",
+    "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.3/sing-box-1.14.3-linux-arm64.tar.gz",
+    "sha256": "29dae24d76bea3bc62d07dd3e60cfc12003de7debbd6b768df9be9c68360174e",
+    "version": "1.14.3",
+    "verifiedReleaseDigest": true,
+    "arch": "arm64"
+  },
+  {
+    "name": "electron",
+    "url": "https://github.com/electron/electron/releases/download/v44.7.0/electron-v44.7.0-linux-arm64.zip",
+    "sha256": "9cd736d1f5873839553c3fa6c8c5e57635ec4a399cc2d32e79c82a02d9cd2258",
+    "version": "44.7.0",
+    "verifiedReleaseDigest": true,
+    "arch": "arm64"
+  },
+  {
+    "url": "https://codeload.github.com/SagerNet/sing-box/tar.gz/refs/tags/v1.14.3",
+    "file": "sing-box-v1.14.3-source.tar.gz",
+    "name": "sing-box-source",
+    "sha256": "9a8e3712a5f611ad95f1d16874bbdcdffbd3b8eed16dae2d71ce7042a33c3386",
+    "arch": "source",
+    "version": "1.14.3",
+    "verifiedReleaseDigest": false
+  },
+  {
+    "url": "https://codeload.github.com/XTLS/Xray-core/tar.gz/refs/tags/v26.3.27",
+    "file": "Xray-core-v26.3.27-source.tar.gz",
+    "name": "xray-source",
+    "sha256": "992a4997e6bb846d11469435d687f99ef812fcde1e0a009bb8e95189ea20331d",
+    "arch": "source",
+    "version": "26.3.27",
+    "verifiedReleaseDigest": false
+  }
+]

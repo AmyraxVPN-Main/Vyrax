@@ -1,0 +1,12 @@
+{
+  "name": "vyrax-linux",
+  "version": "0.1.19",
+  "private": true,
+  "main": "main.cjs",
+  "license": "MIT",
+  "author": "Amyrax",
+  "devDependencies": {
+    "electron": "44.7.0",
+    "playwright-core": "1.64.0"
+  }
+}

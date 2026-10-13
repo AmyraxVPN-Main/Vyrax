@@ -1,2 +1,6 @@
 android/gradlew text eol=lf
 android/tests/*.sh text eol=lf
+linux/*.py text eol=lf
+linux/*.sh text eol=lf
+linux/tests/*.sh text eol=lf
+scripts/*linux*.sh text eol=lf

@@ -9,6 +9,8 @@ export const LANGS = [
 
 const STRINGS = {
   en: {
+    'err.proxyUnavailable': 'Desktop proxy settings are unavailable. Use TUN mode on this desktop.',
+    'err.proxyRestore': 'Could not restore the desktop proxy settings.',
     'set.androidModeSub': 'VPN covers the device. Proxy creates local SOCKS/HTTP endpoints for apps configured to use them.',
     'err.vpnPermission': 'VPN permission was not granted.',
     'about.free': 'Free and open source, made by Amyrax.',
@@ -273,6 +275,8 @@ const STRINGS = {
   },
 
   fa: {
+    'err.proxyUnavailable': 'تنظیمات پروکسی این محیط دسکتاپ در دسترس نیست. از حالت TUN استفاده کن.',
+    'err.proxyRestore': 'بازگرداندن تنظیمات پروکسی دسکتاپ انجام نشد.',
     'set.androidModeSub': 'VPN ترافیک دستگاه را پوشش می‌دهد. پروکسی یک اتصال محلی SOCKS/HTTP برای برنامه‌هایی می‌سازد که آن را تنظیم کنید.',
     'err.vpnPermission': 'اجازهٔ اتصال VPN داده نشد.',
     'about.free': 'رایگان و متن‌باز، ساخته‌شده توسط Amyrax.',

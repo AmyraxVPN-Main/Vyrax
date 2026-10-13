@@ -110,7 +110,7 @@ export default function App() {
         if (!started.current) {
           started.current = true;
           call('ready', {}, { timeout: 240000 }).then(snapshot => {
-            if (!alive || !snapshot || platform !== 'android') return;
+            if (!alive || !snapshot || !['android','linux'].includes(platform)) return;
             if (snapshot.profileId) setSelectedId(snapshot.profileId);
             if (snapshot.selectionMode) setSelectionMode(snapshot.selectionMode);
             const since = Date.parse(snapshot.since);

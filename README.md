@@ -20,7 +20,12 @@ Automatic and balanced routing stay inside the selected group.
 
 Android uses a separate Java/WebView host with Android VPN services. Builds cover
 `arm64-v8a`, `armeabi-v7a` and a universal APK; see [Android build details](docs/android.md)
-for requirements, behavior and testing limits. iOS, macOS and Linux are planned.
+for requirements, behavior and testing limits.
+
+Linux desktop packages are available as `.deb` and portable `.tar.gz` for x64 and
+ARM64. The Electron host shares the same interface and uses Xray plus a
+Polkit-authorized sing-box TUN helper. See [Linux installation/build details](docs/linux.md).
+iOS and macOS are planned.
 See [the platform plan](docs/platforms.md) for their required VPN services.
 
 ## Windows build

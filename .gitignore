@@ -8,6 +8,9 @@ release/
 vendor/*
 !vendor/versions.json
 !vendor/android-versions.json
+!vendor/linux-versions.json
+linux/node_modules/
+linux/build/
 .tools/*
 !.tools/selftest/
 !.tools/parse-test.mjs

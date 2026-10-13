@@ -6,13 +6,15 @@ const tauri = typeof window !== 'undefined' ? window.__TAURI__ : null;
 const webview2 =
   typeof window !== 'undefined' ? window.chrome?.webview ?? null : null;
 const android = typeof window !== 'undefined' ? window.VyraxAndroid ?? null : null;
+const linux = typeof window !== 'undefined' ? window.VyraxLinux ?? null : null;
 
-export const platform = android ? 'android' : tauri ? 'tauri' : webview2 ? 'webview2' : 'browser';
+export const platform = linux ? 'linux' : android ? 'android' : tauri ? 'tauri' : webview2 ? 'webview2' : 'browser';
 export const native = platform !== 'browser';
 
 const listeners = new Set();
 const pending = new Map();
 let sequence = 0;
+if (linux) linux.subscribe(data => listeners.forEach(fn => fn(data)));
 
 /* ---------- WebView2: پروتکل postMessage ---------- */
 function receive(data) {
@@ -66,6 +68,7 @@ function callTauri(action, args) {
 }
 
 export function call(action, args = {}, options = {}) {
+  if (linux) return linux.call(action, args);
   if (platform === 'android') return callWebview2(action, args, options.timeout);
   if (platform === 'webview2') return callWebview2(action, args, options.timeout);
   if (platform === 'tauri') return callTauri(action, args);

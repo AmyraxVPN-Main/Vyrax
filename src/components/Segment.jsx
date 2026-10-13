@@ -10,7 +10,7 @@ export default function Segment({ options, value, onChange }) {
   return (
     <div className="seg" dir={rtl ? 'rtl' : 'ltr'}>
       <Surface blur={6} className="seg-track" aria-hidden="true">
-        <Surface.Item><div className="seg-bg" /></Surface.Item>
+        <Surface.Item observe><div className="seg-bg" /></Surface.Item>
       </Surface>
       <Liquid blur={6} contrast={20} fill="var(--accent-fill)" className="seg-thumb-layer" aria-hidden="true">
         <Liquid.Item effect="move" move={{ springiness: .6, trail: .45 }}>

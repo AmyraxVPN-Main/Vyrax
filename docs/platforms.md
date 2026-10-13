@@ -2,7 +2,9 @@
 
 Windows x64 is the existing desktop release. An Android host/build is implemented
 in `android`; see `docs/android.md` for APK architectures and validation limits.
-iOS, macOS and Linux are planned, not yet shipped.
+Linux x64 and ARM64 desktop packages are implemented in `linux`; see
+`docs/linux.md` for installation, builds and verification limits.
+iOS and macOS are planned, not yet shipped.
 
 ## Shared application layer
 
@@ -23,7 +25,7 @@ local to the device, with platform secure storage for VPN credentials.
 | --- | --- |
 | Windows | Existing C# / WebView2 host, Xray, sing-box, Wintun and administrator startup. |
 | macOS | A macOS host and signed VPN/network integration; reuse the desktop interface. |
-| Linux | A Linux host, desktop/webview runtime and privileged TUN service using Linux routing/DNS APIs. |
+| Linux | Implemented Electron host, GNOME/KDE proxy integration, Xray transports and a Polkit-authorized sing-box TUN lease with IPv4/IPv6/DNS. |
 | Android | Implemented Java/WebView host, `VpnService`, foreground notification, Android permission flow, Xray library and hev-socks5-tunnel. |
 | iOS | Apple Network Extension / Packet Tunnel Provider, VPN entitlement, signed app/extension and supported core libraries. |
 

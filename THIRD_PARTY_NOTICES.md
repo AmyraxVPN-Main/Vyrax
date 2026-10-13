@@ -4,12 +4,18 @@ Vyrax application code is Copyright (c) 2026 Amyrax and licensed under MIT.
 Third-party software keeps its own copyright and license. The MIT license for
 Vyrax does not relicense the components below.
 
-## VPN components shipped with the Windows package
+## Desktop VPN components
 
 - Xray-core 26.3.27: Mozilla Public License 2.0.
   Source: https://github.com/XTLS/Xray-core/tree/v26.3.27
 - sing-box 1.14.3: GNU GPL version 3 or later, with its upstream name/association
   notice. Source: https://github.com/SagerNet/sing-box/tree/v1.14.3
+
+Windows and Linux ship the corresponding platform builds of these separate
+executables. Linux runtime pins are in `vendor/linux-versions.json`. The Linux
+release includes exact core source archives and build/replacement instructions
+alongside the packages. Windows-only components follow:
+
 - Wintun 0.14.1: upstream prebuilt-binaries license. The driver is distributed
   alongside software using its permitted API. The source project is available
   at https://git.zx2c4.com/wintun/ . The prebuilt binary is not MIT licensed.
@@ -39,7 +45,15 @@ retain the licenses listed in their packages and are not relicensed by Vyrax.
 The full flag-icons copyright and MIT license for the SVG assets in `public/flags`
 also accompany the source tree in `third_party/flag-icons-MIT.txt`.
 
-## Android package
+## Linux desktop host
+
+- Electron 44.7.0: MIT; Chromium and its bundled dependencies retain the notices
+  shipped in `licenses/LICENSES.chromium.html`.
+  Source: https://github.com/electron/electron/tree/v44.7.0 .
+- Python 3, curl, Polkit and desktop settings utilities are system dependencies,
+  not bundled interpreters/libraries. They keep their distributions' licenses.
+
+## Android native components
 
 - AndroidLibXrayLite 26.10.10: LGPL version 3. The native library embeds Xray-core
   26.10.10, whose source is covered by MPL 2.0. Both retain upstream copyrights.

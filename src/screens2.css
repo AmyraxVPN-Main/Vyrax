@@ -92,7 +92,7 @@
 .seg-bg { width:100%; height:38px; border-radius:19px; }
 .seg-thumb-layer { padding:4px; direction:ltr; }
 .seg-thumb { height:30px; border-radius:15px; transition:transform .42s var(--soft-spring); }
-.seg-btn { position:relative; flex:1; font-size:11.5px; font-weight:650; color:var(--faint); transition:color .3s; }
+.seg-btn { position:relative; flex:1 1 0; min-width:0; font-size:11.5px; font-weight:650; color:var(--faint); transition:color .3s; }
 .seg-btn.on { color:var(--accent-ink); }
 
 

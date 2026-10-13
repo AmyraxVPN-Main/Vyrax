@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Amyrax
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import net from 'node:net';
+import { _electron } from 'playwright-core';
+const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'vyrax-desktop-test-'));
+const results=path.resolve('release/linux-0.1.19');await fs.mkdir(results,{ recursive:true });
+const sockets=new Set(),stalled=net.createServer(socket => { sockets.add(socket);socket.on('error',() => {});socket.on('close',() => sockets.delete(socket)); });
+await new Promise(resolve => stalled.listen(0,'127.0.0.1',resolve));const stalledPort=stalled.address().port;
+const app=await _electron.launch({ executablePath:process.env.VYRAX_TEST_DESKTOP || '/opt/Vyrax/vyrax-bin',chromiumSandbox:true,env:{ ...process.env,XDG_CONFIG_HOME:temporary,XDG_CURRENT_DESKTOP:'GNOME',ELECTRON_ENABLE_LOGGING:'1' } });
+try {
+  const page=await app.firstWindow();const errors=[];page.on('pageerror',e => errors.push(e.message));
+  await page.waitForSelector('.shell');await page.waitForTimeout(500);
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.platform),'linux');
+  assert.equal(await page.evaluate(() => typeof window.require),'undefined');
+  assert.equal(await page.evaluate(() => typeof window.process),'undefined');
+  await page.evaluate(() => window.VyraxLinux.call('copy',{ text:'Vyrax synthetic clipboard check' }));
+  assert.equal(await page.evaluate(() => window.VyraxLinux.call('clipboard')),'Vyrax synthetic clipboard check');
+  const error=await page.evaluate(async () => { try { await window.VyraxLinux.call('openProjectLink',{ target:'invalid' }); } catch (e) { return e.message; } });assert.equal(error,'err.action');
+  const native=await app.evaluate(({ BrowserWindow }) => { const w=BrowserWindow.getAllWindows()[0];return { frame:w.isResizable(),webPreferences:w.webContents.getLastWebPreferences() }; });
+  assert.equal(native.webPreferences.sandbox,true);assert.equal(native.webPreferences.contextIsolation,true);assert.equal(native.webPreferences.nodeIntegration,false);
+  await page.screenshot({ path:path.join(results,'desktop-en.png') });
+  console.log('Desktop loaded with sandboxed bridge, clipboard, translated errors and desktop layout');
+  const profile={ id:'fixture',sourceId:'test-group',name:'Linux fixture',protocol:'vless',transport:'tcp',host:'127.0.0.1',port:stalledPort,uuid:'00000000-0000-4000-8000-000000000001',cc:'de' };
+  const saved={ profiles:[profile],subscriptions:[{ id:'test-group',kind:'local',name:'Linux test subscription' }],selectedId:'fixture',activeSourceId:'test-group',selectionMode:'manual',settings:{ preferencesVersion:1,mode:'proxy',theme:'dark',mtu:1280 } };
+  await page.evaluate(data => window.VyraxLinux.call('save',data),saved);await page.reload();await page.waitForTimeout(600);
+  await page.getByRole('button',{ name:'locations',exact:true }).click();await page.waitForSelector('.locations');
+  await page.locator('.check-row').click();
+  await page.locator('.source-picker').click();await page.waitForSelector('.subscriptions-sheet');
+  await page.locator('.sub-actions button').first().click();
+  await page.waitForSelector('.toast');
+  assert.ok(await page.locator('.toast').evaluate(el => +getComputedStyle(el).zIndex > +getComputedStyle(document.querySelector('.sheet-backdrop')).zIndex));
+  await page.locator('.sub-actions button').nth(1).click();await page.waitForSelector('.qr-share img');
+  await page.locator('.subscriptions-sheet .sheet-close').click({ timeout:1500 });
+  assert.equal(await page.locator('.subscriptions-sheet').count(),0);
+  console.log('Subscription copy, toast, QR and close work while delay is stalled');
+  await page.getByRole('button',{ name:'settings',exact:true }).click();
+  await page.getByRole('button',{ name:'فارسی',exact:true }).click();
+  assert.equal(await page.evaluate(() => document.documentElement.dir),'rtl');
+  await page.waitForTimeout(1000);
+  console.log(await page.locator('.seg').evaluate(el => ({ buttons:[...el.querySelectorAll('button')].map(v => ({ text:v.textContent,rect:v.getBoundingClientRect().toJSON() })),thumb:el.querySelector('.seg-thumb').getBoundingClientRect().toJSON(),shapes:[...el.querySelectorAll('svg rect')].map(v => ({ width:v.getAttribute('width'),style:v.getAttribute('style') })) })));
+  await page.screenshot({ path:path.join(results,'desktop-fa.png') });
+  console.log('Persian RTL layout and language persistence verified');
+  assert.deepEqual(errors,[]);
+  await fs.writeFile(path.join(results,'desktop-verification.json'),JSON.stringify({ launch:true,platform:'linux',chromiumSandbox:true,rendererSandbox:true,contextIsolation:true,nodeIntegration:false,clipboard:true,errorTranslation:true,nonblockingSubscriptionCopy:true,nonblockingQR:true,nonblockingDialogClose:true,persianRTL:true,rendererErrors:errors },null,2));
+} finally { for (const socket of sockets) socket.destroy();stalled.close();await app.close();await fs.rm(temporary,{ recursive:true,force:true }); }
