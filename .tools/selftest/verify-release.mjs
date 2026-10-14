@@ -58,7 +58,7 @@ const result = files.map(file => {
   assert.equal(matchingImages, 9, `${file}: all nine Vyrax icon images embedded`);
   const manifests = entries.filter(e => e.keys[0] === 24).map(e => e.data.toString('utf8')).join('\n');
   const requestedLevel = /requestedExecutionLevel[^>]+level="([^"]+)"/.exec(manifests)?.[1];
-  assert.equal(requestedLevel, file.includes('/Vyrax/') ? 'requireAdministrator' : 'asInvoker');
+  assert.equal(requestedLevel, path.basename(file).toLowerCase() === 'vyrax.exe' ? 'requireAdministrator' : 'asInvoker');
   const versionResources = entries.filter(e => e.keys[0] === 16);
   assert.ok(versionResources.some(e => e.data.includes(Buffer.from('Copyright (c) 2026 Amyrax','utf16le'))), `${file}: Amyrax copyright embedded`);
   return { file, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), iconSizesVerified: matchingImages, requestedLevel };

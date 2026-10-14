@@ -9,6 +9,7 @@ see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 - Project: https://github.com/AmyraxVPN-Main/Vyrax
 - Telegram: https://t.me/AmyraxVPN
+- Website and platform downloads: https://amyraxvpn-main.github.io/Vyrax/
 - Latest published release: https://github.com/AmyraxVPN-Main/Vyrax/releases/latest
 
 ## Current platform
@@ -29,7 +30,8 @@ macOS ARM64 (Apple Silicon) and x64 (Intel) use the same desktop interface with
 native authorization, Keychain storage and a leased `utun` helper. Build outputs
 are DMG/ZIP packages; see [macOS installation/build details](docs/macos.md),
 including the initial ad-hoc signing and notarization limitation.
-iOS is planned.
+iOS has a development host and Packet Tunnel extension. Public installation is
+not available yet; Apple signing/provisioning and real-device testing are required.
 See [the platform plan](docs/platforms.md) for their required VPN services.
 
 ## Windows build

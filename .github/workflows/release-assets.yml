@@ -1,0 +1,75 @@
+name: Assemble verified desktop release assets
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing draft release tag
+        required: true
+      linux_run:
+        description: Successful Linux build run ID
+        required: true
+      macos_run:
+        description: Successful macOS build run ID
+        required: true
+permissions:
+  actions: read
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      LINUX_RUN: ${{ inputs.linux_run }}
+      MACOS_RUN: ${{ inputs.macos_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check inputs and successful source builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$LINUX_RUN" =~ ^[0-9]+$ && "$MACOS_RUN" =~ ^[0-9]+$ ]]
+          test "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" = true
+          for run in "$LINUX_RUN" "$MACOS_RUN"; do
+            test "$(gh run view "$run" --json conclusion --jq .conclusion)" = success
+          done
+      - name: Download explicit platform artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for arch in x64 arm64; do
+            gh run download "$LINUX_RUN" --name "Vyrax-linux-$arch" --dir "packages/linux-$arch"
+            gh run download "$MACOS_RUN" --name "Vyrax-macos-$arch" --dir "packages/macos-$arch"
+          done
+      - name: Verify checksums, versions and paired sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          mkdir publish
+          for arch in x64 arm64; do
+            (cd "packages/linux-$arch"; sha256sum -c "SHA256SUMS-$arch.txt")
+            (cd "packages/macos-$arch"; sha256sum -c "SHA256SUMS-$arch.txt")
+            deb="packages/linux-$arch/Vyrax-$version-linux-$arch.deb"
+            test "$(dpkg-deb -f "$deb" Version)" = "$version"
+            test "$(dpkg-deb -f "$deb" Architecture)" = "$([ "$arch" = x64 ] && echo amd64 || echo arm64)"
+            cp "$deb" "packages/linux-$arch/Vyrax-$version-linux-$arch.tar.gz" publish/
+            cp "packages/macos-$arch/Vyrax-$version-macos-$arch.dmg" "packages/macos-$arch/Vyrax-$version-macos-$arch.zip" publish/
+          done
+          for name in sing-box-v1.14.3-source.tar.gz Xray-core-v26.3.27-source.tar.gz; do
+            cmp "packages/linux-x64/sources/$name" "packages/linux-arm64/sources/$name"
+            cmp "packages/linux-x64/sources/$name" "packages/macos-arm64/sources/$name"
+            cp "packages/linux-x64/sources/$name" publish/
+          done
+          cp docs/linux-sources.md publish/Linux-BUILDING.md
+          cp docs/macos-sources.md publish/macOS-BUILDING.md
+          cp LICENSE THIRD_PARTY_NOTICES.md publish/
+          (cd publish; sha256sum * > DESKTOP-SHA256SUMS.txt)
+      - name: Upload allowlisted installers and corresponding sources to draft
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in publish/*; do gh release upload "$RELEASE_TAG" "$file"; done
