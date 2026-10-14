@@ -62,7 +62,7 @@ import WebKit
         try await screenshot(host,"iphone-settings-fa")
         _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[1].click()")
         try await Task.sleep(nanoseconds:400_000_000)
-        let title=try await evaluate(host,"document.querySelector('.source-picker').innerText") as? String
+        let title=try await evaluate(host,"document.querySelector('.source-picker').innerText.trim()") as? String
         XCTAssertEqual(title,"iPhone test group")
         _=try await evaluate(host,"document.querySelector('.check-row').click();document.querySelector('.source-picker').click()")
         try await Task.sleep(nanoseconds:200_000_000)
