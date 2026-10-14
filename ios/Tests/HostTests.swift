@@ -24,52 +24,69 @@ import WebKit
         defer{window.isHidden=true}
         for _ in 0..<100 {
             try await Task.sleep(nanoseconds:100_000_000)
-            if (try? await host.web.evaluateJavaScript("!!document.querySelector('.dial')")) as? Bool == true {break}
+            if (try? await evaluate(host,"!!document.querySelector('.dial')")) as? Bool == true {break}
         }
-        let platform=try await host.web.evaluateJavaScript("document.documentElement.dataset.platform") as? String
+        let platform=try await evaluate(host,"document.documentElement.dataset.platform") as? String
         XCTAssertEqual(platform,"ios")
-        let uuid=try await host.web.evaluateJavaScript("crypto.randomUUID()") as? String
+        let uuid=try await evaluate(host,"crypto.randomUUID()") as? String
         XCTAssertNotNil(uuid.flatMap{UUID(uuidString:$0)})
-        let controls=try await host.web.evaluateJavaScript("document.querySelectorAll('.bar-btn').length") as? Int
-        let radius=try await host.web.evaluateJavaScript("getComputedStyle(document.querySelector('.shell')).borderRadius") as? String
+        let controls=try await evaluate(host,"document.querySelectorAll('.bar-btn').length") as? Int
+        let radius=try await evaluate(host,"getComputedStyle(document.querySelector('.shell')).borderRadius") as? String
         XCTAssertEqual(controls,0);XCTAssertEqual(radius,"0px")
         try await screenshot(host,"iphone-home")
-        let result=try await host.web.callAsyncJavaScript("""
+        let result=try await call(host,"""
         return await new Promise(resolve => {
           const original=window.__vyraxNativeEvent;
           window.__vyraxNativeEvent = data => { if(data.id===901){window.__vyraxNativeEvent=original;resolve(data.result)} else original(data) };
           window.webkit.messageHandlers.vyrax.postMessage({id:901,action:'validateSettings',args:{mode:'proxy',proxyShare:true,mtu:1280}});
         });
-        """,arguments:[:],in:nil,contentWorld:.page) as? [String:Any]
+        """) as? [String:Any]
         XCTAssertEqual(result?["mode"] as? String,"tun");XCTAssertEqual(result?["proxyShare"] as? Bool,false)
-        _=try await host.web.evaluateJavaScript("document.querySelectorAll('.tabs-row button')[2].click()")
+        _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[2].click()")
         try await Task.sleep(nanoseconds:400_000_000)
-        let modes=try await host.web.evaluateJavaScript("document.querySelectorAll('.prefs .seg').length") as? Int
-        let text=try await host.web.evaluateJavaScript("document.querySelector('.prefs').innerText") as? String
+        let modes=try await evaluate(host,"document.querySelectorAll('.prefs .seg').length") as? Int
+        let text=try await evaluate(host,"document.querySelector('.prefs').innerText") as? String
         XCTAssertEqual(modes,0);XCTAssertNotNil(text)
-        _=try await host.web.evaluateJavaScript("document.querySelector('.language-picker button[lang=fa]').click()")
+        _=try await evaluate(host,"document.querySelector('.language-picker button[lang=fa]').click()")
         try await Task.sleep(nanoseconds:400_000_000)
-        let direction=try await host.web.evaluateJavaScript("document.documentElement.dir") as? String
+        let direction=try await evaluate(host,"document.documentElement.dir") as? String
         XCTAssertEqual(direction,"rtl")
         try await screenshot(host,"iphone-settings-fa")
-        _=try await host.web.evaluateJavaScript("document.querySelectorAll('.tabs-row button')[1].click()")
+        _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[1].click()")
         try await Task.sleep(nanoseconds:400_000_000)
-        let title=try await host.web.evaluateJavaScript("document.querySelector('.source-picker').innerText") as? String
+        let title=try await evaluate(host,"document.querySelector('.source-picker').innerText") as? String
         XCTAssertEqual(title,"iPhone test group")
-        _=try await host.web.evaluateJavaScript("document.querySelector('.check-row').click();document.querySelector('.source-picker').click()")
+        _=try await evaluate(host,"document.querySelector('.check-row').click();document.querySelector('.source-picker').click()")
         try await Task.sleep(nanoseconds:200_000_000)
-        let disabled=try await host.web.evaluateJavaScript("document.querySelector('.subscriptions-sheet .sheet-close').disabled") as? Bool
+        let disabled=try await evaluate(host,"document.querySelector('.subscriptions-sheet .sheet-close').disabled") as? Bool
         XCTAssertEqual(disabled,false)
-        _=try await host.web.evaluateJavaScript("document.querySelector('.sub-actions button[aria-label*=Copy],.sub-actions button').click()")
+        _=try await evaluate(host,"document.querySelector('.sub-actions button[aria-label*=Copy],.sub-actions button').click()")
         try await Task.sleep(nanoseconds:300_000_000)
         try await screenshot(host,"iphone-subscriptions-fa")
-        _=try await host.web.evaluateJavaScript("document.querySelector('.subscriptions-sheet .sheet-close').click()")
+        _=try await evaluate(host,"document.querySelector('.subscriptions-sheet .sheet-close').click()")
         try await Task.sleep(nanoseconds:300_000_000)
-        let closed=try await host.web.evaluateJavaScript("!document.querySelector('.subscriptions-sheet')") as? Bool
+        let closed=try await evaluate(host,"!document.querySelector('.subscriptions-sheet')") as? Bool
         XCTAssertEqual(closed,true)
-        _=try await host.web.evaluateJavaScript("document.querySelectorAll('.tabs-row button')[0].click()")
+        _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[0].click()")
         try await Task.sleep(nanoseconds:700_000_000)
         try await screenshot(host,"iphone-home-fa")
+    }
+    // Use the public completion APIs on iOS 16+ rather than the Swift WebKit
+    // async overlay, which is absent from some supported simulator runtimes.
+    private func evaluate(_ host:WebController,_ script:String) async throws -> Any {
+        try await withCheckedThrowingContinuation{continuation in
+            host.web.evaluateJavaScript(script){value,error in
+                if let error{continuation.resume(throwing:error)}
+                else{continuation.resume(returning:value ?? NSNull())}
+            }
+        }
+    }
+    private func call(_ host:WebController,_ script:String) async throws -> Any {
+        try await withCheckedThrowingContinuation{continuation in
+            host.web.callAsyncJavaScript(script,arguments:[:],in:nil,contentWorld:.page){result in
+                continuation.resume(with:result)
+            }
+        }
     }
     private func screenshot(_ host:WebController,_ name:String) async throws {
         let image:UIImage=try await withCheckedThrowingContinuation{continuation in
