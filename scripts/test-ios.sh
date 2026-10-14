@@ -7,7 +7,12 @@ out="$PWD/release/ios-$version"
 device=$(xcrun simctl list devices available -j | python3 -c 'import json,sys;d=json.load(sys.stdin);print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if x["name"].startswith("iPhone")))')
 xcrun simctl boot "$device" || true
 xcrun simctl bootstatus "$device" -b
-xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -destination "platform=iOS Simulator,id=$device" -derivedDataPath "$PWD/ios/build/DerivedData" -resultBundlePath "$PWD/ios/build/HostTests.xcresult" CODE_SIGNING_ALLOWED=NO test-without-building > "$out/host-tests.log" 2>&1 || { tail -100 "$out/host-tests.log";exit 1; }
+xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -destination "platform=iOS Simulator,id=$device" -derivedDataPath "$PWD/ios/build/DerivedData" -resultBundlePath "$PWD/ios/build/HostTests.xcresult" CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- test-without-building > "$out/host-tests.log" 2>&1 || {
+  tail -100 "$out/host-tests.log"
+  xcrun simctl spawn "$device" log show --last 3m --style compact --predicate 'process == "amfid" OR process == "runningboardd"' > "$out/simulator-launch.log" 2>&1 || true
+  xcrun xcresulttool export attachments --path ios/build/HostTests.xcresult --output-path "$out/ui-snapshots" || true
+  exit 1
+}
 xcrun simctl launch "$device" com.amyrax.vyrax
 xcrun simctl io "$device" screenshot "$out/iphone-ui.png"
 xcrun xcresulttool get test-results summary --path ios/build/HostTests.xcresult --format json > "$out/host-tests-summary.json"

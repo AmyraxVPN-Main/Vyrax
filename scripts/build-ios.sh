@@ -18,11 +18,10 @@ if [[ "${VYRAX_IOS_CORES_READY:-}" != 1 ]]; then bash scripts/build-ios-cores.sh
 xcodegen generate --spec ios/project.yml
 xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -configuration Release -destination 'generic/platform=iOS' -archivePath "$PWD/ios/build/Vyrax-unsigned.xcarchive" CODE_SIGNING_ALLOWED=NO archive > "$out/device-build.log" 2>&1 || { tail -100 "$out/device-build.log"; exit 1; }
 ditto -c -k --keepParent ios/build/Vyrax-unsigned.xcarchive "$out/Vyrax-$VYRAX_VERSION-ios-arm64-UNSIGNED.xcarchive.zip"
-xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath "$PWD/ios/build/DerivedData" ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO build-for-testing > "$out/simulator-build.log" 2>&1 || { grep -n -C 3 'error:' "$out/simulator-build.log" || true; tail -35 "$out/simulator-build.log"; exit 1; }
+xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath "$PWD/ios/build/DerivedData" ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- build-for-testing > "$out/simulator-build.log" 2>&1 || { grep -n -C 3 'error:' "$out/simulator-build.log" || true; tail -35 "$out/simulator-build.log"; exit 1; }
 # Simulator Keychain requires an application identity even for local host tests.
 # This ad hoc signature is only for Simulator; the device archive stays unsigned.
 simapp="$PWD/ios/build/DerivedData/Build/Products/Debug-iphonesimulator/Vyrax.app"
-codesign --force --deep --sign - --entitlements ios/App/Simulator.entitlements "$simapp"
 codesign --verify --deep --strict "$simapp"
 ditto -c -k --keepParent "$simapp" "$out/Vyrax-$VYRAX_VERSION-ios-simulator.app.zip"
 cp ios/Engine/go.mod ios/Engine/go.sum "$out/"
