@@ -767,7 +767,21 @@ section[id] { scroll-margin-top: 76px; }
 .app-shot figcaption { text-align: center; margin-top: 16px;
   font-size: 12px; color: var(--muted); line-height: 1.8; }
 .fxdeck-wrap { max-width: 420px; margin-inline: auto; }
-.fxdeck { aspect-ratio: auto; width: min(300px, 80%); touch-action: pan-y; }
+.fxdeck { position: relative; aspect-ratio: auto; width: min(300px, 80%); touch-action: pan-y; }
+.gallery-shot { transition: opacity .18s var(--ease); }
+.fxdeck[data-state] .gallery-shot { opacity: .35; }
+.gallery-status { display: none; position: absolute; z-index: 3; inset: 0;
+  align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+  padding: 24px; text-align: center; font-size: 13px; line-height: 1.8;
+  color: var(--ink); background: rgba(8,7,13,.45); border-radius: 14px; }
+.fxdeck[data-state] .gallery-status { display: flex; }
+.gallery-status__spinner { width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--line-strong); border-top-color: var(--theme-accent,var(--ink));
+  animation: gallery-spin .7s linear infinite; }
+.fxdeck[data-state="error"] .gallery-status__spinner { display: none; }
+#retry-theme { color: var(--ink); background: var(--panel-2); border: 1px solid var(--line-strong);
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+@keyframes gallery-spin { to { transform: rotate(360deg); } }
 .themes__name:lang(fa) { font-family: 'Vazirmatn', Tahoma, sans-serif; }
 .fxdot { position: relative; }
 .fxdot::after { content: ''; position: absolute; inset: -9px -4px; }
@@ -801,9 +815,27 @@ section[id] { scroll-margin-top: 76px; }
 .download-info h3 { margin: 0 0 10px; font-size: 19px; direction: ltr; text-align: start; }
 .download-info p { color: var(--muted); font-size: 13px; line-height: 1.9; margin: 0 0 22px; }
 .download-info label { display: block; font-size: 13px; margin-bottom: 8px; }
-#architecture { width: 100%; min-width: 0; background: var(--panel-2); color: var(--ink);
-  border: 1px solid var(--line-strong); border-radius: 9px; padding: 11px 10px;
-  font-size: 12px; direction: ltr; }
+.build-select { position: relative; }
+#architecture { width: 100%; min-width: 0; display: flex; align-items: center;
+  justify-content: space-between; gap: 12px; background: var(--panel-2); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: 9px; padding: 11px 12px;
+  font-size: 12px; direction: ltr; text-align: left; cursor: pointer;
+  transition: border-color .2s, background .2s; }
+#architecture:hover, #architecture[aria-expanded="true"] { border-color: rgba(242,240,247,.5); }
+#architecture:focus-visible { outline: 2px solid var(--line-strong); outline-offset: 3px; }
+#architecture svg { width: 14px; height: 14px; flex: 0 0 auto; transition: transform .2s; }
+#architecture[aria-expanded="true"] svg { transform: rotate(180deg); }
+#architecture-options { position: absolute; z-index: 30; top: calc(100% + 8px); inset-inline: 0;
+  max-height: 256px; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--panel-2); color: var(--ink); border: 1px solid var(--line-strong);
+  border-radius: 11px; padding: 5px; box-shadow: 0 18px 40px rgba(0,0,0,.5);
+  direction: ltr; text-align: left; font-size: 12px; }
+#architecture-options [role="option"] { display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; min-height: 40px; padding: 9px 10px; border-radius: 6px; cursor: pointer; }
+#architecture-options [role="option"][data-highlighted="true"] { background: var(--hl); }
+#architecture-options [role="option"][aria-selected="true"] { color: var(--ink); font-weight: 600; }
+#architecture-options [role="option"]::after { content: ''; flex: 0 0 12px; }
+#architecture-options [role="option"][aria-selected="true"]::after { content: '✓'; }
 .download-action { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 14px;
   font: inherit; font-size: 14px; font-weight: 600; border-radius: 11px; padding: 13px 22px;

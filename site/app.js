@@ -70,6 +70,9 @@ const copy = {
     "aboutCaption": "Vyrax, made by Amyrax",
     "shotHome": "Screenshot of the actual Vyrax connection screen",
     "shotTheme": "Screenshot of the {theme} theme in Vyrax",
+    "themeLoading": "Loading theme…",
+    "themeError": "This theme image could not be loaded.",
+    "retryTheme": "Try again",
     "shotServers": "Actual Vyrax server selection and automatic routing screen",
     "shotSubscriptions": "Actual subscription management screen in Vyrax",
     "shotDelay": "Example results in the actual Vyrax delay test screen",
@@ -79,6 +82,9 @@ const copy = {
   "fa": {
     "shotHome": "اسکرین‌شات صفحهٔ اتصال واقعی Vyrax",
     "shotTheme": "اسکرین‌شات تم {theme} در Vyrax",
+    "themeLoading": "در حال بارگذاری تم…",
+    "themeError": "تصویر این تم بارگذاری نشد.",
+    "retryTheme": "تلاش دوباره",
     "shotServers": "صفحهٔ واقعی انتخاب سرور و حالت‌های خودکار Vyrax",
     "shotSubscriptions": "صفحهٔ واقعی مدیریت اشتراک‌ها در Vyrax",
     "shotDelay": "نتایج نمونه در صفحهٔ واقعی تست تأخیر Vyrax",
@@ -86,10 +92,63 @@ const copy = {
     "shotAbout": "صفحهٔ واقعی دربارهٔ Vyrax، مجوز MIT و لینک‌های Amyrax"
   }
 };
-let lang='fa', os='windows', release=null, galleryTheme=0;
+let lang='fa', os='windows', release=null, galleryTheme=0, architecture='';
 const palettes=[['dark','Dark','کلاسیک','#52d887'],['crimson','Crimson','مشکی و قرمز','#ff3b4f'],['black','Black','مشکی محض','#ffffff'],['ocean','Ocean','اقیانوس','#3b9bff'],['violet','Violet','بنفش','#a371f7'],['gold','Gold','مشکی و طلایی','#e8b931'],['rose','Rose','رز','#ff5c8a'],['light','Light','روشن','#0eb09f']];
+const themeImages=new Map();
+let galleryRequest=0, galleryAnimation=null;
+function themeSource(id,locale=lang){return `assets/screenshots/home-${id}-${locale}.jpg`;}
+function loadThemeImage(src){
+  if(themeImages.has(src))return themeImages.get(src);
+  const image=new Image();
+  image.decoding='async';image.fetchPriority='low';
+  const entry={image,ready:false,promise:null};
+  entry.promise=new Promise((resolve,reject)=>{
+    image.onload=resolve;
+    image.onerror=()=>reject(new Error('Theme image unavailable'));
+  }).then(()=>image.decode()).then(()=>{entry.ready=true;return image;}).catch(error=>{
+    themeImages.delete(src);throw error;
+  });
+  themeImages.set(src,entry);
+  image.src=src;
+  return entry;
+}
+function preloadGalleryImages(){
+  // Eight small images for the active language; retain decoded images for instant reuse.
+  palettes.forEach(([id])=>loadThemeImage(themeSource(id)).promise.catch(()=>{}));
+}
+function renderGalleryScreenshot(){
+  const request=++galleryRequest;
+  const [id,name,faName]=palettes[galleryTheme];
+  const src=themeSource(id),image=$('#gallery-image'),stage=$('#theme-stage');
+  const status=$('#gallery-status-text'),retry=$('#retry-theme');
+  const show=()=>{
+    if(request!==galleryRequest)return;
+    const changed=image.getAttribute('src')!==src;
+    if(changed)image.src=src;
+    image.dataset.shot='home-'+id;
+    image.alt=copy[lang].shotTheme.replace('{theme}',lang==='fa'?faName:name);
+    image.closest('a').href=src;
+    delete stage.dataset.state;stage.setAttribute('aria-busy','false');status.textContent='';retry.hidden=true;
+    if(changed&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      galleryAnimation?.cancel();
+      galleryAnimation=image.animate([{opacity:.3,transform:'translateY(6px)'},{opacity:1,transform:'translateY(0)'}],{duration:220,easing:'cubic-bezier(.22,.61,.21,1)'});
+    }
+  };
+  if(image.getAttribute('src')===src&&image.complete&&image.naturalWidth){show();return;}
+  const entry=loadThemeImage(src);
+  if(entry.ready){show();return;}
+  galleryAnimation?.cancel();
+  stage.dataset.state='loading';stage.setAttribute('aria-busy','true');
+  status.textContent=copy[lang].themeLoading;retry.hidden=true;
+  entry.image.fetchPriority='high';
+  entry.promise.then(show).catch(()=>{
+    if(request!==galleryRequest)return;
+    stage.dataset.state='error';stage.setAttribute('aria-busy','false');
+    status.textContent=copy[lang].themeError;retry.hidden=false;
+  });
+}
 function renderScreenshots(){
-  document.querySelectorAll('img[data-shot]').forEach(img=>{
+  document.querySelectorAll('img[data-shot]:not(#gallery-image)').forEach(img=>{
     const src='assets/screenshots/'+img.dataset.shot+'-'+lang+'.jpg';
     if(img.getAttribute('src')!==src)img.src=src;
     const text=copy[lang][img.dataset.shotAlt];
@@ -101,6 +160,7 @@ function renderScreenshots(){
   $('#next-theme').setAttribute('aria-label',lang==='fa'?'تم بعدی':'Next theme');
   $('#theme-dots').setAttribute('aria-label',lang==='fa'?'انتخاب تم':'Choose a theme');
   $('#theme-dots').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-label',palettes[i][lang==='fa'?2:1]));
+  renderGalleryScreenshot();
 }
 palettes.forEach(([id,name,faName,accent],index)=>{const button=document.createElement('button');button.className='fxdot';button.type='button';button.role='tab';button.id='theme-'+id;button.setAttribute('aria-label',faName);button.setAttribute('aria-controls','theme-stage');button.style.setProperty('--dot',accent);button.addEventListener('click',()=>chooseTheme(index));$('#theme-dots').append(button);});
 function chooseTheme(index){
@@ -108,7 +168,6 @@ function chooseTheme(index){
   const [id,name,faName,accent]=palettes[galleryTheme];
   $('#theme-stage').style.setProperty('--theme-accent',accent);
   $('#theme-stage').setAttribute('aria-labelledby','theme-'+id);
-  $('#gallery-image').dataset.shot='home-'+id;
   $('#gallery-count').textContent=String(galleryTheme+1).padStart(2,'0')+' / 08';
   $('#theme-dots').querySelectorAll('button').forEach((b,i)=>{b.setAttribute('aria-selected',String(i===galleryTheme));b.tabIndex=i===galleryTheme?0:-1;});
   renderScreenshots();
@@ -121,8 +180,7 @@ let touchStart=null;
 $('#theme-stage').addEventListener('pointerdown',e=>{if(e.pointerType==='touch')touchStart={x:e.clientX,y:e.clientY};});
 $('#theme-stage').addEventListener('pointerup',e=>{if(!touchStart)return;const dx=e.clientX-touchStart.x,dy=e.clientY-touchStart.y;touchStart=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))chooseTheme(galleryTheme+(dx<0?1:-1));});
 $('#theme-stage').addEventListener('pointercancel',()=>{touchStart=null;});
-$('#gallery-image').addEventListener('load',e=>{if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)e.target.animate([{opacity:.3,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'cubic-bezier(.22,.61,.21,1)'});});
-chooseTheme(0);
+$('#retry-theme').addEventListener('click',renderGalleryScreenshot);
 
 document.querySelectorAll('[data-i18n]').forEach(el => copy.fa[el.dataset.i18n] = el.textContent);
 const saved = (key) => { try {return localStorage.getItem(key);} catch {return null;} };
@@ -133,12 +191,75 @@ const platforms = {
   macos: {name:'macOS',descriptions:{fa:'macOS 13 یا جدیدتر · Apple Silicon و Intel',en:'macOS 13 or later · Apple Silicon & Intel'},notes:{fa:'نسخهٔ مک فعلاً با امضای محلی عرضه می‌شود و notarized نیست؛ ممکن است برای اولین اجرا تأیید امنیتی لازم باشد. راهنمای نصب را پیش از اجرا بخوان.',en:'macOS packages currently use ad-hoc signing and are not notarized. First launch may require a security approval. Read the installation guide before opening.'},guide:'macos',choices:[['arm64','Apple Silicon · M1 / M2 / M3 / M4 / M5 · DMG',v=>`Vyrax-${v}-macos-arm64.dmg`],['x64','Intel · x64 · DMG',v=>`Vyrax-${v}-macos-x64.dmg`],['arm64zip','Apple Silicon · ZIP',v=>`Vyrax-${v}-macos-arm64.zip`],['x64zip','Intel · ZIP',v=>`Vyrax-${v}-macos-x64.zip`]]},
   linux: {name:'Linux',descriptions:{fa:'دسکتاپ لینوکس · بستهٔ DEB و آرشیو قابل حمل',en:'Linux desktop · DEB package & portable archive'},notes:{fa:'بستهٔ DEB برای Debian / Ubuntu و توزیع‌های سازگار است. حالت TUN از Polkit استفاده می‌کند. پیش‌نیازهای نسخهٔ قابل حمل در راهنما آمده‌اند.',en:'The DEB package targets Debian / Ubuntu and compatible distributions. TUN uses Polkit. See the guide for portable archive dependencies.'},guide:'linux',choices:[['x64','x64 · Debian / Ubuntu · DEB',v=>`Vyrax-${v}-linux-x64.deb`],['arm64','ARM64 · Debian / Ubuntu · DEB',v=>`Vyrax-${v}-linux-arm64.deb`],['x64tar','x64 · Portable TAR.GZ',v=>`Vyrax-${v}-linux-x64.tar.gz`],['arm64tar','ARM64 · Portable TAR.GZ',v=>`Vyrax-${v}-linux-arm64.tar.gz`]]}
 };
+function defaultArchitecture(){return os==='android'?'universal':platforms[os].choices[0][0];}
+let buildHighlight=0, buildSearch='', buildSearchTimer=null;
+function closeBuildMenu(){
+  $('#architecture').setAttribute('aria-expanded','false');
+  $('#architecture').removeAttribute('aria-activedescendant');
+  $('#architecture-options').hidden=true;
+  buildSearch='';clearTimeout(buildSearchTimer);
+}
+function highlightBuild(index){
+  const options=Array.from($('#architecture-options').children);
+  buildHighlight=(index+options.length)%options.length;
+  options.forEach((option,i)=>option.dataset.highlighted=String(i===buildHighlight));
+  $('#architecture').setAttribute('aria-activedescendant',options[buildHighlight].id);
+  options[buildHighlight].scrollIntoView({block:'nearest'});
+}
+function openBuildMenu(){
+  $('#architecture-options').hidden=false;
+  $('#architecture').setAttribute('aria-expanded','true');
+  highlightBuild(platforms[os].choices.findIndex(c=>c[0]===architecture));
+}
+function selectBuild(index){
+  architecture=platforms[os].choices[index][0];
+  renderBuildChoices();updateFile();$('#architecture').focus({preventScroll:true});
+}
+function renderBuildChoices(){
+  closeBuildMenu();
+  const p=platforms[os];
+  $('#architecture-value').textContent=p.choices.find(c=>c[0]===architecture)[1];
+  $('#architecture-options').replaceChildren(...p.choices.map(([value,label],index)=>{
+    const option=document.createElement('div');
+    option.id=`build-${os}-${value}`;option.role='option';option.textContent=label;
+    option.setAttribute('aria-selected',String(value===architecture));
+    option.addEventListener('pointerdown',e=>e.preventDefault());
+    option.addEventListener('pointermove',()=>{if(buildHighlight!==index)highlightBuild(index);});
+    option.addEventListener('click',()=>selectBuild(index));
+    return option;
+  }));
+}
+$('#architecture').addEventListener('click',()=>{
+  if($('#architecture-options').hidden)openBuildMenu();else closeBuildMenu();
+});
+$('#architecture').addEventListener('keydown',e=>{
+  const open=!$('#architecture-options').hidden,choices=platforms[os].choices;
+  if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
+    e.preventDefault();
+    if(!open)openBuildMenu();
+    if(e.key==='Home')highlightBuild(0);
+    else if(e.key==='End')highlightBuild(choices.length-1);
+    else if(open)highlightBuild(buildHighlight+(e.key==='ArrowDown'?1:-1));
+  }else if(e.key==='Enter'||e.key===' '){
+    e.preventDefault();if(open)selectBuild(buildHighlight);else openBuildMenu();
+  }else if(e.key==='Escape'){e.preventDefault();closeBuildMenu();}
+  else if(e.key==='Tab')closeBuildMenu();
+  else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+    e.preventDefault();if(!open)openBuildMenu();
+    clearTimeout(buildSearchTimer);buildSearch+=e.key.toLowerCase();
+    const found=choices.findIndex(c=>c[1].toLowerCase().startsWith(buildSearch));
+    if(found>=0)highlightBuild(found);
+    buildSearchTimer=setTimeout(()=>{buildSearch='';},600);
+  }
+});
+$('#architecture').addEventListener('blur',closeBuildMenu);
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.build-select'))closeBuildMenu();});
 function renderDownload(keepChoice=false) {
-  const p = platforms[os], select = $('#architecture'), previous = keepChoice ? select.value : '';
+  const p = platforms[os], previous = keepChoice ? architecture : '';
   $('#platform-name').textContent = `Vyrax for ${p.name}`;
   $('#platform-description').textContent = p.descriptions[lang];
-  select.replaceChildren(...p.choices.map(([value,label]) => new Option(label,value)));
-  if (p.choices.some(c=>c[0]===previous)) select.value=previous;
+  architecture=p.choices.some(c=>c[0]===previous)?previous:defaultArchitecture();
+  renderBuildChoices();
   $('#install-note').replaceChildren(document.createTextNode(p.notes[lang]+' '));
   const guide=document.createElement('a'); guide.className='text-link';guide.style.marginTop='0';guide.href=repo+'/blob/main/'+(os==='windows'?'README.md':`docs/${p.guide}.md`);guide.textContent=lang==='fa'?'راهنمای نصب ↗':'Installation guide ↗';$('#install-note').append(guide);
   $('#download-panel').setAttribute('aria-labelledby','tab-'+os);
@@ -147,7 +268,7 @@ function renderDownload(keepChoice=false) {
 }
 function updateFile() {
   const v = release?.tag_name?.replace(/^v/,'');
-  const choice=platforms[os].choices.find(c=>c[0]===$('#architecture').value);
+  const choice=platforms[os].choices.find(c=>c[0]===architecture);
   const name=v?choice[2](v):null;
   const asset=release?.assets?.find(a=>a.name===name && /^https:\/\/github\.com\/AmyraxVPN-Main\/Vyrax\/releases\/download\//.test(a.browser_download_url));
   $('#download-file').href=asset?.browser_download_url||repo+'/releases/latest';
@@ -159,14 +280,13 @@ function setLanguage(value){
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=copy[lang][el.dataset.i18n]||copy.fa[el.dataset.i18n]);
   $('#language').textContent=lang==='fa'?'EN':'فا';$('#language').setAttribute('aria-label',lang==='fa'?'Switch to English':'تغییر زبان به فارسی');
   document.title=lang==='fa'?'Vyrax | اتصال، به سبک تو.':'Vyrax | Your connection. Your choice.';
-  renderDownload(true);renderScreenshots();save('vyrax-site-language',lang);
+  preloadGalleryImages();renderDownload(true);chooseTheme(galleryTheme);save('vyrax-site-language',lang);
 }
 $('#language').addEventListener('click',()=>setLanguage(lang==='fa'?'en':'fa'));
 document.querySelectorAll('[data-os]').forEach(button=>{
   button.addEventListener('click',()=>{os=button.dataset.os;renderDownload();});
   button.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const keys=Object.keys(platforms);let i=keys.indexOf(os);i=e.key==='Home'?0:e.key==='End'?keys.length-1:(i+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length;os=keys[i];renderDownload();$('#tab-'+os).focus();});
 });
-$('#architecture').addEventListener('change',updateFile);
 const ua=navigator.userAgent;if(/Android/i.test(ua))os='android';else if(/Macintosh/i.test(ua))os='macos';else if(/Linux/i.test(ua))os='linux';
 setLanguage(saved('vyrax-site-language')||'fa');
 function acceptRelease(data){if(data.draft||data.prerelease||!/^v?\d+\.\d+\.\d+$/.test(data.tag_name)||!Array.isArray(data.assets))return;release=data;document.querySelectorAll('.version').forEach(el=>el.textContent=data.tag_name.replace(/^v/,''));updateFile();}

@@ -10,6 +10,9 @@ layers, fixed glass header, eased scroll parallax, shooting stars, load reveals,
 two-column theme gallery and alternating feature rows. The app preview is
 adapted to Vyrax's portrait window without distorting its screenshots.
 Its interactive gallery shows screenshots of all eight actual app themes.
+All eight images for the active language are preloaded and decoded. The gallery
+keeps its previous image until the selected one is ready, gives immediate loading
+feedback, offers retry on failure, and ignores stale loads after another selection.
 The hero and feature sections show the real connection, server selection,
 subscription management, appearance and About screens. Screenshots change
 with the selected site language and open at full resolution when clicked.
@@ -29,6 +32,8 @@ bundled `site/release.json` as a fallback when that API is unavailable. It only
 links an installer when the exact matching asset exists. Otherwise it opens the
 latest release page. iOS development archives are deliberately absent from the
 public installer selector.
+The build menu uses the page's own dark styling with keyboard and pointer support.
+Android defaults to the Universal APK; users can select an architecture-specific build.
 
 For each public release, use the established asset names, include the exact
 dependency sources and notices, verify checksums and platform versions, and
