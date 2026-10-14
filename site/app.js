@@ -3,23 +3,120 @@
 const repo = 'https://github.com/AmyraxVPN-Main/Vyrax';
 const $ = (s) => document.querySelector(s);
 const copy = {
-  en: {skip:'Skip to content',features:'Features',guide:'Get started',download:'Download',releaseLabel:'Public release',hero1:'Your connection.',hero2:'Your choice.',intro:'Keep your subscriptions together. Pick your route and connect with a tap. Vyrax is a free, open-source VPN client for mobile and desktop.',getVyrax:'Get Vyrax',try:'Try the interface',free:'Free to use',opensource:'Open source · MIT',welcome:'A better connection starts here.',appSubtitle:'Simple. Smooth. Yours.',auto:'Auto',balanced:'Balanced',manual:'Manual',ready:'Ready to connect',sampleServer:'Sample server',received:'Download',sent:'Upload',connection:'Connect',servers:'Servers',settings:'Settings',sampleTag:'Interactive preview · no real VPN connection',everywhere:'At home on your devices',featuresTitle:'Everything in its place.',featuresIntro:'From your first subscription link to your next route. The tools you use every day.',smartTitle:'Let the route find you.',smartBody:'Try automatic and balanced selection, or take control and choose one server. Your choices stay within the active subscription.',sampleData:'Sample data',subTitle:'Subscriptions, organised.',subBody:'Import a subscription link or several configs as one group. Switch groups, copy links, and share them with a QR code.',delayTitle:'Test the actual route.',delayBody:'Response time is measured through each config so you can compare routes. The lowest latency does not always mean the fastest download.',uiTitle:'A familiar place, everywhere.',uiBody:'Persian and English, multiple themes, and smooth transitions. The same familiar connection screen on your phone and desktop.',openTitle:'Open code. Your choice.',openBody:'Read the code, change it, and share it with the copyright and license intact. Follow Amyrax for news and new releases.',viewCode:'Explore the code on GitHub ↗',startTitle:'From download to connected.',startIntro:'Bring your own config or subscription link. Vyrax takes care of the client.',step1:'Get your version',step1Body:'Download and install the file for your operating system and device architecture.',step2:'Add a subscription',step2Body:'Open Add and paste your subscription link or a group of configs.',step3:'Choose a route and connect',step3Body:'Approve the VPN permission, then use automatic selection or your preferred server.',panel:'Want your own panel? Explore Amyrax Panel.',downloadTitle:'Make yourself connected.',stable:'Stable version',freeOpen:'Free & open source',chooseFile:'Choose a build',downloadFile:'Download installer',allFiles:'All files & release notes ↗',iosNote:'iPhone / iPad: no public installer yet. The iOS build needs Apple signing and distribution.',iosDetails:'About iOS ↗',faqTitle:'Before you connect.',faq1:'Does Vyrax include free servers?',faq1Body:'Vyrax is a free client. You need a config or subscription link from your own provider. The app does not include servers or a paid subscription.',faq2:'Which Android file do I need?',faq2Body:'Most recent phones use arm64-v8a. armeabi-v7a is for 32-bit devices. Choose Universal if you are unsure; it is larger and covers both. Android 10 or later is required.',faq3:'Why is there an installation warning?',faq3Body:'Windows builds do not have a commercial publisher certificate, and macOS builds are not yet notarized. Your operating system may show a trust warning. Android may also flag installation outside an app store. Get official files from this repository’s releases and read the platform installation guide.',faq4:'How do I find updates?',faq4Body:'When a new stable version is published on GitHub, the app shows a small, dismissible notification. Clicking it opens the latest release page.',communityTitle:'Made by Amyrax.',communityBody:'Release news on Telegram. Ideas and bug reports on GitHub.',telegram:'Telegram channel ↗',issue:'Report an issue ↗',license:'License'},
-  fa: {}
+  "en": {
+    "skip": "Skip to content",
+    "features": "Features",
+    "download": "Download",
+    "releaseLabel": "Public release",
+    "intro": "Keep your subscriptions together. Pick your route and connect with a tap. Vyrax is a free, open-source VPN client for mobile and desktop.",
+    "getVyrax": "Get Vyrax",
+    "everywhere": "At home on your devices",
+    "featuresTitle": "Everything in its place.",
+    "featuresIntro": "From your first subscription link to your next route. The tools you use every day.",
+    "smartTitle": "Let the route find you.",
+    "smartBody": "Try automatic and balanced selection, or take control and choose one server. Your choices stay within the active subscription.",
+    "subTitle": "Subscriptions, organised.",
+    "subBody": "Import a subscription link or several configs as one group. Switch groups, copy links, and share them with a QR code.",
+    "delayTitle": "Test the actual route.",
+    "delayBody": "Response time is measured through each config so you can compare routes. The lowest latency does not always mean the fastest download.",
+    "uiTitle": "A familiar place, everywhere.",
+    "uiBody": "Persian and English, multiple themes, and smooth transitions. The same familiar connection screen on your phone and desktop.",
+    "openTitle": "Open code. Your choice.",
+    "openBody": "Read the code, change it, and share it with the copyright and license intact. Follow Amyrax for news and new releases.",
+    "viewCode": "Explore the code on GitHub ↗",
+    "startTitle": "From download to connected.",
+    "startIntro": "Bring your own config or subscription link. Vyrax takes care of the client.",
+    "step1": "Get your version",
+    "step1Body": "Download and install the file for your operating system and device architecture.",
+    "step2": "Add a subscription",
+    "step2Body": "Open Add and paste your subscription link or a group of configs.",
+    "step3": "Choose a route and connect",
+    "step3Body": "Approve the VPN permission, then use automatic selection or your preferred server.",
+    "panel": "Want your own panel? Explore Amyrax Panel.",
+    "downloadTitle": "Make yourself connected.",
+    "stable": "Stable version",
+    "freeOpen": "Free & open source",
+    "chooseFile": "Choose a build",
+    "downloadFile": "Download installer",
+    "allFiles": "All files & release notes ↗",
+    "iosNote": "iPhone / iPad: no public installer yet. The iOS build needs Apple signing and distribution.",
+    "iosDetails": "About iOS ↗",
+    "faqTitle": "Before you connect.",
+    "faq1": "Does Vyrax include free servers?",
+    "faq1Body": "Vyrax is a free client. You need a config or subscription link from your own provider. The app does not include servers or a paid subscription.",
+    "faq2": "Which Android file do I need?",
+    "faq2Body": "Most recent phones use arm64-v8a. armeabi-v7a is for 32-bit devices. Choose Universal if you are unsure; it is larger and covers both. Android 10 or later is required.",
+    "faq3": "Why is there an installation warning?",
+    "faq3Body": "Windows builds do not have a commercial publisher certificate, and macOS builds are not yet notarized. Your operating system may show a trust warning. Android may also flag installation outside an app store. Get official files from this repository’s releases and read the platform installation guide.",
+    "faq4": "How do I find updates?",
+    "faq4Body": "When a new stable version is published on GitHub, the app shows a small, dismissible notification. Clicking it opens the latest release page.",
+    "communityTitle": "Made by Amyrax.",
+    "communityBody": "Release news on Telegram. Ideas and bug reports on GitHub.",
+    "telegram": "Telegram channel ↗",
+    "issue": "Report an issue ↗",
+    "license": "License",
+    "themes": "Themes",
+    "heroKicker": "[ Vyrax · a free, open-source VPN client ]",
+    "themesTitle": "A connection with your colours.",
+    "themesIntro": "Eight themes. Your own atmosphere. Browse screenshots of each theme inside the actual app.",
+    "themeCaption": "Screenshots show the actual Vyrax interface with example server and connection data.",
+    "realInterface": "The actual Vyrax interface",
+    "serversCaption": "Choose your route in Vyrax",
+    "subscriptionsCaption": "All your subscriptions, together",
+    "delayCaption": "Compare route delays",
+    "appearanceCaption": "Your colours. Your language.",
+    "aboutCaption": "Vyrax, made by Amyrax",
+    "shotHome": "Screenshot of the actual Vyrax connection screen",
+    "shotTheme": "Screenshot of the {theme} theme in Vyrax",
+    "shotServers": "Actual Vyrax server selection and automatic routing screen",
+    "shotSubscriptions": "Actual subscription management screen in Vyrax",
+    "shotDelay": "Example results in the actual Vyrax delay test screen",
+    "shotAppearance": "Theme and language choices in the actual Vyrax account screen",
+    "shotAbout": "The actual Vyrax About screen, MIT license and Amyrax links"
+  },
+  "fa": {
+    "shotHome": "اسکرین‌شات صفحهٔ اتصال واقعی Vyrax",
+    "shotTheme": "اسکرین‌شات تم {theme} در Vyrax",
+    "shotServers": "صفحهٔ واقعی انتخاب سرور و حالت‌های خودکار Vyrax",
+    "shotSubscriptions": "صفحهٔ واقعی مدیریت اشتراک‌ها در Vyrax",
+    "shotDelay": "نتایج نمونه در صفحهٔ واقعی تست تأخیر Vyrax",
+    "shotAppearance": "انتخاب تم و زبان در صفحهٔ واقعی حساب Vyrax",
+    "shotAbout": "صفحهٔ واقعی دربارهٔ Vyrax، مجوز MIT و لینک‌های Amyrax"
+  }
 };
-Object.assign(copy.en,{themes:'Themes',heroKicker:'[ Vyrax · a free, open-source VPN client ]',themesTitle:'A connection with your colours.',themesIntro:'Eight themes. Your own atmosphere. Try the colours here and tap the demo connection button.',themeCaption:'Illustrative previews use the real Vyrax theme palettes and sample data. This page does not establish a VPN connection.'});
-const galleryPreview=$('.app-preview').cloneNode(true);
-galleryPreview.querySelectorAll('[id]').forEach(el=>el.id='gallery-'+el.id);
-$('#theme-stage').append(galleryPreview);
-let galleryConnected=false, galleryServer=0, galleryTheme=0;
-const palettes=[['Dark','#0a0f11','#52d887'],['Crimson','#0a0708','#ff3b4f'],['Black','#000000','#ffffff'],['Ocean','#060a12','#3b9bff'],['Violet','#0b0911','#a371f7'],['Gold','#0a0906','#e8b931'],['Rose','#0f090c','#ff5c8a'],['Light','#edf3f1','#0eb09f']];
-palettes.forEach(([name,bg,accent],index)=>{const button=document.createElement('button');button.type='button';button.role='tab';button.setAttribute('aria-label',name);button.setAttribute('aria-controls','theme-stage');button.style.setProperty('--dot',accent);button.addEventListener('click',()=>chooseTheme(index));$('#theme-dots').append(button);});
-function chooseTheme(index){galleryTheme=(index+palettes.length)%palettes.length;const [name,bg,accent]=palettes[galleryTheme],stage=$('#theme-stage');stage.style.setProperty('--theme-bg',bg);stage.style.setProperty('--theme-accent',accent);stage.style.setProperty('--theme-ink',name==='Light'?'#20352e':'#eeeef3');stage.style.setProperty('--theme-muted',name==='Light'?'#62766d':'#9296a8');$('#gallery-name').textContent=name;$('#gallery-count').textContent=String(galleryTheme+1).padStart(2,'0')+' / 08';$('#theme-dots').querySelectorAll('button').forEach((b,i)=>{b.setAttribute('aria-selected',String(i===galleryTheme));b.tabIndex=i===galleryTheme?0:-1;});}
+let lang='fa', os='windows', release=null, galleryTheme=0;
+const palettes=[['dark','Dark','کلاسیک','#52d887'],['crimson','Crimson','مشکی و قرمز','#ff3b4f'],['black','Black','مشکی محض','#ffffff'],['ocean','Ocean','اقیانوس','#3b9bff'],['violet','Violet','بنفش','#a371f7'],['gold','Gold','مشکی و طلایی','#e8b931'],['rose','Rose','رز','#ff5c8a'],['light','Light','روشن','#0eb09f']];
+function renderScreenshots(){
+  document.querySelectorAll('img[data-shot]').forEach(img=>{
+    const src='assets/screenshots/'+img.dataset.shot+'-'+lang+'.jpg';
+    if(img.getAttribute('src')!==src)img.src=src;
+    const text=copy[lang][img.dataset.shotAlt];
+    img.alt=text.replace('{theme}',palettes[galleryTheme][lang==='fa'?2:1]);
+    img.closest('a').href=src;
+  });
+  $('#gallery-name').textContent=palettes[galleryTheme][lang==='fa'?2:1];
+  $('#previous-theme').setAttribute('aria-label',lang==='fa'?'تم قبلی':'Previous theme');
+  $('#next-theme').setAttribute('aria-label',lang==='fa'?'تم بعدی':'Next theme');
+  $('#theme-dots').setAttribute('aria-label',lang==='fa'?'انتخاب تم':'Choose a theme');
+  $('#theme-dots').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-label',palettes[i][lang==='fa'?2:1]));
+}
+palettes.forEach(([id,name,faName,accent],index)=>{const button=document.createElement('button');button.type='button';button.role='tab';button.id='theme-'+id;button.setAttribute('aria-label',faName);button.setAttribute('aria-controls','theme-stage');button.style.setProperty('--dot',accent);button.addEventListener('click',()=>chooseTheme(index));$('#theme-dots').append(button);});
+function chooseTheme(index){
+  galleryTheme=(index+palettes.length)%palettes.length;
+  const [id,name,faName,accent]=palettes[galleryTheme];
+  $('#theme-stage').style.setProperty('--theme-accent',accent);
+  $('#theme-stage').setAttribute('aria-labelledby','theme-'+id);
+  $('#gallery-image').dataset.shot='home-'+id;
+  $('#gallery-count').textContent=String(galleryTheme+1).padStart(2,'0')+' / 08';
+  $('#theme-dots').querySelectorAll('button').forEach((b,i)=>{b.setAttribute('aria-selected',String(i===galleryTheme));b.tabIndex=i===galleryTheme?0:-1;});
+  renderScreenshots();
+}
 $('#previous-theme').addEventListener('click',()=>chooseTheme(galleryTheme-1));
 $('#next-theme').addEventListener('click',()=>chooseTheme(galleryTheme+1));
-$('#theme-dots').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();chooseTheme(galleryTheme+(e.key==='ArrowRight'?1:-1));$('#theme-dots').querySelectorAll('button')[galleryTheme].focus();});
+$('#theme-dots').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();chooseTheme(e.key==='Home'?0:e.key==='End'?palettes.length-1:galleryTheme+(e.key==='ArrowRight'?1:-1));$('#theme-dots').querySelectorAll('button')[galleryTheme].focus();});
 chooseTheme(0);
+
 document.querySelectorAll('[data-i18n]').forEach(el => copy.fa[el.dataset.i18n] = el.textContent);
-let lang = 'fa', os = 'windows', release = null, connected = false, serverIndex = 0;
 const saved = (key) => { try {return localStorage.getItem(key);} catch {return null;} };
 const save = (key,value) => { try {localStorage.setItem(key,value);} catch {} };
 const platforms = {
@@ -49,26 +146,13 @@ function updateFile() {
   $('#download-file [data-i18n]').textContent=asset?copy[lang].downloadFile:(lang==='fa'?'رفتن به صفحهٔ ریلیز':'Open release page');
   $('#file-description').textContent=asset?`${(asset.size/1048576).toFixed(1)} MB · ${asset.name.split('.').pop().toUpperCase()}`:(lang==='fa'?'فایل‌ها از GitHub Releases دریافت می‌شوند':'Files are served by GitHub Releases');
 }
-function demoLabels(){
-  $('#demo-state').textContent=connected?(lang==='fa'?'قطع اتصال':'Disconnect'):(lang==='fa'?'اتصال':'Connect');
-  $('#demo-connect').setAttribute('aria-label',lang==='fa'?'تغییر وضعیت اتصال نمایشی':'Toggle demo connection');
-  $('#demo-status').textContent=connected?(lang==='fa'?'وصل شد · نمایشی':'Connected · demo'):copy[lang].ready;
-  $('.app-preview').setAttribute('aria-label',lang==='fa'?'پیش‌نمایش تعاملی Vyrax با اطلاعات نمونه':'Interactive Vyrax preview with sample data');
-}
-function galleryLabels(){
-  $('#gallery-demo-state').textContent=galleryConnected?(lang==='fa'?'قطع اتصال':'Disconnect'):(lang==='fa'?'اتصال':'Connect');
-  $('#gallery-demo-status').textContent=galleryConnected?(lang==='fa'?'وصل شد · نمایشی':'Connected · demo'):copy[lang].ready;
-  $('#gallery-demo-connect').setAttribute('aria-label',lang==='fa'?'تغییر وضعیت اتصال نمایشی تم':'Toggle theme demo connection');
-  galleryPreview.setAttribute('aria-label',lang==='fa'?'پیش‌نمایش رنگ تم با اطلاعات نمونه':'Theme colour preview with sample data');
-  $('#previous-theme').setAttribute('aria-label',lang==='fa'?'تم قبلی':'Previous theme');$('#next-theme').setAttribute('aria-label',lang==='fa'?'تم بعدی':'Next theme');
-}
 function setLanguage(value){
   lang=value==='en'?'en':'fa';document.documentElement.lang=lang;document.documentElement.dir=lang==='fa'?'rtl':'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=copy[lang][el.dataset.i18n]||copy.fa[el.dataset.i18n]);
   $('#language').textContent=lang==='fa'?'EN':'فا';$('#language').setAttribute('aria-label',lang==='fa'?'Switch to English':'تغییر زبان به فارسی');
   $('#theme').setAttribute('aria-label',lang==='fa'?'تغییر تم':'Toggle theme');
   document.title=lang==='fa'?'Vyrax | اتصال، به سبک تو.':'Vyrax | Your connection. Your choice.';
-  renderDownload(true);demoLabels();galleryLabels();save('vyrax-site-language',lang);
+  renderDownload(true);renderScreenshots();save('vyrax-site-language',lang);
 }
 $('#language').addEventListener('click',()=>setLanguage(lang==='fa'?'en':'fa'));
 $('#theme').addEventListener('click',()=>{document.body.classList.toggle('light');save('vyrax-site-theme',document.body.classList.contains('light')?'light':'dark');});
@@ -78,12 +162,6 @@ document.querySelectorAll('[data-os]').forEach(button=>{
   button.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const keys=Object.keys(platforms);let i=keys.indexOf(os);i=e.key==='Home'?0:e.key==='End'?keys.length-1:(i+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length;os=keys[i];renderDownload();$('#tab-'+os).focus();});
 });
 $('#architecture').addEventListener('change',updateFile);
-$('#demo-connect').addEventListener('click',()=>{connected=!connected;$('.app-preview').classList.toggle('connected',connected);$('#demo-connect').setAttribute('aria-pressed',String(connected));demoLabels();});
-document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{b.closest('.mode-picker').querySelectorAll('[data-mode]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});}));
-const servers=[['de','Germany · Frankfurt','42 ms'],['fi','Finland · Helsinki','31 ms'],['nl','Netherlands · Amsterdam','58 ms']];
-$('#demo-server').addEventListener('click',()=>{serverIndex=(serverIndex+1)%servers.length;const [flag,name,delay]=servers[serverIndex];$('#server-flag').src=`assets/${flag}.svg`;$('#server-flag').alt=name.split(' · ')[0];$('#server-name').textContent=name;$('#server-delay').textContent=delay;});
-$('#gallery-demo-connect').addEventListener('click',()=>{galleryConnected=!galleryConnected;galleryPreview.classList.toggle('connected',galleryConnected);$('#gallery-demo-connect').setAttribute('aria-pressed',String(galleryConnected));galleryLabels();});
-$('#gallery-demo-server').addEventListener('click',()=>{galleryServer=(galleryServer+1)%servers.length;const [flag,name,delay]=servers[galleryServer];$('#gallery-server-flag').src=`assets/${flag}.svg`;$('#gallery-server-flag').alt=name.split(' · ')[0];$('#gallery-server-name').textContent=name;$('#gallery-server-delay').textContent=delay;});
 const ua=navigator.userAgent;if(/Android/i.test(ua))os='android';else if(/Macintosh/i.test(ua))os='macos';else if(/Linux/i.test(ua))os='linux';
 setLanguage(saved('vyrax-site-language')||'fa');
 function acceptRelease(data){if(data.draft||data.prerelease||!/^v?\d+\.\d+\.\d+$/.test(data.tag_name)||!Array.isArray(data.assets))return;release=data;document.querySelectorAll('.version').forEach(el=>el.textContent=data.tag_name.replace(/^v/,''));updateFile();}
