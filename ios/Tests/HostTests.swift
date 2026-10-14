@@ -72,7 +72,13 @@ import WebKit
         try await screenshot(host,"iphone-home-fa")
     }
     private func screenshot(_ host:WebController,_ name:String) async throws {
-        let image=try await host.web.takeSnapshot(with:nil)
+        let image:UIImage=try await withCheckedThrowingContinuation{continuation in
+            host.web.takeSnapshot(with:nil){image,error in
+                if let error{continuation.resume(throwing:error)}
+                else if let image{continuation.resume(returning:image)}
+                else{continuation.resume(throwing:VyraxError.code("err.core"))}
+            }
+        }
         let attachment=XCTAttachment(image:image);attachment.name=name;attachment.lifetime = .keepAlways;add(attachment)
     }
 }
