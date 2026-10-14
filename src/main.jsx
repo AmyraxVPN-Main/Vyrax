@@ -11,6 +11,7 @@ import './screens.css';
 import './screens2.css';
 import './liquid.css';
 import './mobile.css';
+import './legacy-mobile.css';
 import { I18nProvider } from './i18n.jsx';
 import { platform } from './bridge.js';
 import App from './App.jsx';
