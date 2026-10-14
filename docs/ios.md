@@ -9,6 +9,8 @@ Android APK splits: there is no ARMv7 iPhone build for supported iOS versions.
 
 An unsigned device archive is a developer output, **not an installable IPA**.
 The iOS simulator app can demonstrate the UI but cannot establish an iPhone VPN.
+Its local ad hoc signature permits Simulator Keychain tests; it is not Apple
+device provisioning and cannot be used to install the app on an iPhone.
 No device VPN, background survival, IPv6/DNS or performance claim is made until
 the signed app has been tested on an actual iPhone.
 
