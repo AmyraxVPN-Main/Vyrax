@@ -25,8 +25,48 @@ jobs:
           brew install xcodegen
           python3 -m pip install Pillow
           xcodebuild -version
-      - name: Native frameworks, unsigned device archive and simulator
-        run: bash scripts/build-ios.sh
+      - name: Shared UI and resource preparation
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          node .tools/gen-geo.mjs
+          node scripts/collect-licenses.mjs
+          python3 scripts/prepare-ios.py
+          version=$(node -p 'require("./package.json").version')
+          mkdir -p "release/ios-$version"
+      - uses: actions/cache/restore@v4
+        id: cores
+        with:
+          key: ios-arm64-cores-${{ hashFiles('ios/Engine/**', 'vendor/ios-versions.json', 'scripts/build-ios-cores.sh') }}
+          path: |
+            ios/build/VyraxCore.xcframework
+            ios/build/HevSocks5Tunnel.xcframework
+            ios/build/packet-flow-test
+            vendor/ios/sources
+            ios/Resources/licenses/core
+      - name: Native cores and packet flow verification
+        if: steps.cores.outputs.cache-hit != 'true'
+        run: bash scripts/build-ios-cores.sh
+      - uses: actions/cache/save@v4
+        if: steps.cores.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.cores.outputs.cache-primary-key }}
+          path: |
+            ios/build/VyraxCore.xcframework
+            ios/build/HevSocks5Tunnel.xcframework
+            ios/build/packet-flow-test
+            vendor/ios/sources
+            ios/Resources/licenses/core
+      - name: Cached core checks
+        if: steps.cores.outputs.cache-hit == 'true'
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          ios/build/packet-flow-test | tee "release/ios-$version/packet-flow-tests.txt"
+          cd ios/Engine
+          go mod verify
+          go test -race ./...
+      - name: Unsigned device archive and simulator
+        run: VYRAX_IOS_UI_READY=1 VYRAX_IOS_CORES_READY=1 bash scripts/build-ios.sh
       - name: Real WebKit host tests on iPhone simulator
         run: bash scripts/test-ios.sh
       - name: Package application and precise dependency sources

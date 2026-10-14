@@ -7,12 +7,14 @@ export VYRAX_VERSION=$(node -p 'require("./package.json").version')
 export VYRAX_APPLE_TEAM="${VYRAX_APPLE_TEAM:-}"
 out="$PWD/release/ios-$VYRAX_VERSION"
 mkdir -p "$out"
-npm ci --no-audit --no-fund
-npm run build
-node .tools/gen-geo.mjs
-node scripts/collect-licenses.mjs
-python3 scripts/prepare-ios.py
-bash scripts/build-ios-cores.sh
+if [[ "${VYRAX_IOS_UI_READY:-}" != 1 ]]; then
+  npm ci --no-audit --no-fund
+  npm run build
+  node .tools/gen-geo.mjs
+  node scripts/collect-licenses.mjs
+  python3 scripts/prepare-ios.py
+fi
+if [[ "${VYRAX_IOS_CORES_READY:-}" != 1 ]]; then bash scripts/build-ios-cores.sh; fi
 xcodegen generate --spec ios/project.yml
 xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -configuration Release -destination 'generic/platform=iOS' -archivePath "$PWD/ios/build/Vyrax-unsigned.xcarchive" CODE_SIGNING_ALLOWED=NO archive > "$out/device-build.log" 2>&1 || { tail -100 "$out/device-build.log"; exit 1; }
 ditto -c -k --keepParent ios/build/Vyrax-unsigned.xcarchive "$out/Vyrax-$VYRAX_VERSION-ios-arm64-UNSIGNED.xcarchive.zip"

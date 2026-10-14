@@ -20,15 +20,21 @@ targets:
   Vyrax:
     type: application
     platform: iOS
-    sources: [App, Shared]
-    resources:
+    sources:
+      - path: App
+      - path: Shared
       - path: Resources/ui
         type: folder
+        buildPhase: resources
       - path: Resources/geo.bin
+        buildPhase: resources
       - path: Resources/Assets.xcassets
+        buildPhase: resources
       - path: Resources/licenses
         type: folder
+        buildPhase: resources
       - path: PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       - target: VyraxTunnel
       - framework: build/VyraxCore.xcframework
