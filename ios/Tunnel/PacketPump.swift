@@ -79,7 +79,9 @@ final class PacketPump {
         for _ in 0..<64 {
             let count = Darwin.recv(fd,&buffer,buffer.count,0)
             if count<=4{break}
-            let proto = buffer[4]>>4 == 4 ? AF_INET : AF_INET6
+            let version=buffer[4]>>4
+            guard version==4 || version==6 else{continue}
+            let proto = version == 4 ? AF_INET : AF_INET6
             packets.append(Data(buffer[4..<count]));protocols.append(NSNumber(value:proto))
             downloaded+=count-4
         }

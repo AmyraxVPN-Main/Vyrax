@@ -543,6 +543,26 @@ const STRINGS = {
   }
 };
 
+const IOS_STRINGS = {
+  en: {
+    'err.core': 'The VPN service could not complete the request. Try again.',
+    'err.store': 'Secure storage could not be opened. Unlock the device and try again.',
+    'err.config': 'This connection configuration could not be applied.',
+    'err.catalog': 'This server group is too large or contains invalid entries.',
+    'err.busy': 'A connection change is already in progress.',
+    'err.notConnected': 'The VPN is disconnected. Connect and try again.',
+    'err.file': 'The selected file could not be read.'
+  },
+  fa: {
+    'err.core': 'سرویس VPN نتوانست درخواست را انجام دهد؛ دوباره تلاش کن.',
+    'err.store': 'ذخیرهٔ امن باز نشد؛ قفل دستگاه را باز کن و دوباره تلاش کن.',
+    'err.config': 'این تنظیم اتصال قابل اعمال نیست.',
+    'err.catalog': 'این گروه سرور بیش از حد بزرگ است یا گزینهٔ نامعتبر دارد.',
+    'err.busy': 'تغییر دیگری در اتصال در حال انجام است.',
+    'err.notConnected': 'VPN قطع است؛ متصل شو و دوباره تلاش کن.',
+    'err.file': 'فایل انتخاب‌شده خوانده نشد.'
+  }
+};
 const MAC_STRINGS = {
   en: {
     'set.modeSub': 'Proxy covers apps that use the system proxy; VPN routes the whole device.',
@@ -587,7 +607,7 @@ export function I18nProvider({ children }) {
   }, [lang]);
 
   function t(key, vars) {
-    const s = (platform === 'macos' ? MAC_STRINGS[lang]?.[key] : undefined) ?? STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+    const s = (platform === 'ios' ? IOS_STRINGS[lang]?.[key] : platform === 'macos' ? MAC_STRINGS[lang]?.[key] : undefined) ?? STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
     return vars ? s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? '')) : s;
   }
 

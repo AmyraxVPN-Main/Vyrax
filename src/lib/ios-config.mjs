@@ -86,7 +86,7 @@ export function iosRequest(action, args) {
     inbounds:[{ tag:'socks', listen:'127.0.0.1', port:10808, protocol:'socks', settings:{auth:'noauth',udp:true}, sniffing:{enabled:true,destOverride:['http','tls','quic'],routeOnly:true}}],
     outbounds:[...profiles.map(p=>({...outbound(p),tag:nodeTag(p)})),{tag:'direct',protocol:'freedom'}],
     routing:selected.config,
-    dns:{tag:'dns-bootstrap',queryStrategy:'UseIP',servers:[{address:'https://1.1.1.1/dns-query',timeoutMs:4000},{address:'https://8.8.8.8/dns-query',timeoutMs:4000}]},
+    dns:{tag:'dns-bootstrap',queryStrategy:'UseIP',enableParallelQuery:true,servers:[{address:'https://1.1.1.1/dns-query',timeoutMs:4000},{address:'https://[2606:4700:4700::1111]/dns-query',timeoutMs:4000},{address:'https://8.8.8.8/dns-query',timeoutMs:4000}]},
     observatory:{subjectSelector:['node-'],probeURL:PROBE_URL,probeInterval:'45s',enableConcurrency:false}
   };
   return { config, settings, profileId:selected.selected.id, selectionMode:mode, activeSourceId:source || '' };
