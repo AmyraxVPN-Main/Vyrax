@@ -2,9 +2,13 @@
 
 The public download page is https://amyraxvpn-main.github.io/Vyrax/ .
 Its source is in `site/`; it is a static, dependency-free site with bundled
-Vazirmatn fonts, Persian/English text, dark/light themes and real screenshots
+Vazirmatn fonts, Persian/English text, a dark presentation and real screenshots
 of the current production app interface.
-The centered night-sky presentation uses original star and mountain SVGs.
+The layout and Night ridge styling are adapted directly from the downloaded
+PromptPad reference supplied by the owner. It uses the reference's photograph
+layers, fixed glass header, eased scroll parallax, shooting stars, load reveals,
+two-column theme gallery and alternating feature rows. The app preview is
+adapted to Vyrax's portrait window without distorting its screenshots.
 Its interactive gallery shows screenshots of all eight actual app themes.
 The hero and feature sections show the real connection, server selection,
 subscription management, appearance and About screens. Screenshots change
@@ -30,5 +34,7 @@ For each public release, use the established asset names, include the exact
 dependency sources and notices, verify checksums and platform versions, and
 update the fallback metadata. Never include signing credentials or user data.
 
-The app code and original site design are MIT, Copyright (c) 2026 Amyrax.
+The app code and Vyrax-specific site work are MIT, Copyright (c) 2026 Amyrax.
+The reference website design and photographs remain third-party material;
+see `site/assets/REFERENCE-NOTICE.md` for provenance and source credits.
 Vazirmatn and flag-icons keep the licenses in `site/assets`.

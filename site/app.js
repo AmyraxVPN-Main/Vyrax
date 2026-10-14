@@ -1,4 +1,6 @@
-/* Copyright (c) 2026 Amyrax. MIT. */
+/* Vyrax site: Copyright (c) 2026 Amyrax. MIT.
+   Night ridge interactions adapted from PromptPad by Ramin Turne.
+   See assets/REFERENCE-NOTICE.md. */
 'use strict';
 const repo = 'https://github.com/AmyraxVPN-Main/Vyrax';
 const $ = (s) => document.querySelector(s);
@@ -33,7 +35,7 @@ const copy = {
     "step3": "Choose a route and connect",
     "step3Body": "Approve the VPN permission, then use automatic selection or your preferred server.",
     "panel": "Want your own panel? Explore Amyrax Panel.",
-    "downloadTitle": "Make yourself connected.",
+    "downloadTitle": "One download to get started.",
     "stable": "Stable version",
     "freeOpen": "Free & open source",
     "chooseFile": "Choose a build",
@@ -100,7 +102,7 @@ function renderScreenshots(){
   $('#theme-dots').setAttribute('aria-label',lang==='fa'?'انتخاب تم':'Choose a theme');
   $('#theme-dots').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-label',palettes[i][lang==='fa'?2:1]));
 }
-palettes.forEach(([id,name,faName,accent],index)=>{const button=document.createElement('button');button.type='button';button.role='tab';button.id='theme-'+id;button.setAttribute('aria-label',faName);button.setAttribute('aria-controls','theme-stage');button.style.setProperty('--dot',accent);button.addEventListener('click',()=>chooseTheme(index));$('#theme-dots').append(button);});
+palettes.forEach(([id,name,faName,accent],index)=>{const button=document.createElement('button');button.className='fxdot';button.type='button';button.role='tab';button.id='theme-'+id;button.setAttribute('aria-label',faName);button.setAttribute('aria-controls','theme-stage');button.style.setProperty('--dot',accent);button.addEventListener('click',()=>chooseTheme(index));$('#theme-dots').append(button);});
 function chooseTheme(index){
   galleryTheme=(index+palettes.length)%palettes.length;
   const [id,name,faName,accent]=palettes[galleryTheme];
@@ -114,6 +116,12 @@ function chooseTheme(index){
 $('#previous-theme').addEventListener('click',()=>chooseTheme(galleryTheme-1));
 $('#next-theme').addEventListener('click',()=>chooseTheme(galleryTheme+1));
 $('#theme-dots').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();chooseTheme(e.key==='Home'?0:e.key==='End'?palettes.length-1:galleryTheme+(e.key==='ArrowRight'?1:-1));$('#theme-dots').querySelectorAll('button')[galleryTheme].focus();});
+$('#theme-stage').addEventListener('keydown',e=>{if(e.target!==e.currentTarget||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();chooseTheme(e.key==='Home'?0:e.key==='End'?palettes.length-1:galleryTheme+(e.key==='ArrowRight'?1:-1));});
+let touchStart=null;
+$('#theme-stage').addEventListener('pointerdown',e=>{if(e.pointerType==='touch')touchStart={x:e.clientX,y:e.clientY};});
+$('#theme-stage').addEventListener('pointerup',e=>{if(!touchStart)return;const dx=e.clientX-touchStart.x,dy=e.clientY-touchStart.y;touchStart=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))chooseTheme(galleryTheme+(dx<0?1:-1));});
+$('#theme-stage').addEventListener('pointercancel',()=>{touchStart=null;});
+$('#gallery-image').addEventListener('load',e=>{if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)e.target.animate([{opacity:.3,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'cubic-bezier(.22,.61,.21,1)'});});
 chooseTheme(0);
 
 document.querySelectorAll('[data-i18n]').forEach(el => copy.fa[el.dataset.i18n] = el.textContent);
@@ -150,13 +158,10 @@ function setLanguage(value){
   lang=value==='en'?'en':'fa';document.documentElement.lang=lang;document.documentElement.dir=lang==='fa'?'rtl':'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=copy[lang][el.dataset.i18n]||copy.fa[el.dataset.i18n]);
   $('#language').textContent=lang==='fa'?'EN':'فا';$('#language').setAttribute('aria-label',lang==='fa'?'Switch to English':'تغییر زبان به فارسی');
-  $('#theme').setAttribute('aria-label',lang==='fa'?'تغییر تم':'Toggle theme');
   document.title=lang==='fa'?'Vyrax | اتصال، به سبک تو.':'Vyrax | Your connection. Your choice.';
   renderDownload(true);renderScreenshots();save('vyrax-site-language',lang);
 }
 $('#language').addEventListener('click',()=>setLanguage(lang==='fa'?'en':'fa'));
-$('#theme').addEventListener('click',()=>{document.body.classList.toggle('light');save('vyrax-site-theme',document.body.classList.contains('light')?'light':'dark');});
-if(saved('vyrax-site-theme')==='light')document.body.classList.add('light');
 document.querySelectorAll('[data-os]').forEach(button=>{
   button.addEventListener('click',()=>{os=button.dataset.os;renderDownload();});
   button.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const keys=Object.keys(platforms);let i=keys.indexOf(os);i=e.key==='Home'?0:e.key==='End'?keys.length-1:(i+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length;os=keys[i];renderDownload();$('#tab-'+os).focus();});
@@ -171,3 +176,47 @@ async function getRelease(){
   try{const r=await fetch('https://api.github.com/repos/AmyraxVPN-Main/Vyrax/releases/latest',{signal:AbortSignal.timeout(7000),headers:{Accept:'application/vnd.github+json'}});if(r.ok)acceptRelease(await r.json());}catch{}
 }
 getRelease();
+
+// The reference's load reveals, glass header, eased parallax and shooting stars.
+const page=document.documentElement;
+const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+page.classList.add('js');
+requestAnimationFrame(()=>requestAnimationFrame(()=>page.classList.add('loaded')));
+let scrollPosition=0,scrollFrame=null;
+function updateParallax(){
+  const target=Math.min(window.scrollY,window.innerHeight*1.6);
+  scrollPosition+=(target-scrollPosition)*.14;
+  if(Math.abs(target-scrollPosition)<.1){scrollPosition=target;scrollFrame=null;}
+  else scrollFrame=requestAnimationFrame(updateParallax);
+  page.style.setProperty('--sy',scrollPosition.toFixed(2));
+}
+function updateScroll(){
+  $('#hd').classList.toggle('scrolled',window.scrollY>8);
+  if(!motion.matches&&scrollFrame===null)scrollFrame=requestAnimationFrame(updateParallax);
+}
+window.addEventListener('scroll',updateScroll,{passive:true});
+updateScroll();
+motion.addEventListener('change',()=>{
+  if(motion.matches){cancelAnimationFrame(scrollFrame);scrollFrame=null;page.style.setProperty('--sy','0');}
+  else updateScroll();
+});
+const revealElements=document.querySelectorAll('.reveal');
+if('IntersectionObserver' in window){
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+    if(entry.isIntersecting){entry.target.classList.add('in');observer.unobserve(entry.target);}
+  }),{rootMargin:'0px 0px -8% 0px',threshold:.08});
+  revealElements.forEach(el=>observer.observe(el));
+}else revealElements.forEach(el=>el.classList.add('in'));
+function spawnComet(){
+  if(document.hidden||motion.matches||window.scrollY>window.innerHeight)return;
+  const layer=$('.hero__comets'),right=Math.random()<.5;
+  const angle=24+Math.random()*16;
+  const comet=document.createElement('span');comet.className='comet';
+  comet.style.setProperty('--x0',((right ? .02+Math.random()*.55 : .43+Math.random()*.55)*layer.clientWidth).toFixed(0)+'px');
+  comet.style.setProperty('--y0',(Math.random()*layer.clientHeight*.28).toFixed(0)+'px');
+  comet.style.setProperty('--ang',(right?angle:180-angle).toFixed(1)+'deg');
+  comet.style.setProperty('--dist',(320+Math.random()*460).toFixed(0)+'px');
+  comet.style.setProperty('--dur',(550+Math.random()*400).toFixed(0)+'ms');
+  layer.append(comet);comet.addEventListener('animationend',()=>comet.remove(),{once:true});
+}
+(function scheduleComet(){setTimeout(()=>{spawnComet();scheduleComet();},3000+Math.random()*8000);})();
