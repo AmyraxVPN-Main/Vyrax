@@ -10,6 +10,7 @@ import UpdateNotice from './components/UpdateNotice.jsx';
 import useUpdates from './lib/useUpdates.js';
 import useConnectionState from './lib/useConnectionState.js';
 import usePresence from './lib/usePresence.js';
+import { applyThemeFallback } from './lib/theme-compat.mjs';
 import { createConnectionActions } from './lib/connection-actions.mjs';
 import { testLatencyBatch, probeIdentity } from './lib/latency-batch.mjs';
 import ServerPicker from './components/dashboard/ServerPicker.jsx';
@@ -216,6 +217,7 @@ export default function App() {
   /* تم روی <html> می‌نشیند تا همهٔ متغیرهای CSS عوض شوند */
   useEffect(() => {
     document.documentElement.dataset.theme = state.settings.theme || DEFAULT_THEME;
+    applyThemeFallback(document.documentElement);
   }, [state.settings.theme]);
 
   /* میزبان در هر مرحله و هر تغییر وضعیت خبر می‌دهد؛ وضعیت رابط را از همین

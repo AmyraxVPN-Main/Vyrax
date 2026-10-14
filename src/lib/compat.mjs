@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Amyrax
+// Android 10's original WebView exposes getRandomValues but not randomUUID.
+export function randomUUID(cryptoSource = globalThis.crypto) {
+  const b=cryptoSource.getRandomValues(new Uint8Array(16));b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
+  const h=Array.from(b,v=>v.toString(16).padStart(2,'0'));
+  return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');
+}
+if (globalThis.crypto && !globalThis.crypto.randomUUID) Object.defineProperty(globalThis.crypto,'randomUUID',{value:()=>randomUUID()});

@@ -18,8 +18,8 @@ export default function ServerPicker({ profiles,selectedId,selectionMode,busy,cl
     if (event.key === 'Escape') { event.preventDefault();onClose(); }
     if (event.key !== 'Tab') return;
     const elements = [...dialog.current.querySelectorAll('button:not(:disabled),input')];
-    if (event.shiftKey && [elements[0],dialog.current].includes(document.activeElement)) { event.preventDefault();elements.at(-1)?.focus(); }
-    if (!event.shiftKey && [elements.at(-1),dialog.current].includes(document.activeElement)) { event.preventDefault();elements[0]?.focus(); }
+    if (event.shiftKey && [elements[0],dialog.current].includes(document.activeElement)) { event.preventDefault();elements[elements.length-1]?.focus(); }
+    if (!event.shiftKey && [elements[elements.length-1],dialog.current].includes(document.activeElement)) { event.preventDefault();elements[0]?.focus(); }
   }
   const list = profiles.filter(p => `${p.name} ${p.host} ${p.protocol} ${protoLabel(p)}`.toLowerCase().includes(query.trim().toLowerCase())).slice(0,100);
   return <div className={`sheet-backdrop material-backdrop ${closing ? 'closing' : ''}`} onClick={onClose}><section className="material-server-sheet" tabIndex={-1} ref={dialog} role="dialog" aria-modal="true" aria-label={t('dash.server')} onClick={e => e.stopPropagation()} onKeyDown={keys}>

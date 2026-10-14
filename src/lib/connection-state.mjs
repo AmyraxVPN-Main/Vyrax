@@ -35,8 +35,8 @@ export function connectionReducer(state, action) {
     return normalizeConnection(state, { ...state, connected,connecting:data.status === 'connecting',disconnecting:false,
       stage:data.stage || '', startedAt:connected && Number.isFinite(since) ? since : state.startedAt,
       activeTargets:connected ? data.activeTargets || state.activeTargets || [] : [],
-      exit:connected ? Object.hasOwn(data,'exit') ? data.exit : state.exit : null,
-      share:connected ? Object.hasOwn(data,'share') ? data.share : state.share : null }, now);
+      exit:connected ? Object.prototype.hasOwnProperty.call(data,'exit') ? data.exit : state.exit : null,
+      share:connected ? Object.prototype.hasOwnProperty.call(data,'share') ? data.share : state.share : null }, now);
   }
   if (action.type === 'tick') {
     if (!state.connected) return state;
@@ -49,7 +49,7 @@ export function connectionReducer(state, action) {
     for (const key of ['up','down','upRate','downRate']) if (nonnegative(action.data[key])) next[key] = action.data[key];
     const history = state.trafficHistory || [], point = { at:now,up:next.upRate,down:next.downRate };
     // Coalesce bursts into one sample per second, keeping a fixed memory budget.
-    const replace = history.length && now - history.at(-1).at < 1000;
+    const replace = history.length && now - history[history.length-1].at < 1000;
     next.trafficHistory = [...(replace ? history.slice(0, -1) : history), point].slice(-TRAFFIC_CAPACITY);
     return next;
   }

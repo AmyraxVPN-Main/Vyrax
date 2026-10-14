@@ -1,4 +1,5 @@
 import React from 'react';
+import './lib/compat.mjs';
 import { createRoot } from 'react-dom/client';
 import './fonts.css';
 import '@fontsource/roboto/latin-400.css';

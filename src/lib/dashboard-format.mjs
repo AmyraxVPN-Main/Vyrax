@@ -21,7 +21,7 @@ export function trafficPath(samples, width = 320, height = 80) {
   // or drawing negative rates between samples. At most 60 points are retained.
   const tangents = points.map((_,i) => {
     if (i === 0) return slopes[0] || 0;
-    if (i === points.length - 1) return slopes.at(-1) || 0;
+    if (i === points.length - 1) return slopes[slopes.length-1] || 0;
     const a = slopes[i - 1], b = slopes[i];
     return a * b > 0 ? 2 * a * b / (a + b) : 0;
   });
