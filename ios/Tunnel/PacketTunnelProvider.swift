@@ -78,7 +78,7 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
     }
     private func snapshot()->[String:Any] {
         var value = pump.stats();value["status"] = started ? "connected":"connecting";value["elevated"]=true
-        for key in ["profileId","selectionMode","since"]{value[key]=session[key]}
+        for key in ["profileId","selectionMode","since","settings"]{value[key]=session[key]}
         return value
     }
 }

@@ -6,6 +6,7 @@ import NetworkExtension
     private var manager:NETunnelProviderManager?
     private var generation=0
     private var connecting=false
+    private var preferenceChange:Task<Void,Error>?
     var changed:(()->Void)?
     private var observer:NSObjectProtocol?
     init(){observer=NotificationCenter.default.addObserver(forName:.NEVPNStatusDidChange,object:nil,queue:.main){[weak self] _ in self?.changed?()}}
@@ -34,7 +35,7 @@ import NetworkExtension
         #if targetEnvironment(simulator)
         throw VyraxError.code("err.vpnPermission") // The simulator cannot establish an iPhone VPN.
         #else
-        guard !connecting else{throw VyraxError.code("err.busy")}
+        guard !connecting,!active else{throw VyraxError.code("err.busy")}
         connecting=true;defer{connecting=false}
         generation+=1;let token=generation
         try await prepare()
@@ -42,13 +43,16 @@ import NetworkExtension
         let settings=try SharedStore.settings(args["settings"] as? [String:Any] ?? [:])
         var session=args;session["settings"]=settings
         try await Task.detached{try SharedStore.save(session,name:"session")}.value
+        guard token==generation else{throw VyraxError.code("err.notConnected")}
         let proto=NETunnelProviderProtocol();proto.providerBundleIdentifier="com.amyrax.vyrax.tunnel";proto.serverAddress="Vyrax"
         manager.protocolConfiguration=proto;manager.localizedDescription="Vyrax";manager.isEnabled=true
         if settings["autoReconnect"] as? Bool == true {
             let rule=NEOnDemandRuleConnect();rule.interfaceTypeMatch = .any
             manager.onDemandRules=[rule];manager.isOnDemandEnabled=true
         }else{manager.isOnDemandEnabled=false;manager.onDemandRules=[]}
-        try await manager.saveToPreferences();try await manager.loadFromPreferences()
+        let change=Task{try await manager.saveToPreferences();try await manager.loadFromPreferences()}
+        preferenceChange=change
+        do{try await change.value;preferenceChange=nil}catch{preferenceChange=nil;throw error}
         guard token==generation else{throw VyraxError.code("err.notConnected")}
         try manager.connection.startVPNTunnel()
         for _ in 0..<150 {
@@ -62,6 +66,7 @@ import NetworkExtension
     }
     func disconnect() async throws -> [String:Any] {
         generation+=1
+        _=try? await preferenceChange?.value
         if let manager {
             manager.isOnDemandEnabled=false
             try await manager.saveToPreferences()

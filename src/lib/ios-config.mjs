@@ -80,6 +80,7 @@ export function iosRequest(action, args) {
   const selectedId = action === 'select' ? args.selectedId : args.profile.id;
   const mode = (action === 'select' ? args.selectionMode : raw._selection) || 'manual';
   const selected = routing(profiles, selectedId, mode, source || '', settings);
+  delete settings._catalog;delete settings._selection;delete settings._source;
   const config = {
     log:{loglevel:'none'},
     inbounds:[{ tag:'socks', listen:'127.0.0.1', port:10808, protocol:'socks', settings:{auth:'noauth',udp:true}, sniffing:{enabled:true,destOverride:['http','tls','quic'],routeOnly:true}}],

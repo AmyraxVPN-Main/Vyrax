@@ -87,6 +87,10 @@ export async function call(action, args = {}, options = {}) {
     }
     if (['connect','select','delay','ping'].includes(action)) {
       const { iosRequest } = await import('./lib/ios-config.mjs');
+      if (action === 'select') {
+        const snapshot = await callWebview2('status', {}, options.timeout);
+        args = { ...args, settings:snapshot.settings || {} };
+      }
       args = iosRequest(action, args);
     }
     return callWebview2(action, args, options.timeout);

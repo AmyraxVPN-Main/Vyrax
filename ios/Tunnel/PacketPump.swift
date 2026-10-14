@@ -11,6 +11,7 @@ final class PacketPump {
     private var input:DispatchSourceRead?
     private var fd:Int32 = -1, coreFD:Int32 = -1
     private var running = false
+    private var uploaded=0,downloaded=0
     private let stopped = DispatchGroup()
     private weak var flow:NEPacketTunnelFlow?
     var failure:(()->Void)?
@@ -64,7 +65,8 @@ final class PacketPump {
                     var bytes = Data(bytes:&family,count:4);bytes.append(packet)
                     // Datagram writes are atomic and bounded. Under pressure the
                     // stack retransmits TCP; no unbounded packet queues accumulate.
-                    bytes.withUnsafeBytes { _ = Darwin.send(self.fd,$0.baseAddress,$0.count,0) }
+                    let sent=bytes.withUnsafeBytes { Darwin.send(self.fd,$0.baseAddress,$0.count,0) }
+                    if sent==bytes.count{self.uploaded+=packet.count}
                 }
                 self.readFlow()
             }
@@ -79,6 +81,7 @@ final class PacketPump {
             if count<=4{break}
             let proto = buffer[4]>>4 == 4 ? AF_INET : AF_INET6
             packets.append(Data(buffer[4..<count]));protocols.append(NSNumber(value:proto))
+            downloaded+=count-4
         }
         if !packets.isEmpty{flow?.writePackets(packets,withProtocols:protocols)}
     }
@@ -91,8 +94,8 @@ final class PacketPump {
         if coreFD>=0 {Darwin.close(coreFD);coreFD = -1}
     }
     func stats()->[String:Any] {
-        var txp=0,tx=0,rxp=0,rx=0
-        hev_socks5_tunnel_stats(&txp,&tx,&rxp,&rx)
-        return ["up":tx,"down":rx]
+        // Counters are owned by the packet queue, so the UI never reads Hev's
+        // unsynchronized C globals from its worker thread.
+        return queue.sync{["up":uploaded,"down":downloaded]}
     }
 }
