@@ -34,13 +34,21 @@ import WebKit
         let radius=try await evaluate(host,"getComputedStyle(document.querySelector('.shell')).borderRadius") as? String
         XCTAssertEqual(controls,0);XCTAssertEqual(radius,"0px")
         try await screenshot(host,"iphone-home")
-        let result=try await call(host,"""
-        return await new Promise(resolve => {
+        _=try await evaluate(host,"""
+        window.__vyraxTestSettings=null;
+        (() => {
           const original=window.__vyraxNativeEvent;
-          window.__vyraxNativeEvent = data => { if(data.id===901){window.__vyraxNativeEvent=original;resolve(data.result)} else original(data) };
+          window.__vyraxNativeEvent = data => { if(data.id===901){window.__vyraxNativeEvent=original;window.__vyraxTestSettings=data.result} else original(data) };
           window.webkit.messageHandlers.vyrax.postMessage({id:901,action:'validateSettings',args:{mode:'proxy',proxyShare:true,mtu:1280}});
-        });
-        """) as? [String:Any]
+        })();
+        """)
+        var result:[String:Any]?
+        for _ in 0..<50 {
+            try await Task.sleep(nanoseconds:100_000_000)
+            result=try await evaluate(host,"window.__vyraxTestSettings") as? [String:Any]
+            if result != nil {break}
+        }
+        XCTAssertNotNil(result)
         XCTAssertEqual(result?["mode"] as? String,"tun");XCTAssertEqual(result?["proxyShare"] as? Bool,false)
         _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[2].click()")
         try await Task.sleep(nanoseconds:400_000_000)
@@ -78,13 +86,6 @@ import WebKit
             host.web.evaluateJavaScript(script){value,error in
                 if let error{continuation.resume(throwing:error)}
                 else{continuation.resume(returning:value ?? NSNull())}
-            }
-        }
-    }
-    private func call(_ host:WebController,_ script:String) async throws -> Any {
-        try await withCheckedThrowingContinuation{continuation in
-            host.web.callAsyncJavaScript(script,arguments:[:],in:nil,contentWorld:.page){result in
-                continuation.resume(with:result)
             }
         }
     }
