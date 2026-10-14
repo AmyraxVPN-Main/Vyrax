@@ -17,7 +17,7 @@ export function compareVersions(a, b) {
 export function projectLinks(project) {
   if (!/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(project.repository)) throw new Error('Invalid project repository');
   const source = `https://github.com/${project.repository}`;
-  return { source, release:`${source}/releases/latest`, telegram:project.telegram };
+  return { source, release:`${source}/releases/latest`, telegram:project.telegram,firefoxAccount:'https://accounts.firefox.com/',firefoxHelp:'https://support.mozilla.org/en-US/kb/firefox-vpn' };
 }
 
 export function publishedRelease(release, repository, now = Date.now()) {

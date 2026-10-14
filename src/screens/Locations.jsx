@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, RotateCw, Plus, Check, ChevronRight, Star, Trash2, Zap, Shuffle, Folder } from 'lucide-react';
+import { Search, RotateCw, Plus, Check, ChevronRight, Star, Trash2, Zap, Shuffle, Folder, Gift } from '../components/Glyph.jsx';
 import { MsTag } from '../ui.jsx';
 import Flag from '../components/Flag.jsx';
 import Segment from '../components/Segment.jsx';
@@ -9,7 +9,7 @@ import { countryOf, protoLabel, cleanName } from '../lib/geo.js';
 const TABS = [['country', 'loc.country'], ['fastest', 'loc.fastest'], ['favourites', 'loc.favourites']];
 const byLatency = (a, b) => (a.latency ?? Infinity) - (b.latency ?? Infinity);
 
-export default function Locations({ profiles, selectedId, connectedId, checking, testingIds, selectionMode, selectionBusy, onAuto, sourceName, onSubscriptions, onPick, onAdd, onRemove, onFavorite, onCheck, onPing }) {
+export default function Locations({ profiles, selectedId, connectedId, checking, testingIds, selectionMode, selectionBusy, onAuto, sourceName, onSubscriptions, onFree, onPick, onAdd, onRemove, onFavorite, onCheck, onPing }) {
   const { t, lang } = useI18n();
   const [tab, setTab] = useState('country');
   const [query, setQuery] = useState('');
@@ -62,6 +62,7 @@ export default function Locations({ profiles, selectedId, connectedId, checking,
   return (
     <section className="locations">
       <button className="source-picker" onClick={onSubscriptions}><Folder size={15} /><span><bdi>{sourceName}</bdi></span><ChevronRight size={15} /></button>
+      <button type="button" className="free-entry" onClick={onFree}><Gift size={16}/><span>{t('free.title')}</span><ChevronRight size={14}/></button>
       <div className="loc-head">
           <label className="search"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)}
             placeholder={t('loc.search')} aria-label={t('loc.search')} spellCheck={false} /></label>

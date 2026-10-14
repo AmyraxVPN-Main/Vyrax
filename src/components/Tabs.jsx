@@ -1,39 +1,14 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Amyrax
 import React from 'react';
-import { Home, Globe, Sun, User } from 'lucide-react';
-import { MotionSurface as Liquid } from './Surface.jsx';
+import Glyph from './Glyph.jsx';
 import { useI18n } from '../i18n.jsx';
-import Surface from './Surface.jsx';
-
-const TABS = [
-  { id: 'home', Icon: Home },
-  { id: 'locations', Icon: Globe },
-  { id: 'settings', Icon: Sun },
-  { id: 'account', Icon: User }
-];
-
-export default function Tabs({ page, onPick, connected }) {
-  const { t } = useI18n();
-  const index = TABS.findIndex((tab) => tab.id === page);
-  return (
-    <nav className="tabs" aria-label={t('nav.label')}>
-      <Surface className="tabs-liquid" aria-hidden="true">
-        <Surface.Item><div className="tabs-track" /></Surface.Item>
-      </Surface>
-      <Liquid blur={6} contrast={20} fill="var(--accent-fill)" className="tabs-thumb-layer" aria-hidden="true">
-        <Liquid.Item effect="move" move={{ springiness: .55, trail: .5, wobble: .55 }}>
-          <div className="tabs-thumb" style={{ transform: `translateX(${index * 100}%)` }} />
-        </Liquid.Item>
-      </Liquid>
-      <div className="tabs-row">
-        {TABS.map(({ id, Icon }) => (
-          <button key={id} type="button" className={`tab ${page === id ? 'on' : ''}`}
-            onClick={() => onPick(id)} aria-current={page === id ? 'page' : undefined}>
-            <Icon size={19} strokeWidth={1.8} />
-            <span>{t(`nav.${id}`)}</span>
-            {id === 'home' && connected && <i className="tab-live" />}
-          </button>
-        ))}
-      </div>
-    </nav>
-  );
+const tabs=[['home','dashboard','dash.title'],['locations','globe','nav.locations'],['profiles','profiles','sub.title'],['connection','connections','dash.connection'],['settings','tools','dash.tools']];
+export default function Tabs({ page,onPick,onSubscriptions,subscriptionsOpen,expanded,onExpand }) {
+  const { t }=useI18n();
+  return <nav className="material-nav" aria-label={t('nav.label')}>
+    <button className="nav-expand" type="button" onClick={onExpand} aria-label={t('dash.expandNav')} aria-expanded={expanded} title={t('dash.expandNav')}><span><Glyph name="panel" size={22}/></span></button>
+    {tabs.map(([id,icon,key])=><button key={id} type="button" className={`${id==='profiles'?'nav-profile':''} ${page===id?'selected':''}`} onClick={()=>id==='profiles'?onSubscriptions():onPick(id)} aria-label={t(key)} title={t(key)} aria-current={page===id?'page':undefined} aria-expanded={id==='profiles'?subscriptionsOpen:undefined}><span><Glyph name={icon} size={24} filled={page===id}/></span><b>{t(key)}</b></button>)}
+    <button type="button" className={`nav-account ${page==='account'?'selected':''}`} onClick={()=>onPick('account')} aria-label={t('nav.account')} title={t('nav.account')}><span><Glyph name="user" size={23} filled={page==='account'}/></span><b>{t('nav.account')}</b></button>
+  </nav>;
 }

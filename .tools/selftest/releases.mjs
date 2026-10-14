@@ -37,6 +37,6 @@ check(shouldNotify(available,'0.1.19'),false,'rollback does not repeat older not
 check(shouldNotify(available,'0.1.17'),true,'a later release can notify');
 check(shouldNotify(null,''),false,'no fabricated notice');
 check(publishedRelease(stable,repository,now)?.version,'0.1.18','stable metadata is validated separately from installed version');
-check(projectLinks(project), { source:`https://github.com/${repository}`, release:`https://github.com/${repository}/releases/latest`, telegram:'https://t.me/AmyraxVPN' }, 'fixed project destinations');
+check(projectLinks(project), { source:`https://github.com/${repository}`, release:`https://github.com/${repository}/releases/latest`, telegram:'https://t.me/AmyraxVPN',firefoxAccount:'https://accounts.firefox.com/',firefoxHelp:'https://support.mozilla.org/en-US/kb/firefox-vpn' }, 'fixed project destinations');
 assert.throws(()=>projectLinks({...project, repository:'owner/repo/../../other'}));checks++;
 console.log(`${checks} release validation, semantic version, quiet dismissal and project-link checks passed`);

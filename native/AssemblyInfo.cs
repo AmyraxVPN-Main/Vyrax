@@ -3,5 +3,5 @@ using System.Reflection;
 [assembly: AssemblyProduct("Vyrax")]
 [assembly: AssemblyDescription("Vyrax VPN client for Windows")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 Amyrax")]
-[assembly: AssemblyVersion("0.1.24.0")]
-[assembly: AssemblyFileVersion("0.1.24.0")]
+[assembly: AssemblyVersion("0.1.30.0")]
+[assembly: AssemblyFileVersion("0.1.30.0")]

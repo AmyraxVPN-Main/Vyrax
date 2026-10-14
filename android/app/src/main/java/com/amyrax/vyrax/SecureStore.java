@@ -16,7 +16,9 @@ import org.json.JSONObject;
 final class SecureStore {
     private static final String ALIAS="vyrax-profile-key";
     private final AtomicFile file;
-    SecureStore(Context context){file=new AtomicFile(new File(context.getFilesDir(),"profiles.enc"));}
+    private final boolean provider;
+    SecureStore(Context context){this(context,false);}
+    SecureStore(Context context,boolean provider){this.provider=provider;file=new AtomicFile(new File(context.getFilesDir(),provider?"firefox.enc":"profiles.enc"));}
     private SecretKey key()throws Exception{
         KeyStore store=KeyStore.getInstance("AndroidKeyStore");store.load(null);
         if(store.containsAlias(ALIAS))return (SecretKey)store.getKey(ALIAS,null);
@@ -32,9 +34,9 @@ final class SecureStore {
     }
     synchronized void save(JSONObject value)throws Exception{
         if(value.toString().length()>4*1024*1024)throw new IllegalArgumentException("err.tooBig");
-        JSONObject saved=Jsons.copy(value);XrayConfig.put(saved,"settings",Preferences.normalize(saved.optJSONObject("settings")));
+        JSONObject saved=Jsons.copy(value);if(!provider)XrayConfig.put(saved,"settings",Preferences.normalize(saved.optJSONObject("settings")));
         org.json.JSONArray profiles=Jsons.array(saved,"profiles");if(profiles.length()>4096)throw new IllegalArgumentException("err.tooBig");
-        for(int i=0;i<profiles.length();i++)XrayConfig.validate(profiles.getJSONObject(i));
+        if(!provider)for(int i=0;i<profiles.length();i++){profiles.getJSONObject(i).remove("proxyPass");XrayConfig.validate(profiles.getJSONObject(i));}
         Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,key());
         byte[] encrypted=cipher.doFinal(saved.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         FileOutputStream output=null;

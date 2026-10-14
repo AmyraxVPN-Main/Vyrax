@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Amyrax
 import { validatePreferences } from './preferences.mjs';
 import { sha256 } from './sha256.mjs';
+import { freeOutbound, validateFreeProfile } from './free-servers.mjs';
 const isIP = value => { try { const host = new URL('http://' + (value.includes(':') ? '[' + value + ']' : value)).hostname; return host.startsWith('[') || /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(host); } catch { return false; } };
 
 export const PROBE_URL = 'https://www.gstatic.com/generate_204';
@@ -14,6 +15,7 @@ export function preferences(raw = {}) {
   return settings;
 }
 export function validate(p) {
+  if (p?.protocol === 'firefox') { validateFreeProfile(p);return; }
   if (!p || !['vless','vmess','trojan','shadowsocks'].includes(p.protocol)) throw Error('err.protocol');
   if (!['tcp','ws','grpc','httpupgrade','xhttp'].includes(p.transport || 'tcp')) throw Error('err.transport');
   if (typeof p.host !== 'string' || !p.host.length || p.host.length > 253 || /[\s/\\@?#\x00-\x1f]/.test(p.host)) throw Error('err.host');
@@ -25,6 +27,9 @@ export function validate(p) {
 }
 export function outbound(p) {
   validate(p);
+  // The native provider replaces this marker in memory. Account passes never
+  // cross the WebView bridge or enter exported profiles.
+  if (p.protocol === 'firefox') return freeOutbound({ ...p, proxyPass:'vyrax-native-pass' });
   const { protocol, host, port } = p;
   let settings;
   if (['vless','vmess'].includes(protocol)) {

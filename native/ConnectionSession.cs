@@ -17,12 +17,20 @@ public interface IConnectionEngine {
 public sealed class ConnectionSession {
     readonly IConnectionEngine engine;
     readonly Func<DateTime> now;
+    readonly Func<Dictionary<string,object>[],Task<Dictionary<string,object>[]>> resolve;
+    DateTime providerCheck;
     Dictionary<string,object> profile,settings=Json.Obj();
     bool wanted,busy,started,waiting;
     int generation,failures;
+    int routeVersion;
     DateTime retryAt;
     public event Action<object> Changed;
-    public ConnectionSession(IConnectionEngine value,Func<DateTime> clock=null) { engine=value;now=clock??(()=>DateTime.UtcNow);engine.Changed+=Forward; }
+    public ConnectionSession(IConnectionEngine value,Func<DateTime> clock=null,Func<Dictionary<string,object>[],Task<Dictionary<string,object>[]>> provider=null) { engine=value;now=clock??(()=>DateTime.UtcNow);resolve=provider;engine.Changed+=Forward; }
+    async Task<Dictionary<string,object>[]> Prepare(Dictionary<string,object>[] profiles,string source) {
+        if(resolve==null)return profiles;
+        return await resolve(profiles.Where(p=>Json.Str(p,"protocol")!="firefox"||Json.Str(p,"sourceId")==source).ToArray());
+    }
+    Dictionary<string,object>[] Catalog(){object raw;return settings.TryGetValue("_catalog",out raw)?Json.Items(raw).OfType<Dictionary<string,object>>().ToArray():new[]{profile};}
     void Emit(object value) { if(Changed!=null)Changed(value); }
     void Forward(object value) {
         var data=value as Dictionary<string,object>;
@@ -65,6 +73,7 @@ public sealed class ConnectionSession {
         Config.Validate(chosen);
         Preferences.Validate(options);
         var current=++generation;wanted=false;waiting=false;
+        routeVersion++;
         await engine.Disconnect();
         if(current!=generation)return Snapshot();
         profile=new Dictionary<string,object>(chosen);Update(options);wanted=true;failures=0;
@@ -73,6 +82,11 @@ public sealed class ConnectionSession {
     async Task<object> Attempt(int current) {
         busy=true;waiting=false;
         try {
+            if(resolve!=null) {
+                var profiles=await Prepare(Catalog(),Json.Str(settings,"_source",Json.Str(profile,"sourceId")));
+                if(current!=generation)return Snapshot();
+                settings["_catalog"]=profiles;profile=profiles.FirstOrDefault(p=>Json.Str(p,"id")==Json.Str(profile,"id"))??profile;providerCheck=now().AddSeconds(30);
+            }
             var result=await engine.Connect(profile,Json.Str(settings,"mode","proxy"),Json.Int(settings,"mtu",1280),settings);
             if(current!=generation)return Snapshot();
             if(Json.Str((Dictionary<string,object>)result,"status")=="connected")failures=0;
@@ -86,13 +100,15 @@ public sealed class ConnectionSession {
     static bool Retryable(Exception error) {
         return new[]{"err.verify","err.timeout","err.coreFailed","err.coreStopped","err.coreSlow","err.tunnel","err.tunnelTraffic","err.tunBusy","err.portBusy"}.Contains(error.Message);
     }
-    public async Task<object> Disconnect() { ++generation;wanted=false;waiting=false;busy=false;return await engine.Disconnect(); }
+    public async Task<object> Disconnect() { ++generation;++routeVersion;wanted=false;waiting=false;busy=false;return await engine.Disconnect(); }
     public async Task<object> Select(Dictionary<string,object>[] profiles,string selected,string mode,string source) {
         if(busy||waiting)throw new Exception("err.routingUnavailable");
         var current=generation;
+        var routing=++routeVersion;
         var concrete=engine as ISelectionEngine;if(concrete==null)throw new Exception("err.routingUnavailable");
+        profiles=await Prepare(profiles,source);if(current!=generation||routing!=routeVersion)return Snapshot();
         var result=await concrete.Select(profiles,selected,mode,source);
-        if(current!=generation)return Snapshot();
+        if(current!=generation||routing!=routeVersion)return Snapshot();
         profile=profiles.FirstOrDefault(p=>Json.Str(p,"id")==Json.Str((Dictionary<string,object>)result,"profileId"))??profile;
         settings["_catalog"]=profiles;settings["_selection"]=mode;settings["_source"]=source;
         return result;
@@ -100,6 +116,13 @@ public sealed class ConnectionSession {
     public async Task Poll() {
         if(busy)return;
         await engine.Poll();
+        if(resolve!=null&&wanted&&!busy&&!waiting&&Json.Str(profile,"protocol")=="firefox"&&now()>=providerCheck) {
+            providerCheck=now().AddSeconds(30);var current=generation;
+            string providerError=null;
+            try {await Select(Catalog(),Json.Str(profile,"id"),Json.Str(settings,"_selection","manual"),Json.Str(settings,"_source"));}
+            catch(Exception e){if(current==generation&&(e.Message=="err.freeAuth"||e.Message=="err.freeQuota"))providerError=e.Message;}
+            if(providerError!=null){await Disconnect();Emit(Json.Obj("event","state","status","disconnected","message",providerError));}
+        }
         if(waiting&&wanted&&Json.Bool(settings,"autoReconnect")&&now()>=retryAt) {
             try { await Attempt(generation); } catch(Exception e) {Emit(Json.Obj("event","state","status","disconnected","message",e.Message));}
         }

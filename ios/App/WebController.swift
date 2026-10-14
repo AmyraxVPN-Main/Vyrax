@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 import UIKit
+import Darwin
 import WebKit
 import UniformTypeIdentifiers
 
 @MainActor final class WebController:UIViewController,WKScriptMessageHandler,WKNavigationDelegate,UIDocumentPickerDelegate {
     private(set) var web:WKWebView!
     private let vpn=VPNController()
+    private let free=FreeProvider()
     private var ready=false
     private var pickerReply:((Any?,Error?)->Void)?
     private var statsTimer:Timer?
@@ -80,7 +82,40 @@ import UniformTypeIdentifiers
             var saved=args;saved["settings"]=try SharedStore.settings(args["settings"] as? [String:Any] ?? [:])
             let value=saved;try await Task.detached{try SharedStore.save(value)}.value;return true
         case "validateSettings":return try SharedStore.settings(args)
+        case "freeCrypto":return try await Task.detached(priority:.userInitiated){try FreeCrypto.perform(args)}.value
+        case "freeRequest":
+            guard ["login","verify","oauth","servers"].contains(args["endpoint"] as? String ?? "") else{throw VyraxError.code("err.action")}
+            if vpn.active{return try await vpn.message(action,args)}
+            return try await Task.detached(priority:.utility){[free] in try free.request(args)}.value
+        case "freeAccount","freeSave","freeSwitch","freeRemove","freeLogout":
+            if vpn.active {
+                let snapshot=try await vpn.snapshot()
+                if (snapshot["profileId"] as? String ?? "").hasPrefix("firefox:"),["freeSave","freeSwitch","freeRemove","freeLogout"].contains(action) {
+                    let local=try await vpn.message("freeAccount",["operation":"local"]) as? [String:Any] ?? [:]
+                    if action != "freeRemove" || local["email"] as? String==args["email"] as? String {
+                        var state=try await vpn.disconnect();state["event"]="state";emit(state)
+                    }
+                }
+            }
+            if vpn.active{return try await vpn.message(action,args)}
+            return try await Task.detached(priority:.utility){[free] in try free.perform(action,args)}.value
         case "status":return try await vpn.snapshot()
+        case "networkInfo":
+            var first:UnsafeMutablePointer<ifaddrs>?
+            guard getifaddrs(&first)==0,let start=first else{return ["addresses":[String]() ]}
+            defer{freeifaddrs(first)}
+            var addresses=[String](),cursor:UnsafeMutablePointer<ifaddrs>?=start
+            while let item=cursor {
+                let name=String(cString:item.pointee.ifa_name)
+                if let address=item.pointee.ifa_addr,address.pointee.sa_family==UInt8(AF_INET),
+                   item.pointee.ifa_flags & UInt32(IFF_UP) != 0,item.pointee.ifa_flags & UInt32(IFF_LOOPBACK)==0,
+                   !name.hasPrefix("utun"),!name.hasPrefix("tun") {
+                    var host=[CChar](repeating:0,count:Int(NI_MAXHOST))
+                    if getnameinfo(address,socklen_t(address.pointee.sa_len),&host,socklen_t(host.count),nil,0,NI_NUMERICHOST)==0{addresses.append(String(cString:host))}
+                }
+                cursor=item.pointee.ifa_next
+            }
+            return ["addresses":addresses]
         case "ready":
             if args["config"] != nil,!vpn.active{return try await vpn.connect(args)}
             return try await vpn.snapshot()
@@ -94,7 +129,10 @@ import UniformTypeIdentifiers
             if vpn.active{return try await vpn.message(action,args)}
             let method=action=="delay" || action=="ping" ? "delay":"http"
             let payload:Any=method=="delay" ? args["outbound"] ?? [:] : action=="checkUpdates" ? ["url":"https://api.github.com/repos/AmyraxVPN-Main/Vyrax/releases/latest","update":true] : args
-            return try await Task.detached(priority:.utility){try NativeCore.invoke(method,payload)}.value
+            return try await Task.detached(priority:.utility){[free] in
+                let prepared=method=="delay" ? try free.prepare(payload as? [String:Any] ?? [:],single:true) : payload
+                return try NativeCore.invoke(method,prepared)
+            }.value
         case "geo":let hosts=args["hosts"] as? [String] ?? [];return try await Task.detached(priority:.utility){try Geo.lookup(hosts)}.value
         case "clipboard":return UIPasteboard.general.string ?? ""
         case "copy":guard let text=args["text"] as? String,text.utf8.count<=4*1024*1024 else{throw VyraxError.code("err.tooBig")};UIPasteboard.general.setItems([["public.utf8-plain-text":text]],options:[.localOnly:true,.expirationDate:Date().addingTimeInterval(300)]);return true
@@ -104,7 +142,7 @@ import UniformTypeIdentifiers
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.data],asCopy:true);picker.delegate=self;picker.allowsMultipleSelection=false;present(picker,animated:true)
         }
         case "openProjectLink":
-            let urls=["source":"https://github.com/AmyraxVPN-Main/Vyrax","release":"https://github.com/AmyraxVPN-Main/Vyrax/releases/latest","telegram":"https://t.me/AmyraxVPN"]
+            let urls=["source":"https://github.com/AmyraxVPN-Main/Vyrax","release":"https://github.com/AmyraxVPN-Main/Vyrax/releases/latest","telegram":"https://t.me/AmyraxVPN","firefoxAccount":"https://accounts.firefox.com/","firefoxHelp":"https://support.mozilla.org/en-US/kb/firefox-vpn"]
             guard let target=args["target"] as? String,let text=urls[target],let url=URL(string:text) else{throw VyraxError.code("err.action")}
             guard await UIApplication.shared.open(url) else{throw VyraxError.code("err.action")};return true
         case "language":return true

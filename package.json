@@ -1,6 +1,6 @@
 {
   "name": "vyrax",
-  "version": "0.1.24",
+  "version": "0.1.30",
   "private": true,
   "license": "MIT",
   "author": "Amyrax",
@@ -13,9 +13,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5273",
     "build": "vite build",
-    "preview": "vite preview --port 5273"
+    "preview": "vite preview --port 5273",
+    "test:free": "node --test tests/free-servers.test.mjs"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.2.8",
     "flag-icons": "^7.5.0",
     "ip3country": "^5.0.0",
     "liquid-gooey": "0.2.2",

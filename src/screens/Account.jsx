@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Languages, Info } from 'lucide-react';
+import { Languages, Info } from '../components/Glyph.jsx';
 import { useI18n, LANGS } from '../i18n.jsx';
 import { Swatch } from '../components/ThemeSheet.jsx';
 import { THEMES } from '../lib/themes.js';

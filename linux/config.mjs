@@ -3,6 +3,7 @@
 import { createHash } from 'node:crypto';
 import { isIP } from 'node:net';
 import { validatePreferences } from '../src/lib/preferences.mjs';
+import { validateFreeProfile, freeOutbound } from '../src/lib/free-servers.mjs';
 
 export const PROBE_URL = 'https://www.gstatic.com/generate_204';
 export function preferences(raw = {}) {
@@ -14,7 +15,8 @@ export function preferences(raw = {}) {
   return settings;
 }
 export function validate(p) {
-  if (!p || !['vless','vmess','trojan','shadowsocks'].includes(p.protocol)) throw Error('err.protocol');
+  if (!p || !['vless','vmess','trojan','shadowsocks','firefox'].includes(p.protocol)) throw Error('err.protocol');
+  if(p.protocol==='firefox')validateFreeProfile(p);
   if (!['tcp','ws','grpc','httpupgrade','xhttp'].includes(p.transport || 'tcp')) throw Error('err.transport');
   if (typeof p.host !== 'string' || !p.host.length || p.host.length > 253 || /[\s/\\@?#\x00-\x1f]/.test(p.host)) throw Error('err.host');
   if (!Number.isInteger(p.port) || p.port < 1 || p.port > 65535) throw Error('err.port');
@@ -25,6 +27,7 @@ export function validate(p) {
 }
 export function outbound(p) {
   validate(p);
+  if(p.protocol==='firefox')return freeOutbound(p);
   const { protocol, host, port } = p;
   let settings;
   if (['vless','vmess'].includes(protocol)) {

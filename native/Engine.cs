@@ -20,6 +20,7 @@ public sealed class Engine : IDisposable, IConnectionEngine, ISelectionEngine {
     readonly Store store;readonly ProxySettings proxy;readonly ChildJob job;readonly SemaphoreSlim gate=new SemaphoreSlim(1,1);
     readonly string coreRoot;Process xray,tun;CancellationTokenSource session;string configFolder;int metrics;bool connected;bool viaHelper;int tunCheckBusy;string profileId="";string exitIp="";DateTime since;long lastUp,lastDown;DateTime lastSample;
     readonly ProxyShare share=new ProxyShare();int healthPort,subscriptionPort,healthFailures;DateTime nextHealth;
+    public IWebProxy ControlProxy {get{return connected&&subscriptionPort>0?new WebProxy("http://127.0.0.1:"+subscriptionPort):null;}}
     RoutingPool routingPool;DateTime nextSelection;string[] activeTargets=new string[0];
     public event Action<object> Changed;
     public static bool Elevated { get { return Cores.Elevated; } }

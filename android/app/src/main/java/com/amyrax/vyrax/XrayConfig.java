@@ -7,14 +7,19 @@ final class XrayConfig {
     static final String PROBE_URL="https://www.gstatic.com/generate_204";
     static void validate(JSONObject p){
         String protocol=p.optString("protocol"),transport=p.optString("transport","tcp"),host=p.optString("host");
-        if(!java.util.Arrays.asList("vless","vmess","trojan","shadowsocks").contains(protocol)||
+        if(!java.util.Arrays.asList("vless","vmess","trojan","shadowsocks","firefox").contains(protocol)||
            !java.util.Arrays.asList("tcp","ws","grpc","httpupgrade","xhttp").contains(transport)||
            host.isEmpty()||host.length()>253||host.matches(".*[\\s/\\\\@].*")||p.optInt("port")<1||p.optInt("port")>65535)throw new IllegalArgumentException("err.config");
         if((protocol.equals("vless")||protocol.equals("vmess"))&&!p.optString("uuid").matches("[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}"))throw new IllegalArgumentException("err.config");
         if((protocol.equals("trojan")||protocol.equals("shadowsocks"))&&p.optString("password").isEmpty())throw new IllegalArgumentException("err.config");
+        if(protocol.equals("firefox")&&(!p.optString("sourceId").equals("vyrax-firefox-free")||!host.matches("(?i)[a-z0-9]+(?:[.-][a-z0-9]+)*\\.fastly-masque\\.net")))throw new IllegalArgumentException("err.freeServer");
     }
     static JSONObject outbound(JSONObject p,String tag){
         validate(p);String protocol=p.optString("protocol"),host=p.optString("host"),transport=p.optString("transport","tcp");
+        if(protocol.equals("firefox")){
+            String pass=p.optString("proxyPass");if(pass.isEmpty()||pass.length()>16384||pass.matches(".*[\\s\\x00-\\x1f].*"))throw new IllegalArgumentException("err.freeAuth");
+            return Jsons.obj("tag",tag,"protocol","http","settings",Jsons.obj("servers",Jsons.arr(Jsons.obj("address",host,"port",p.optInt("port"))),"headers",Jsons.obj("Proxy-Authorization","Bearer "+pass)),"streamSettings",Jsons.obj("network","tcp","security","tls","tlsSettings",Jsons.obj("serverName",host,"allowInsecure",false,"alpn",Jsons.arr("h2"))));
+        }
         JSONObject user,settings;
         if(protocol.equals("vless")||protocol.equals("vmess")){
             user=Jsons.obj("id",p.optString("uuid"));
@@ -71,6 +76,13 @@ final class XrayConfig {
         rules.put(split?Jsons.obj("type","field","network","tcp,udp","outboundTag","direct"):route(Jsons.obj("type","field","network","tcp,udp"),mode));
         JSONObject routing=Jsons.obj("domainStrategy","AsIs","rules",rules);
         JSONObject result=Jsons.obj("log",Jsons.obj("loglevel","none"),"inbounds",inbounds,"outbounds",outbounds,"routing",routing,"stats",new JSONObject(),"policy",Jsons.obj("system",Jsons.obj("statsOutboundUplink",true,"statsOutboundDownlink",true)));
+        if(p.optString("protocol").equals("firefox")){
+            // The upstream supports TCP CONNECT only. Answer device DNS with DoH
+            // through the selected upstream instead of sending UDP to it.
+            outbounds.put(Jsons.obj("tag","dns-out","protocol","dns","settings",Jsons.obj("nonIPQuery","drop")));
+            JSONArray dnsRules=new JSONArray();dnsRules.put(Jsons.obj("type","field","port","53","outboundTag","dns-out"));dnsRules.put(route(Jsons.obj("type","field","inboundTag",Jsons.arr("dns-remote")),mode));for(int i=0;i<rules.length();i++)dnsRules.put(rules.opt(i));put(routing,"rules",dnsRules);
+            put(result,"dns",Jsons.obj("tag","dns-remote","queryStrategy","UseIP","servers",Jsons.arr("https://1.1.1.1/dns-query","https://8.8.8.8/dns-query")));
+        }
         if(!mode.equals("manual")){
             JSONObject strategy=Jsons.obj("type",mode.equals("balance")?"leastLoad":"leastPing");
             if(mode.equals("balance"))put(strategy,"settings",Jsons.obj("expected",2));

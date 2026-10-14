@@ -22,7 +22,7 @@ jobs:
       - name: Build packages
         run: bash scripts/build-linux.sh '${{ matrix.arch }}'
       - name: Shared configuration checks
-        run: node --test linux/tests/config.test.mjs
+        run: node --test tests/*.test.mjs linux/tests/config.test.mjs
       - name: Verify package metadata and embedded version
         shell: bash
         run: |

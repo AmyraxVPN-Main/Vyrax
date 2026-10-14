@@ -12,7 +12,8 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { catalog, preferences, routing, nodeTag, xray, PROBE_URL } from './config.mjs';
 import { DesktopProxy } from './desktop-proxy.mjs';
-import { subscriptionThroughCore } from './subscriptions.mjs';
+import { subscriptionThroughCore, providerThroughCore } from './subscriptions.mjs';
+import { FreeProvider } from './free-provider.mjs';
 const exec = promisify(execFile);
 const pause = ms => new Promise(resolve => setTimeout(resolve,ms));
 const issuedPorts=new Map();
@@ -76,6 +77,7 @@ export async function fetchText(transport,url,{ timeout=20000,limit=4*1024*1024,
 export class Backend {
   constructor({ nativeRoot, store, emit, transport=fetch, tunLauncher }) {
     Object.assign(this,{ nativeRoot,store,emit,transport,tunLauncher });this.proxy=new DesktopProxy(store.root);
+    this.free=new FreeProvider(store,(url,options)=>this.status==='connected'&&this.ports?.subscription?providerThroughCore(url,options,this.ports.subscription):this.transport(url,options));
     this.queue=Promise.resolve();this.generation=0;this.status='disconnected';this.probes=new Set();this.delayQueue=[];this.delayActive=0;
     this.settings=preferences({ preferencesVersion:1 });this.profileId='';this.activeTargets=[];this.selectionMode='manual';this.logs=[];
   }
@@ -85,6 +87,7 @@ export class Backend {
   log(text) { this.logs.push(text);if (this.logs.length>150) this.logs.splice(0,this.logs.length-150); }
   async init() {
     await this.proxy.recover();this.saved=await this.store.load();this.settings=preferences(this.saved.settings);
+    await this.free.init();
     const dir=path.join(this.store.root,'runtime');await fs.mkdir(dir,{ recursive:true,mode:0o700 });this.runtimeRoot=dir;
     // Remove private configs left by an interrupted previous instance.
     for (const item of await fs.readdir(dir)) if (item.startsWith('session-') || item.startsWith('delay-')) await fs.rm(path.join(dir,item),{ recursive:true,force:true });
@@ -109,6 +112,7 @@ export class Backend {
   }
   async stop() {
     clearInterval(this.heartbeat);clearInterval(this.sampleTimer);clearInterval(this.healthTimer);clearTimeout(this.reconnectTimer);
+    clearInterval(this.providerTimer);
     const tun=this.tun, core=this.core;this.tun=null;this.core=null;
     await this.stopChild(tun,true);
     let restoreError;
@@ -120,12 +124,13 @@ export class Backend {
   }
   disconnect() { this.generation++;this.abort?.abort();return this.serial(async () => { await this.stop();this.state();return this.snapshot(); }); }
   connect(profile,raw) {
-    const settings=preferences(raw), profiles=catalog(raw._catalog || [profile]);
+    const settings=preferences(raw);let profiles=catalog(raw._catalog || [profile]);
     const generation=++this.generation;this.abort?.abort();const controller=new AbortController();this.abort=controller;
     return this.serial(async () => {
       await this.stop();controller.signal.throwIfAborted();this.status='connecting';this.logs=[];this.profileId=profile.id;this.state('stage.start');
       const deadline=setTimeout(() => controller.abort(),180000);
       try {
+        profiles=await this.free.resolve(profiles,raw._source || profile.sourceId || '');controller.signal.throwIfAborted();profile=profiles.find(p=>p.id===profile.id)||profile;
         this.folder=await fs.mkdtemp(path.join(this.runtimeRoot,'session-'));await fs.chmod(this.folder,0o700);
         const used=new Set(),ports={};for (const key of ['socks','http','probe','subscription','api','metrics',...(settings.proxyShare ? ['share'] : [])]) { let port;do { port=await freePort(); } while (used.has(port));used.add(port);ports[key]=port; }
         if (ports.share) { ports.shareHosts=privateHosts();if (!ports.shareHosts.length) throw Error('err.shareNetwork'); }
@@ -150,6 +155,11 @@ export class Backend {
         const failed=() => { if (this.core===core && this.status==='connected') void this.failure(generation,profile,raw); };
         core.once('exit',failed);this.tun?.once('exit',failed);
         this.sampleTimer=setInterval(() => { void this.sample(); },1000);
+        let renewing=false;
+        this.providerTimer=setInterval(()=>{
+          if(renewing||this.core!==core||this.status!=='connected'||!this.profileId.startsWith('firefox:'))return;renewing=true;
+          void this.select(this.profiles,this.profileId,this.selectionMode,this.source).catch(async e=>{if(this.core===core&&['err.freeAuth','err.freeQuota'].includes(e.message)){await this.disconnect();this.state('',e.message);}}).finally(()=>{renewing=false;});
+        },30000);
         let unhealthy=0,checking=false;
         this.healthTimer=setInterval(() => {
           if (checking || this.core!==core || this.status!=='connected') return;checking=true;
@@ -192,6 +202,7 @@ export class Backend {
     catalog(profiles);
     return this.serial(async () => {
       if (this.status!=='connected') return this.snapshot();
+      profiles=await this.free.resolve(profiles,source);
       const next=routing(profiles,selectedId,mode,source,this.routeSettings,++this.revision);
       const additions=profiles.filter(p => !this.installed.has(nodeTag(p)));if (this.installed.size+additions.length>2048) throw Error('err.poolFull');
       if (additions.length) { const file=path.join(this.folder,'outbounds.json');await fs.writeFile(file,JSON.stringify({ outbounds:additions.map(p => ({ ...xray([p],p.id,'manual',p.sourceId || '',this.routeSettings,this.ports).config.outbounds[0],tag:nodeTag(p) })) }),{ mode:0o600 });await this.command('ado',[file]);additions.forEach(p => this.installed.add(nodeTag(p))); }
@@ -226,6 +237,7 @@ export class Backend {
   async realDelay(profile) {
     const controller=new AbortController();this.probes.add(controller);const timer=setTimeout(() => controller.abort(),8000);let folder,child;
     try {
+      profile=(await this.free.resolve([profile],profile.sourceId||''))[0];
       folder=await fs.mkdtemp(path.join(this.runtimeRoot,'delay-'));const ports={};for (const key of ['socks','http','probe','api','metrics']) ports[key]=await freePort();
       const built=xray([profile],profile.id,'manual',profile.sourceId || '',{ preferencesVersion:1,mode:'proxy' },ports);
       delete built.config.observatory;delete built.config.routing.balancers;delete built.config.api;

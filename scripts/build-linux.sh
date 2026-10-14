@@ -22,7 +22,7 @@ cp -a "vendor/linux/$arch/electron/." "$appdir/"
 mv "$appdir/electron" "$appdir/vyrax-bin"
 mkdir -p "$appdir/resources/app/linux" "$appdir/resources/app/src/lib" "$appdir/resources/native/cores" "$appdir/licenses/npm"
 cp linux/*.cjs linux/*.mjs "$appdir/resources/app/linux/"
-cp src/lib/preferences.mjs src/lib/releases.mjs "$appdir/resources/app/src/lib/"
+cp src/lib/preferences.mjs src/lib/releases.mjs src/lib/free-servers.mjs "$appdir/resources/app/src/lib/"
 cp package.json project.json "$appdir/resources/app/"
 # The packaged entry is deliberately separate from the frontend/build package.
 node -e 'let fs=require("fs"),p=JSON.parse(fs.readFileSync("package.json"));p.main="linux/main.cjs";p.dependencies={};p.devDependencies={};fs.writeFileSync(process.argv[1],JSON.stringify(p,null,2))' "$appdir/resources/app/package.json"
@@ -36,6 +36,7 @@ cp "$(find "vendor/linux/$arch/sing-box" -name sing-box -type f -print -quit)" "
 cp LICENSE THIRD_PARTY_NOTICES.md vendor/linux-versions.json "$appdir/licenses/"
 cp -a vendor/npm-licenses/. "$appdir/licenses/npm/"
 cp -a third_party/flag-icons-MIT.txt third_party/GPL-3.0.txt "$appdir/licenses/"
+cp third_party/FoxyVPN-MIT.txt "$appdir/licenses/"
 find "vendor/linux/$arch/xray" -maxdepth 1 -iname '*license*' -exec cp {} "$appdir/licenses/Xray-LICENSE.txt" \;
 find "vendor/linux/$arch/sing-box" -iname '*license*' -exec cp {} "$appdir/licenses/sing-box-LICENSE.txt" \;
 cp "$appdir/LICENSE" "$appdir/licenses/Electron-LICENSE.txt"

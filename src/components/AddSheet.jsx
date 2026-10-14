@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ClipboardPaste, FileUp, X } from 'lucide-react';
+import { ClipboardPaste, FileUp, X } from './Glyph.jsx';
 import { useI18n } from '../i18n.jsx';
 
 export default function AddSheet({ onClose, onAdd, onClipboard, onFile, busy, error }) {

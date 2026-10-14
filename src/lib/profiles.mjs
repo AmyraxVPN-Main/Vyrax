@@ -11,7 +11,7 @@ const PROFILE_FIELDS = ['protocol', 'name', 'host', 'port', 'uuid', 'password', 
   'alpn', 'insecure', 'fingerprint', 'reality', 'publicKey', 'shortId', 'flow', 'mode'];
 const connectionFields = p => Object.fromEntries(PROFILE_FIELDS.filter(key => p[key] !== undefined).map(key => [key, p[key]]));
 
-export const exportProfiles = profiles => JSON.stringify(profiles.map(connectionFields));
+export const exportProfiles = profiles => {if(profiles.some(p=>p.protocol==='firefox'))throw Error('err.freeShare');return JSON.stringify(profiles.map(connectionFields));};
 
 const METHODS = [
   'aes-128-gcm',

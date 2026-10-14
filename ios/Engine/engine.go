@@ -51,6 +51,7 @@ func Invoke(text string) string {
   case "select": err=selectConfig(req.Payload);data=true
   case "delay": data,err=delay(req.Payload)
   case "http": data,err=download(req.Payload)
+  case "freeRequest": data,err=providerRequest(req.Payload)
   default: err=errors.New("err.action")
   }
  }

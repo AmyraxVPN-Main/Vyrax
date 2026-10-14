@@ -79,9 +79,26 @@ public final class MainActivity extends Activity {
     private CompletableFuture<Object> dispatch(String action,JSONObject args)throws Exception{
         switch(action){
             case "load":return background(()->engine.store.load());
+            case "freeRequest":return background(()->engine.free.request(args));
+            case "freeAccount":return background(()->engine.free.account(args.optString("operation","status")));
+            case "freeSave":return (engine.profileId.startsWith("firefox:")?engine.disconnect():CompletableFuture.completedFuture(engine.snapshot())).thenCompose(value->background(()->engine.free.save(args)));
+            case "freeSwitch":return (engine.profileId.startsWith("firefox:")?engine.disconnect():CompletableFuture.completedFuture(engine.snapshot())).thenCompose(value->background(()->engine.free.switchAccount(args.optString("email"))));
+            case "freeLogout":return (engine.profileId.startsWith("firefox:")?engine.disconnect():CompletableFuture.completedFuture(engine.snapshot())).thenCompose(value->background(()->engine.free.logout()));
+            case "freeRemove":return background(()->engine.free.account("local")).thenCompose(value->{boolean active=((JSONObject)value).optString("email").equals(args.optString("email"));return (active&&engine.profileId.startsWith("firefox:")?engine.disconnect():CompletableFuture.completedFuture(engine.snapshot())).thenCompose(snapshot->background(()->engine.free.remove(args.optString("email"))));});
             case "save":return background(()->{engine.store.save(args);return true;});
             case "validateSettings":return CompletableFuture.completedFuture(Preferences.normalize(args));
             case "status":return CompletableFuture.completedFuture(engine.snapshot());
+            case "networkInfo":return background(()->{
+                org.json.JSONArray addresses=new org.json.JSONArray();
+                java.util.Enumeration<java.net.NetworkInterface> interfaces=java.net.NetworkInterface.getNetworkInterfaces();
+                while(interfaces!=null&&interfaces.hasMoreElements()){
+                    java.net.NetworkInterface item=interfaces.nextElement();
+                    if(!item.isUp()||item.isLoopback()||item.getName().startsWith("tun")||item.getName().startsWith("vyrax"))continue;
+                    java.util.Enumeration<java.net.InetAddress> values=item.getInetAddresses();
+                    while(values.hasMoreElements()){java.net.InetAddress address=values.nextElement();if(address instanceof java.net.Inet4Address&&!address.isLoopbackAddress())addresses.put(address.getHostAddress());}
+                }
+                return Jsons.obj("addresses",addresses);
+            });
             case "ready":return background(()->engine.store.load()).thenCompose(value->{JSONObject saved=(JSONObject)value,settings=saved.optJSONObject("settings");if(settings==null||!settings.optBoolean("autoConnect")||!engine.status.equals("disconnected"))return CompletableFuture.completedFuture(engine.snapshot());JSONArray catalog=Jsons.array(saved,"profiles");JSONObject selected=null;for(int i=0;i<catalog.length();i++){JSONObject p=catalog.optJSONObject(i);if(p!=null&&p.optString("id").equals(saved.optString("selectedId")))selected=p;}if(selected==null)return CompletableFuture.completedFuture(engine.snapshot());JSONObject selectedProfile=selected;XrayConfig.put(settings,"_catalog",catalog);XrayConfig.put(settings,"_selection",saved.optString("selectionMode","manual"));XrayConfig.put(settings,"_source",saved.optString("activeSourceId"));CompletableFuture<Object> result=new CompletableFuture<>();runOnUiThread(()->{try{connect(Jsons.obj("profile",selectedProfile,"settings",settings)).whenComplete((answer,error)->{if(error==null)result.complete(answer);else result.completeExceptionally(error);});}catch(Exception error){result.completeExceptionally(error);}});return result;});
             case "connect":return connect(args);
             case "disconnect":cancelPendingConnect();return engine.disconnect().thenApply(value->value);
@@ -103,7 +120,7 @@ public final class MainActivity extends Activity {
     private CompletableFuture<Object> connect(JSONObject args)throws Exception{
         if(permissionResult!=null||starting!=null)throw new IllegalStateException("err.busy");
         JSONObject profile=args.getJSONObject("profile"),settings=Preferences.normalize(args.optJSONObject("settings"));XrayConfig.validate(profile);
-        XrayConfig.build(profile,settings,0,0,0);CompletableFuture<Object> result=new CompletableFuture<>();
+        if(!profile.optString("protocol").equals("firefox"))XrayConfig.build(profile,settings,0,0,0);CompletableFuture<Object> result=new CompletableFuture<>();
         Intent permission=settings.optString("mode").equals("tun")?VpnService.prepare(this):null;
         if(permission!=null){permissionResult=result;permissionArgs=Jsons.obj("profile",profile,"settings",settings);permissionGeneration=engine.generation.get();startActivityForResult(permission,VPN_REQUEST);}
         else startVpn(profile,settings,result);

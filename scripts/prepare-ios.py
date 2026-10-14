@@ -9,7 +9,7 @@ html=html.replace('<head>','<head><meta http-equiv="Content-Security-Policy" con
 index.write_text(html)
 shutil.copyfile(root/'native/geo.bin',res/'geo.bin')
 notices=res/'licenses';notices.mkdir(exist_ok=True)
-for name in ['LICENSE','THIRD_PARTY_NOTICES.md','docs/ios.md','vendor/ios-versions.json']:
+for name in ['LICENSE','THIRD_PARTY_NOTICES.md','third_party/FoxyVPN-MIT.txt','docs/ios.md','vendor/ios-versions.json']:
     shutil.copyfile(root/name,notices/pathlib.Path(name).name)
 shutil.copytree(root/'vendor/npm-licenses',notices/'npm',dirs_exist_ok=True)
 assets=res/'Assets.xcassets';icon=assets/'AppIcon.appiconset';icon.mkdir(parents=True,exist_ok=True)

@@ -66,6 +66,8 @@ public static class AppUpdates {
         }
     }
     public static string Link(string target) {
+        if(target=="firefoxAccount")return "https://accounts.firefox.com/";
+        if(target=="firefoxHelp")return "https://support.mozilla.org/en-US/kb/firefox-vpn";
         if(target=="source")return "https://github.com/"+Repository;
         if(target=="release")return "https://github.com/"+Repository+"/releases/latest";
         if(target=="telegram") {

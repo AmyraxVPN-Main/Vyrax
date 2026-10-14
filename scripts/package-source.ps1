@@ -6,7 +6,7 @@ if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid source version' }
 $sourceDir = Join-Path $projectDir ('release\source-' + $version)
 if (Test-Path -LiteralPath $sourceDir) { throw 'Source staging folder already exists; inspect it before replacing' }
 New-Item -ItemType Directory -Path $sourceDir -Force | Out-Null
-$paths = @('.gitignore','.gitattributes','.github','LICENSE','README.md','THIRD_PARTY_NOTICES.md','package.json','package-lock.json','project.json','index.html','vite.config.js','src','public','site','native','scripts','docs','third_party','android','linux','macos','ios','vendor/versions.json','vendor/android-versions.json','vendor/linux-versions.json','vendor/macos-versions.json','vendor/ios-versions.json','.tools/selftest','.tools/gen-geo.mjs','.tools/parse-test.mjs')
+$paths = @('.gitignore','.gitattributes','.github','LICENSE','README.md','THIRD_PARTY_NOTICES.md','package.json','package-lock.json','project.json','index.html','vite.config.js','src','public','site','native','scripts','docs','third_party','tests','android','linux','macos','ios','vendor/versions.json','vendor/android-versions.json','vendor/linux-versions.json','vendor/macos-versions.json','vendor/ios-versions.json','.tools/selftest','.tools/gen-geo.mjs','.tools/parse-test.mjs')
 foreach ($relative in $paths) {
     $inputPath = Join-Path $projectDir $relative
     if (!(Test-Path -LiteralPath $inputPath)) { throw ('Missing source path: ' + $relative) }
