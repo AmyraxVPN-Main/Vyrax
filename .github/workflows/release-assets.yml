@@ -51,18 +51,20 @@ jobs:
           version="${RELEASE_TAG#v}"
           mkdir publish
           for arch in x64 arm64; do
-            (cd "packages/linux-$arch"; sha256sum -c "SHA256SUMS-$arch.txt")
-            (cd "packages/macos-$arch"; sha256sum -c "SHA256SUMS-$arch.txt")
-            deb="packages/linux-$arch/Vyrax-$version-linux-$arch.deb"
+            linuxdir="packages/linux-$arch/linux-$version"
+            macdir="packages/macos-$arch/macos-$version"
+            (cd "$linuxdir"; sha256sum -c "SHA256SUMS-$arch.txt")
+            (cd "$macdir"; sha256sum -c "SHA256SUMS-$arch.txt")
+            deb="$linuxdir/Vyrax-$version-linux-$arch.deb"
             test "$(dpkg-deb -f "$deb" Version)" = "$version"
             test "$(dpkg-deb -f "$deb" Architecture)" = "$([ "$arch" = x64 ] && echo amd64 || echo arm64)"
-            cp "$deb" "packages/linux-$arch/Vyrax-$version-linux-$arch.tar.gz" publish/
-            cp "packages/macos-$arch/Vyrax-$version-macos-$arch.dmg" "packages/macos-$arch/Vyrax-$version-macos-$arch.zip" publish/
+            cp "$deb" "$linuxdir/Vyrax-$version-linux-$arch.tar.gz" publish/
+            cp "$macdir/Vyrax-$version-macos-$arch.dmg" "$macdir/Vyrax-$version-macos-$arch.zip" publish/
           done
           for name in sing-box-v1.14.3-source.tar.gz Xray-core-v26.3.27-source.tar.gz; do
-            cmp "packages/linux-x64/sources/$name" "packages/linux-arm64/sources/$name"
-            cmp "packages/linux-x64/sources/$name" "packages/macos-arm64/sources/$name"
-            cp "packages/linux-x64/sources/$name" publish/
+            cmp "packages/linux-x64/linux-$version/sources/$name" "packages/linux-arm64/linux-$version/sources/$name"
+            cmp "packages/linux-x64/linux-$version/sources/$name" "packages/macos-arm64/macos-$version/sources/$name"
+            cp "packages/linux-x64/linux-$version/sources/$name" publish/
           done
           cp docs/linux-sources.md publish/Linux-BUILDING.md
           cp docs/macos-sources.md publish/macOS-BUILDING.md
