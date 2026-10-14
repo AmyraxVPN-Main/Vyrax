@@ -20,6 +20,8 @@ for line in subprocess.check_output(['git','-C',str(root),'submodule','status','
         if archive.wait()!=0: raise RuntimeError('Source archive failed')
 PY
 (cd ios/Engine && go mod tidy && go mod verify && go test -race ./...)
+version=$(node -p 'require("./package.json").version')
+cp ios/Engine/go.mod ios/Engine/go.sum "release/ios-$version/"
 cp ios/Engine/go.mod ios/Engine/go.sum vendor/ios/sources/
 # Keep the precise module archives, including MPL source and all dependency
 # notices, alongside our MIT application source. No private build data is copied.
