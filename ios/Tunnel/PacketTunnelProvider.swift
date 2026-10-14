@@ -8,8 +8,10 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
     private let pump = PacketPump()
     private var session:[String:Any] = [:]
     private var started = false
+    private var generation=0
     override func startTunnel(options:[String:NSObject]?, completionHandler:@escaping(Error?)->Void) {
         lifecycle.async { [self] in
+            generation+=1;let token=generation
             do {
                 session = try SharedStore.load(name:"session")
                 guard let config = session["config"] as? [String:Any] else {throw VyraxError.code("err.config")}
@@ -26,13 +28,17 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
                 setTunnelNetworkSettings(net) { [self] error in
                     lifecycle.async { [self] in
                         do {
+                            guard token==generation else{throw VyraxError.code("err.notConnected")}
                             if let error{throw error}
                             pump.failure = { [weak self] in self?.cancelTunnelWithError(VyraxError.code("err.core")) }
                             try pump.start(flow:packetFlow,mtu:settings["mtu"] as? Int ?? 1280)
                             started = true;session["since"] = ISO8601DateFormatter().string(from:Date())
                             try SharedStore.save(session,name:"session")
                             completionHandler(nil)
-                        } catch {_ = try? NativeCore.invoke("stop");completionHandler(error)}
+                        } catch {
+                            if token==generation{if started{pump.stop();started=false};_ = try? NativeCore.invoke("stop")}
+                            completionHandler(error)
+                        }
                     }
                 }
             } catch { _ = try? NativeCore.invoke("stop");completionHandler(error) }
@@ -40,6 +46,7 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
     }
     override func stopTunnel(with reason:NEProviderStopReason,completionHandler:@escaping()->Void) {
         lifecycle.async { [self] in
+            generation+=1
             if started{pump.stop();started=false}
             _ = try? NativeCore.invoke("stop")
             completionHandler()
