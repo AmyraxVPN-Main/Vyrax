@@ -47,7 +47,7 @@ public class WebViewSmokeTest {
             assertEquals("0",js("document.querySelectorAll('.bar button').length"));
             assertEquals("true",js("document.querySelector('.material-nav').getBoundingClientRect().width>innerWidth*.9"));
             assertEquals("true",js("document.documentElement.scrollWidth<=innerWidth+1"));
-            assertEquals("true",js("(()=>{const r=document.querySelector('.connect-fab').getBoundingClientRect();return r.left>innerWidth/2&&r.right<innerWidth})()"));
+            assertEquals("true",js("(()=>{const r=document.querySelector('.connect-fab').getBoundingClientRect();return document.documentElement.dir==='rtl'?r.left>0&&r.right<innerWidth/2:r.left>innerWidth/2&&r.right<innerWidth})()"));
             screenshot("home-portrait.png");
             js("window.__vyraxNativeEvent({event:'state',status:'connected',profileId:'ui-test-0',exit:'198.51.100.42'});window.__vyraxNativeEvent({event:'stats',down:1048576,up:1024,downRate:128000,upRate:3300})");
             waitFor("document.querySelector('.dashboard.is-connected')");
