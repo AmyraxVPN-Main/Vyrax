@@ -1,0 +1,4 @@
+Vazirmatn typeface by the Vazirmatn project contributors.
+Licensed under the SIL Open Font License, Version 1.1.
+The complete license is included in OFL.txt in this directory.
+https://github.com/rastikerdar/vazirmatn
