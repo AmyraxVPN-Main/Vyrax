@@ -1,0 +1,41 @@
+name: Linux packages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Packaging tools
+        run: sudo apt-get update -qq && sudo apt-get install -y desktop-file-utils
+      - name: Build packages
+        run: bash scripts/build-linux.sh '${{ matrix.arch }}'
+      - name: Shared configuration checks
+        run: node --test linux/tests/config.test.mjs
+      - name: Verify package metadata and embedded version
+        shell: bash
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          file="release/linux-$version/Vyrax-$version-linux-${{ matrix.arch }}.deb"
+          test "$(dpkg-deb -f "$file" Version)" = "$version"
+          test "$(dpkg-deb -f "$file" Architecture)" = "$([ '${{ matrix.arch }}' = x64 ] && echo amd64 || echo arm64)"
+          node -e 'const p=require("./linux/build/${{ matrix.arch }}/opt/Vyrax/resources/app/package.json");if(p.version!==require("./package.json").version)process.exit(1)'
+          cd "release/linux-$version"
+          sha256sum -c 'SHA256SUMS-${{ matrix.arch }}.txt'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Vyrax-linux-${{ matrix.arch }}
+          path: release/linux-*/
+          if-no-files-found: error
+          retention-days: 14
