@@ -20,7 +20,9 @@ opening a GitHub download. AltStore/free re-signing does not grant the missing
 VPN entitlement. Do not label these archives as ready for public installation.
 
 The usual distribution route is an Apple Developer Program membership followed
-by TestFlight/App Store review. Ad Hoc requires registered device UDIDs and
+by TestFlight/App Store review. Apple's VPN App Store guideline 5.4 also requires
+organization enrollment; an individual membership alone does not satisfy that
+public-store requirement. Ad Hoc requires registered device UDIDs and
 proper profiles; it is not unlimited public installation. Enterprise certificates
 are not a lawful public distribution substitute. Alternative distribution also
 has Apple's eligibility, signing and geographic conditions.

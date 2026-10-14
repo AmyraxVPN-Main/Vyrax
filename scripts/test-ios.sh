@@ -11,6 +11,7 @@ xcodebuild -project ios/Vyrax.xcodeproj -scheme Vyrax -destination "platform=iOS
 xcrun simctl launch "$device" com.amyrax.vyrax
 xcrun simctl io "$device" screenshot "$out/iphone-ui.png"
 xcrun xcresulttool get test-results summary --path ios/build/HostTests.xcresult --format json > "$out/host-tests-summary.json"
+xcrun xcresulttool export attachments --path ios/build/HostTests.xcresult --output-path "$out/ui-snapshots"
 python3 - <<'PY'
 import json,pathlib
 version=json.loads(pathlib.Path('package.json').read_text())['version'];path=pathlib.Path('release')/('ios-'+version)/'BUILD-VERIFICATION.json'

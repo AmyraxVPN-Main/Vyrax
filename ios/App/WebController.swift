@@ -16,6 +16,15 @@ import UniformTypeIdentifiers
         super.viewDidLoad()
         view.backgroundColor=UIColor(red:10/255,green:16/255,blue:18/255,alpha:1)
         let config=WKWebViewConfiguration()
+        // Local custom schemes do not consistently expose secure-context-only
+        // randomUUID on all supported WebKit versions. Keep UUIDs cryptographic.
+        config.userContentController.addUserScript(WKUserScript(source:"""
+        if (!crypto.randomUUID) Object.defineProperty(crypto, 'randomUUID', { value() {
+          const b = crypto.getRandomValues(new Uint8Array(16));b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
+          const h=Array.from(b,v=>v.toString(16).padStart(2,'0'));
+          return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');
+        }});
+        """,injectionTime:.atDocumentStart,forMainFrameOnly:true))
         config.setURLSchemeHandler(LocalAssets(),forURLScheme:"vyrax")
         config.userContentController.add(self,name:"vyrax")
         web=WKWebView(frame:.zero,configuration:config)
