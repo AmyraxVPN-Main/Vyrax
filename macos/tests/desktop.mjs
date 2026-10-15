@@ -52,7 +52,7 @@ try{
   assert.ok(await page.locator('.toast').evaluate(el=>+getComputedStyle(el).zIndex>+getComputedStyle(document.querySelector('.sheet-backdrop')).zIndex));
   await page.locator('.sub-actions button').nth(1).click();await page.waitForSelector('.qr-share img');
   await page.locator('.subscriptions-sheet .sheet-close').click({timeout:1500});assert.equal(await page.locator('.subscriptions-sheet').count(),0);
-  await page.getByRole('button',{name:'settings',exact:true}).click();await page.getByRole('button',{name:'فارسی',exact:true}).click();
+  await page.locator('.material-nav > button').nth(5).click();await page.getByRole('button',{name:'فارسی',exact:true}).click();
   assert.equal(await page.evaluate(()=>document.documentElement.dir),'rtl');await page.waitForTimeout(600);
   await page.screenshot({path:path.join(output,`desktop-fa-${arch}.png`)});assert.deepEqual(errors,[]);
   report={architecture:arch,launch:true,platform:'macos',sandbox:true,contextIsolation:true,nodeIntegration:false,keychainEncryption:true,clipboard:true,draggableTitlebar:true,nonblockingDialogClose:true,QR:true,toastAboveDialog:true,persianRTL:true,rendererErrors:errors};

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check } from './Glyph.jsx';
 import { useI18n } from '../i18n.jsx';
 import { THEMES } from '../lib/themes.js';
 

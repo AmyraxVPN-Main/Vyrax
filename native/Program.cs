@@ -14,7 +14,7 @@ using Microsoft.Web.WebView2.WinForms;
 
 namespace Vyrax {
 public sealed class MainForm : Form {
-    WebView2 view;Store store;Engine engine;ConnectionSession connection;Geo geo;NotifyIcon tray;System.Windows.Forms.Timer poll;
+    WebView2 view;Store store;Engine engine;ConnectionSession connection;FreeProvider free;Geo geo;NotifyIcon tray;System.Windows.Forms.Timer poll;
     bool quitting,hiddenToTray;
     readonly string baseDir=AppDomain.CurrentDomain.BaseDirectory;
 
@@ -24,11 +24,14 @@ public sealed class MainForm : Form {
 
     public MainForm() {
         Text="Vyrax";
-        Width=380;Height=646;
+        var workArea=Screen.FromPoint(Cursor.Position).WorkingArea;
+        Size=new Size(Math.Min(1040,workArea.Width),Math.Min(720,workArea.Height));
+        MinimumSize=new Size(Math.Min(360,workArea.Width),Math.Min(560,workArea.Height));
+        MaximizedBounds=workArea;
         try { Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
         FormBorderStyle=FormBorderStyle.None;
         StartPosition=FormStartPosition.CenterScreen;
-        BackColor=Color.FromArgb(10,15,17);
+        BackColor=Color.FromArgb(20,18,18);
         KeyPreview=true;
         Shown+=async(s,e)=>await Initialize();
         FormClosing+=HandleClosing;
@@ -40,7 +43,7 @@ public sealed class MainForm : Form {
             var value=base.CreateParams;
             // Frameless windows still need these native capabilities for the
             // taskbar to minimise an already active window on its second click.
-            value.Style|=0x00020000|0x00080000; // WS_MINIMIZEBOX | WS_SYSMENU
+            value.Style|=0x00020000|0x00010000|0x00080000; // WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU
             return value;
         }
     }
@@ -57,7 +60,7 @@ public sealed class MainForm : Form {
             store=new Store();
             geo=new Geo(Path.Combine(baseDir,"geo.bin"));
             engine=new Engine(store,Path.Combine(baseDir,"cores"));
-            connection=new ConnectionSession(engine);
+            free=new FreeProvider(store.Root,null,()=>engine.ControlProxy);connection=new ConnectionSession(engine,null,free.Resolve);
             connection.Changed+=Post;
 
             view=new WebView2{Dock=DockStyle.Fill,DefaultBackgroundColor=BackColor};
@@ -150,9 +153,23 @@ public sealed class MainForm : Form {
             object result;
             switch(action) {
                 case "load": result=store.Load();break;
+                case "freeRequest": result=await free.Request(args);break;
+                case "freeSave": if(Json.Str((Dictionary<string,object>)connection.Snapshot(),"profileId").StartsWith("firefox:"))await connection.Disconnect();result=await free.Save(args);break;
+                case "freeSwitch": if(Json.Str((Dictionary<string,object>)connection.Snapshot(),"profileId").StartsWith("firefox:"))await connection.Disconnect();result=await free.Switch(Json.Str(args,"email"));break;
+                case "freeAccount": result=await free.Account(Json.Str(args,"operation","status"));break;
+                case "freeLogout": if(Json.Str((Dictionary<string,object>)connection.Snapshot(),"profileId").StartsWith("firefox:"))await connection.Disconnect();result=await free.Logout();break;
+                case "freeRemove": {var local=(Dictionary<string,object>)await free.Account("local");if(Json.Str(local,"email")==Json.Str(args,"email")&&Json.Str((Dictionary<string,object>)connection.Snapshot(),"profileId").StartsWith("firefox:"))await connection.Disconnect();result=await free.Remove(Json.Str(args,"email"));break;}
                 case "save": Preferences.Validate(args.ContainsKey("settings")?args["settings"] as Dictionary<string,object>:null);store.Save(args);connection.Update(args.ContainsKey("settings")?args["settings"] as Dictionary<string,object>:null);result=true;break;
                 case "ready": await connection.Start(store.Load());result=connection.Snapshot();break;
                 case "status": result=connection.Snapshot();break;
+                case "networkInfo": result=await Task.Run(()=>{
+                    var addresses=System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()
+                        .Where(n=>n.OperationalStatus==System.Net.NetworkInformation.OperationalStatus.Up && n.NetworkInterfaceType!=System.Net.NetworkInformation.NetworkInterfaceType.Loopback && n.NetworkInterfaceType!=System.Net.NetworkInformation.NetworkInterfaceType.Tunnel && !n.Name.StartsWith("Vyrax",StringComparison.OrdinalIgnoreCase))
+                        .OrderByDescending(n=>n.GetIPProperties().GatewayAddresses.Count>0)
+                        .SelectMany(n=>n.GetIPProperties().UnicastAddresses).Where(a=>a.Address.AddressFamily==System.Net.Sockets.AddressFamily.InterNetwork && !System.Net.IPAddress.IsLoopback(a.Address))
+                        .Select(a=>a.Address.ToString()).Distinct().ToArray();
+                    return Json.Obj("addresses",addresses);
+                });break;
                 case "checkUpdates": result=await AppUpdates.Latest();break;
                 case "openProjectLink": AppUpdates.Open(Json.Str(args,"target"));result=true;break;
                 case "validateSettings": Preferences.Validate(args);result=Json.Obj("splitAddresses",Preferences.Addresses(args,"splitAddresses"),"bypassAddresses",Preferences.Addresses(args,"bypassAddresses"));break;
@@ -162,7 +179,7 @@ public sealed class MainForm : Form {
                 case "subscription": result=await engine.FetchSubscription(Json.Str(args,"url"));break;
                 case "ping": result=await Engine.Ping((Dictionary<string,object>)args["profile"]);break;
                 /* «تأخیر واقعی»: از داخل خود کانفیگ یک درخواست می‌رود */
-                case "delay": result=await Engine.RealDelay((Dictionary<string,object>)args["profile"],Path.Combine(baseDir,"cores"));break;
+                case "delay": {var prepared=await free.Resolve(new[]{(Dictionary<string,object>)args["profile"]});result=await Engine.RealDelay(prepared[0],Path.Combine(baseDir,"cores"));break;}
                 case "geo": {
                     var list=(args.ContainsKey("hosts")&&args["hosts"]!=null)
                         ? Json.Items(args["hosts"]).Select(x=>Convert.ToString(x)).ToArray()
@@ -181,6 +198,8 @@ public sealed class MainForm : Form {
                     }
                     break;
                 case "minimize": WindowState=FormWindowState.Minimized;result=true;break;
+                case "pin": TopMost=Json.Bool(args,"value");result=true;break;
+                case "maximize": WindowState=WindowState==FormWindowState.Maximized?FormWindowState.Normal:FormWindowState.Maximized;result=true;break;
                 case "close": result=true;BeginInvoke(new Action(HideToTray));break;
                 case "drag": ReleaseCapture();SendMessage(Handle,0xA1,(IntPtr)0x2,IntPtr.Zero);result=true;break;
                 default: throw new Exception("err.action");

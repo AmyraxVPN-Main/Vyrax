@@ -6,6 +6,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ConfigTest {
+    @Test public void providerWebProtectionIsDistinctFromEligibility()throws Exception{
+        assertEquals("err.freeChallenge",assertThrows(IllegalStateException.class,()->FreeProvider.data(Jsons.obj("status",406,"body",""))).getMessage());
+        assertEquals("err.freeEligibility",assertThrows(IllegalStateException.class,()->FreeProvider.data(Jsons.obj("status",403,"body",""))).getMessage());
+    }
+    @Test public void firefoxConnectUsesAuthenticatedHttp2AndEncryptedDns()throws Exception{
+        JSONObject p=Jsons.obj("id","firefox:test","protocol","firefox","sourceId","vyrax-firefox-free","host","test.m1.fastly-masque.net","port",2499,"proxyPass","synthetic-pass");
+        JSONObject outbound=XrayConfig.outbound(p,"proxy");assertEquals("http",outbound.getString("protocol"));
+        assertEquals("Bearer synthetic-pass",outbound.getJSONObject("settings").getJSONObject("headers").getString("Proxy-Authorization"));
+        JSONObject tls=outbound.getJSONObject("streamSettings").getJSONObject("tlsSettings");assertFalse(tls.getBoolean("allowInsecure"));assertEquals("h2",tls.getJSONArray("alpn").getString(0));
+        JSONObject config=XrayConfig.build(p,new JSONObject(),1080,1081,0);assertEquals("dns-remote",config.getJSONObject("dns").getString("tag"));
+        assertEquals("dns-out",config.getJSONObject("routing").getJSONArray("rules").getJSONObject(0).getString("outboundTag"));
+        p.put("host","fastly-masque.net.evil.test");try{XrayConfig.validate(p);fail("Foreign proxy must be rejected");}catch(IllegalArgumentException expected){assertEquals("err.freeServer",expected.getMessage());}
+    }
     private JSONObject profile(){return Jsons.obj("id","synthetic","protocol","vless","uuid","00000000-0000-4000-8000-000000000001","host","example.test","port",443,"transport","tcp","tls",true,"sourceId","one");}
     @Test public void allProtocolsAndTransportsBuild()throws Exception{
         for(String protocol:new String[]{"vless","vmess","trojan","shadowsocks"})for(String transport:new String[]{"tcp","ws","grpc","httpupgrade","xhttp"}){

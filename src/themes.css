@@ -6,44 +6,55 @@
 
 :root,
 :root[data-theme='dark'] {
-  --bg: #0a0f11;
-  --liquid: #1a2225;
-  --liquid-2: #222c30;
-  --text: #eaf3ef;
-  --muted: #93a8a1;
-  --faint: #5d706a;
-  --line: rgba(255, 255, 255, 0.06);
-  --line-2: rgba(255, 255, 255, 0.11);
-  --teal: #1ecab7;
-  --green: #52d887;
-  --accent-fill: #1fc7a6;
-  --accent-ink: #04201a;
+  --bg: #141212;
+  --liquid: #201e1d;
+  --liquid-2: #383434;
+  --text: #e8e1e1;
+  --muted: #bcb0b1;
+  --faint: #8d7f84;
+  --line: #ffffff0d;
+  --line-2: #ffffff16;
+  --teal: #dac2c5;
+  --green: #a3bd76;
+  --accent-fill: #dac2c5;
+  --accent-ink: #422c35;
   --warn: #e7b24a;
   --bad: #ef6f5b;
-  --glow-a: rgba(24, 201, 179, 0.28);
-  --glow-b: rgba(82, 216, 135, 0.16);
+  --glow-a: #dfc1ca12;
+  --glow-b: #a3bd7608;
   --grain: 0.06;
   --scheme: dark;
 }
 
-/* Light uses the same surface and glow values as the Windows reference. */
+:root {
+  --card-border:color-mix(in srgb,var(--text) 13%,transparent);
+  --nav-bg:var(--liquid);--nav-active:color-mix(in srgb,var(--text) 8%,var(--liquid));
+  --window-bar:color-mix(in srgb,var(--text) 10%,var(--liquid));
+  --secondary-fill:color-mix(in srgb,var(--text) 18%,var(--liquid));--secondary-ink:var(--text);
+  --status-fill:#7bab23;--status-ink:#304711;
+  --switch-track:var(--liquid);--switch-active:color-mix(in srgb,var(--teal) 60%,white);--switch-ink:var(--accent-ink);
+  --selection-warm:color-mix(in srgb,var(--warn) 18%,var(--liquid));--selection-green:color-mix(in srgb,var(--green) 18%,var(--liquid));
+  --donut-track:color-mix(in srgb,var(--text) 12%,var(--liquid));
+}
+
+/* Warm Material surfaces share the dashboard's color system. */
 :root[data-theme='light'] {
-  --bg: #edf3f1;
-  --liquid: #ffffff;
-  --liquid-2: #f3f7f5;
-  --text: #11261f;
-  --muted: #5a7169;
-  --faint: #93a6a0;
-  --line: rgba(0, 0, 0, 0.06);
-  --line-2: rgba(0, 0, 0, 0.12);
-  --teal: #0eb09f;
-  --green: #36bf6a;
-  --accent-fill: #17b894;
+  --bg: #fff8f9;
+  --liquid: #f5edef;
+  --liquid-2: #eadddf;
+  --text: #2d2227;
+  --muted: #73616a;
+  --faint: #8b7b82;
+  --line: #34212a0d;
+  --line-2: #34212a18;
+  --teal: #875066;
+  --green: #65823b;
+  --accent-fill: #875066;
   --accent-ink: #ffffff;
   --warn: #c98a12;
   --bad: #d4513e;
-  --glow-a: rgba(24, 201, 179, 0.22);
-  --glow-b: rgba(82, 216, 135, 0.18);
+  --glow-a: #87506612;
+  --glow-b: #65823b08;
   --grain: 0.035;
   --scheme: light;
 }

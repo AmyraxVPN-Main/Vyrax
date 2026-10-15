@@ -24,7 +24,7 @@ import WebKit
         defer{window.isHidden=true}
         for _ in 0..<100 {
             try await Task.sleep(nanoseconds:100_000_000)
-            if (try? await evaluate(host,"!!document.querySelector('.dial')")) as? Bool == true {break}
+            if (try? await evaluate(host,"!!document.querySelector('.connect-fab')")) as? Bool == true {break}
         }
         let platform=try await evaluate(host,"document.documentElement.dataset.platform") as? String
         XCTAssertEqual(platform,"ios")
@@ -50,7 +50,7 @@ import WebKit
         }
         XCTAssertNotNil(result)
         XCTAssertEqual(result?["mode"] as? String,"tun");XCTAssertEqual(result?["proxyShare"] as? Bool,false)
-        _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[2].click()")
+        _=try await evaluate(host,"document.querySelectorAll('.material-nav > button')[5].click()")
         try await Task.sleep(nanoseconds:400_000_000)
         let modes=try await evaluate(host,"document.querySelectorAll('.prefs .seg').length") as? Int
         let text=try await evaluate(host,"document.querySelector('.prefs').innerText") as? String
@@ -60,7 +60,7 @@ import WebKit
         let direction=try await evaluate(host,"document.documentElement.dir") as? String
         XCTAssertEqual(direction,"rtl")
         try await screenshot(host,"iphone-settings-fa")
-        _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[1].click()")
+        _=try await evaluate(host,"document.querySelectorAll('.material-nav > button')[2].click()")
         try await Task.sleep(nanoseconds:400_000_000)
         let title=try await evaluate(host,"document.querySelector('.source-picker').innerText.trim()") as? String
         XCTAssertEqual(title,"iPhone test group")
@@ -75,7 +75,7 @@ import WebKit
         try await Task.sleep(nanoseconds:300_000_000)
         let closed=try await evaluate(host,"!document.querySelector('.subscriptions-sheet')") as? Bool
         XCTAssertEqual(closed,true)
-        _=try await evaluate(host,"document.querySelectorAll('.tabs-row button')[0].click()")
+        _=try await evaluate(host,"document.querySelectorAll('.material-nav > button')[1].click()")
         try await Task.sleep(nanoseconds:700_000_000)
         try await screenshot(host,"iphone-home-fa")
     }

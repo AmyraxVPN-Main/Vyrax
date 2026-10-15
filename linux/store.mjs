@@ -30,6 +30,7 @@ export class Store {
   }
   save(data) {
     data = structuredClone(data);data.settings = preferences(data.settings);
+    for(const p of data.profiles || [])delete p.proxyPass;
     const text = JSON.stringify(data);if (Buffer.byteLength(text) > 8*1024*1024) throw Error('err.tooBig');
     const write = async () => {
       let bytes;

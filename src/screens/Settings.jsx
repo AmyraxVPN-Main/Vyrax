@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, ChevronRight } from 'lucide-react';
+import { Star, ChevronRight } from '../components/Glyph.jsx';
 import { Toggle } from '../ui.jsx';
 import Segment from '../components/Segment.jsx';
 import { useI18n } from '../i18n.jsx';

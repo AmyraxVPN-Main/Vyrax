@@ -25,6 +25,8 @@ final class VpnEngine {
     static synchronized VpnEngine get(Context context){if(instance==null)instance=new VpnEngine(context.getApplicationContext());return instance;}
     final Context context;
     final SecureStore store;
+    final FreeProvider free;
+    private long providerCheck;
     final ExecutorService worker=Executors.newSingleThreadExecutor();
     final ExecutorService network=Executors.newFixedThreadPool(3);
     private final ExecutorService probes;
@@ -40,7 +42,7 @@ final class VpnEngine {
     private long since,up,down,lastSample;
     JSONObject profile=new JSONObject(),options=new JSONObject();
     VyraxVpnService service;
-    VpnEngine(Context context){this.context=context;store=new SecureStore(context);android.app.ActivityManager memory=(android.app.ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);probes=Executors.newFixedThreadPool(memory!=null&&memory.isLowRamDevice()?2:3);}
+    VpnEngine(Context context){this.context=context;store=new SecureStore(context);free=new FreeProvider(context);android.app.ActivityManager memory=(android.app.ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);probes=Executors.newFixedThreadPool(memory!=null&&memory.isLowRamDevice()?2:3);}
     synchronized void init(){if(initialized)return;go.Seq.setContext(context);Libv2ray.initCoreEnv(context.getFilesDir().getAbsolutePath(),"");initialized=true;}
     JSONObject snapshot(){return Jsons.obj("status",status,"profileId",profileId,"selectionMode",selectionMode,"since",since==0?JSONObject.NULL:java.time.Instant.ofEpochMilli(since).toString(),"elevated",true,"exit",profile.optString("host"),"share",sharePort>0?Jsons.obj("hosts",localHosts(),"port",sharePort):mode.equals("proxy")&&status.equals("connected")?Jsons.obj("hosts",Jsons.arr("127.0.0.1"),"port",httpPort):JSONObject.NULL,"activeTargets",Jsons.arr(profileId));}
     private JSONArray localHosts(){JSONArray hosts=new JSONArray();try{java.util.Enumeration<java.net.NetworkInterface> adapters=java.net.NetworkInterface.getNetworkInterfaces();while(adapters.hasMoreElements()){java.net.NetworkInterface adapter=adapters.nextElement();if(!adapter.isUp()||adapter.isLoopback())continue;java.util.Enumeration<java.net.InetAddress> ips=adapter.getInetAddresses();while(ips.hasMoreElements()){java.net.InetAddress ip=ips.nextElement();if(ip instanceof java.net.Inet4Address&&ip.isSiteLocalAddress())hosts.put(ip.getHostAddress());}}}catch(Exception ignored){}return hosts;}
@@ -56,6 +58,9 @@ final class VpnEngine {
                 stopCore();if(generation.get()!=token){answer.complete(snapshot());return;}
                 service=host;profile=Jsons.copy(selected);options=normalized;profileId=profile.optString("id");selectionMode=options.optString("_selection","manual");mode=options.optString("mode","tun");
                 status="connecting";state("stage.core","",false);init();
+                JSONArray prepared=free.resolve(options.has("_catalog")?Jsons.array(options,"_catalog"):Jsons.arr(profile),options.optString("_source",profile.optString("sourceId")));
+                XrayConfig.put(options,"_catalog",prepared);for(int i=0;i<prepared.length();i++)if(prepared.optJSONObject(i).optString("id").equals(profileId))profile=prepared.optJSONObject(i);
+                if(generation.get()!=token){answer.complete(snapshot());return;}providerCheck=SystemClock.elapsedRealtime()+30000;
                 socksPort=freePort();httpPort=freePort();sharePort=options.optBoolean("proxyShare")?freePort():0;
                 core=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
                 JSONObject config=XrayConfig.build(profile,options,socksPort,httpPort,sharePort);
@@ -86,6 +91,12 @@ final class VpnEngine {
             if(!active.isEmpty()){JSONObject selected=Jsons.array(options,"_catalog").optJSONObject(Integer.parseInt(active.substring(5)));if(selected!=null&&!selected.optString("id").equals(profileId)){profile=selected;profileId=selected.optString("id");state("","",true);}}
             double seconds=Math.max(.1,(SystemClock.elapsedRealtime()-lastSample)/1000.0);lastSample=SystemClock.elapsedRealtime();up+=addedUp;down+=addedDown;
             emit(Jsons.obj("event","stats","up",up,"down",down,"upRate",(long)(addedUp/seconds),"downRate",(long)(addedDown/seconds)));
+            if(profile.optString("protocol").equals("firefox")&&SystemClock.elapsedRealtime()>=providerCheck){
+                providerCheck=SystemClock.elapsedRealtime()+30000;
+                long currentGeneration=generation.get();
+                try{JSONArray updated=free.resolve(Jsons.array(options,"_catalog"),options.optString("_source"));if(generation.get()!=currentGeneration)return;JSONObject next=null;for(int i=0;i<updated.length();i++)if(updated.optJSONObject(i).optString("id").equals(profileId))next=updated.optJSONObject(i);if(next!=null&&!next.optString("proxyPass").equals(profile.optString("proxyPass"))){XrayConfig.put(options,"_catalog",updated);connect(next,options,service);return;}}
+                catch(Exception error){if(java.util.Arrays.asList("err.freeAuth","err.freeQuota").contains(error.getMessage())){status="disconnected";stopCore();state("",error.getMessage(),false);if(service!=null)service.connectionStopped();return;}}
+            }
             main.postDelayed(this,1000);
         }catch(Throwable error){status="disconnected";stopCore();state("",safeError(error),false);if(service!=null)service.reconnectOrStop();}
     });}};
@@ -111,8 +122,9 @@ final class VpnEngine {
         CoreController probe=null;
         try{
             init();int port=freePort();
+            JSONObject preparedProfile=free.resolve(Jsons.arr(selected),selected.optString("sourceId")).getJSONObject(0);
             probe=Libv2ray.newCoreController(new CoreCallbackHandler(){public long startup(){return 0;}public long shutdown(){return 0;}public long onEmitStatus(long status,String message){return 0;}});
-            probe.startLoop(XrayConfig.probe(selected,port).toString(),0);
+            probe.startLoop(XrayConfig.probe(preparedProfile,port).toString(),0);
             Long latency=DelayProbe.measure(new Proxy(Proxy.Type.SOCKS,new InetSocketAddress("127.0.0.1",port)),url,8000);
             return Jsons.obj("latency",latency==null?JSONObject.NULL:latency);
         }catch(Throwable error){return Jsons.obj("latency",JSONObject.NULL);}

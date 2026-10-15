@@ -12,7 +12,7 @@ config imports, subscriptions, QR sharing, routing lists, delay tests and About.
 - `universal`: ARM 32/64-bit plus x86/x86_64, selected automatically at install.
 - Separate x86/x86_64 builds are also generated for compatible devices/emulators.
 
-All variants share the application ID `com.amyrax.vyrax` and versionCode 22.
+All variants share the application ID `com.amyrax.vyrax` and versionCode 32.
 They replace each other when signed by the same key; switching variants does
 not create another app or remove its saved subscriptions.
 

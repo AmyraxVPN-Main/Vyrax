@@ -4,6 +4,16 @@ Vyrax application code is Copyright (c) 2026 Amyrax and licensed under MIT.
 Third-party software keeps its own copyright and license. The MIT license for
 Vyrax does not relicense the components below.
 
+## Free-server integration
+
+Firefox Accounts authentication, Guardian allowance/token handling and the Remote
+Settings server-list integration are adapted from FoxyVPN by Vauth.
+Copyright (c) 2026 Vauth, MIT License.
+Source: https://github.com/vauth/foxyvpn
+The full license is included as `third_party/FoxyVPN-MIT.txt` and in packaged
+application notices. Firefox/Mozilla names identify the service; Vyrax is an
+independent client and is not affiliated with Mozilla.
+
 ## Desktop VPN components
 
 - Xray-core 26.3.27: Mozilla Public License 2.0.
@@ -40,6 +50,9 @@ those distribution obligations.
 - yaml 2.9.1: ISC.
 - ip3country 5.0.0: ISC; supplies the offline country lookup data.
 - Vazirmatn 33.0.3: SIL Open Font License 1.1.
+- Roboto, distributed by @fontsource/roboto 5.2.8: SIL Open Font License 1.1.
+  Copyright 2011 The Roboto Project Authors. The font license is included in
+  `licenses/fontsource-roboto-OFL.txt` in application packages.
 
 Full npm dependency notices are shipped in `licenses`. Build-tool dependencies
 retain the licenses listed in their packages and are not relicensed by Vyrax.

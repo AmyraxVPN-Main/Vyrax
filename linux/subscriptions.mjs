@@ -1,6 +1,35 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Amyrax
 import { spawn } from 'node:child_process';
+import { ENDPOINTS } from '../src/lib/free-servers.mjs';
+
+// Account/renewal requests use the core's direct control inlet. Credentials
+// and request bodies travel over stdin, never in process arguments or logs.
+export async function providerThroughCore(address,options,port) {
+  if(!Object.values(ENDPOINTS).some(([,url])=>url===address)||!Number.isInteger(port)||port<1||port>65535)throw Error('err.action');
+  const output=await new Promise((resolve,reject)=>{
+    const child=spawn('curl',['--silent','--compressed','--config','-','--max-time','15','--connect-timeout','6','--proto','=https','--proxy',`http://127.0.0.1:${port}`,'--noproxy','','--suppress-connect-headers','--dump-header','-','--output','-'],{stdio:['pipe','pipe','ignore']});
+    const chunks=[];let size=0,settled=false;
+    const finish=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);options.signal?.removeEventListener('abort',abort);error?reject(error):resolve(value);};
+    const abort=()=>{child.kill();finish(Error('err.freeNetwork'));},timer=setTimeout(abort,16000);
+    options.signal?.addEventListener('abort',abort,{once:true});if(options.signal?.aborted){abort();return;}
+    child.stdout.on('data',chunk=>{size+=chunk.length;if(size>1048576+65536){child.kill();finish(Error('err.tooBig'));}else chunks.push(chunk);});
+    child.on('error',()=>finish(Error('err.freeNetwork')));child.on('close',code=>finish(code===0?null:Error('err.freeNetwork'),Buffer.concat(chunks)));child.stdin.on('error',()=>{});
+    const config=[`url = ${JSON.stringify(address)}`,`request = ${JSON.stringify(options.method||'GET')}`];
+    for(const [key,value] of Object.entries(options.headers||{})){if(/[\r\n]/.test(key+value)){abort();return;}config.push(`header = ${JSON.stringify(key+': '+value)}`);}
+    if(options.body!==undefined)config.push(`data-raw = ${JSON.stringify(options.body)}`);
+    child.stdin.end(config.join('\n')+'\n');
+  });
+  let offset=0,status=0,headers;
+  while(output.toString('ascii',offset,offset+5)==='HTTP/'){
+    const end=output.indexOf('\r\n\r\n',offset);if(end<0||end-offset>16384)throw Error('err.freeService');
+    const lines=output.toString('utf8',offset,end).split('\r\n');status=Number(lines.shift().split(' ')[1]);headers=new Headers();
+    for(const line of lines){const colon=line.indexOf(':');if(colon>0)headers.append(line.slice(0,colon),line.slice(colon+1).trim());}offset=end+4;
+    if(status>=200)break;
+  }
+  if(!status)throw Error('err.freeService');
+  return new Response(output.subarray(offset),{status,headers});
+}
 
 // curl already ships with the Linux runtime requirements. Its proxy transport
 // keeps DNS and HTTPS CONNECT in the core, outside the app's captured TUN path.

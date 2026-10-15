@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { iosRequest, nodeTag } from '../../src/lib/ios-config.mjs';
 import { sha256 } from '../../src/lib/sha256.mjs';
 import { createHash } from 'node:crypto';
+import { FREE_SOURCE } from '../../src/lib/free-servers.mjs';
 const profile = {id:'one',sourceId:'sub',protocol:'vless',host:'example.test',port:443,uuid:'00000000-0000-4000-8000-000000000001',tls:true};
 const settings = {_catalog:[profile],_source:'sub',_selection:'manual',preferencesVersion:1};
 test('outbound identity preserves streams on display changes and replaces changed credentials',()=>{
@@ -28,4 +29,16 @@ test('DNS bootstrap bypasses tunnel and split routes preserve user intent',()=>{
  assert.ok(r.config.routing.rules.some(r=>r.inboundTag?.includes('dns-bootstrap')&&r.outboundTag==='direct'));
  assert.ok(r.config.routing.rules.some(r=>r.domain?.includes('domain:example.org')&&r.outboundTag==='direct'));
  assert.throws(()=>iosRequest('delay',{profile:{...profile,port:0}}),/err.port/);
+});
+
+test('Firefox iOS routing has the same HTTP2 transport without exporting the native pass',()=>{
+ const free={id:'firefox:test.m1.fastly-masque.net:2499',protocol:'firefox',sourceId:FREE_SOURCE,host:'test.m1.fastly-masque.net',port:2499};
+ for(const mode of ['manual','fastest','balance']){
+  const r=iosRequest('connect',{profile:free,settings:{_source:FREE_SOURCE,_catalog:[free,profile],_selection:mode}});
+  assert.equal(r.config.outbounds.length,2);const o=r.config.outbounds[0];
+  assert.equal(o.protocol,'http');assert.deepEqual(o.streamSettings.tlsSettings.alpn,['h2']);
+  assert.equal(o.settings.headers['Proxy-Authorization'],'Bearer vyrax-native-pass');
+  assert.equal(r.profileId,free.id);assert.equal(r.selectionMode,mode);
+ }
+ assert.throws(()=>iosRequest('ping',{profile:{...free,host:'not-mozilla.example'}}),/err.freeServer/);
 });

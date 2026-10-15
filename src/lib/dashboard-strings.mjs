@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Amyrax
+export const DASHBOARD_STRINGS = {
+  en: { 'dash.protocol':'Protocol','dash.duration':'Duration','dash.serverAddress':'Server address',
+    'dash.pin':'Keep window on top','dash.systemProxy':'System proxy','dash.tun':'TUN','dash.enabled':'Enabled','dash.disabled':'Disabled',
+    'dash.detection':'Network detection','dash.intranetIp':'Intranet IP','dash.traffic':'Traffic usage',
+    'dash.testNetwork':'Test latency','dash.probeHint':'Test the selected server through its VPN protocol.',
+    'dash.edit':'Edit dashboard','dash.done':'Done','dash.customize':'Choose which cards appear on your dashboard.',
+    'dash.coreReady':'VPN core · About Vyrax','dash.preview':'Preview · About Vyrax','dash.expandNav':'Expand or collapse navigation',
+    'dash.connection':'Connection','dash.tools':'Tools','dash.session':'Current session','dash.noSession':'No active connection',
+    'dash.sessionHint':'Your current VPN session and its measured traffic appear here.',
+    'dash.title':'Dashboard','dash.speed':'Network speed','dash.transport':'Connection mode','dash.proxy':'Proxy',
+    'dash.transportHint':'Applies to the next connection.','dash.stopToChange':'Disconnect to change mode.',
+    'dash.manual':'Manual','dash.server':'Active server','dash.allServers':'All servers','dash.stopping':'Disconnecting…',
+    'dash.retrying':'Reconnecting…','dash.exitIp':'Exit IP','dash.cancel':'Cancel connection','dash.chartIdle':'Connect to see live network activity.',
+    'dash.maximize':'Maximize or restore','dash.chartWaiting':'Waiting for traffic…','dash.nativeProbe':'Real latency tests are available in the installed app.' },
+  fa: { 'dash.protocol':'پروتکل','dash.duration':'مدت اتصال','dash.serverAddress':'آدرس سرور',
+    'dash.pin':'همیشه بالاتر از پنجره‌ها','dash.systemProxy':'پروکسی سیستم','dash.tun':'TUN','dash.enabled':'فعال','dash.disabled':'غیرفعال',
+    'dash.detection':'بررسی شبکه','dash.intranetIp':'آی‌پی داخلی','dash.traffic':'مصرف ترافیک',
+    'dash.testNetwork':'تست تأخیر','dash.probeHint':'تست سرور انتخاب‌شده از طریق پروتکل VPN آن.',
+    'dash.edit':'ویرایش داشبورد','dash.done':'انجام شد','dash.customize':'کارت‌هایی که در داشبورد نمایش داده می‌شوند را انتخاب کن.',
+    'dash.coreReady':'هستهٔ VPN · دربارهٔ Vyrax','dash.preview':'پیش‌نمایش · دربارهٔ Vyrax','dash.expandNav':'باز یا بسته کردن نوار کناری',
+    'dash.connection':'اتصال','dash.tools':'ابزارها','dash.session':'نشست فعلی','dash.noSession':'اتصالی فعال نیست',
+    'dash.sessionHint':'اطلاعات اتصال فعلی و ترافیک اندازه‌گیری‌شدهٔ آن اینجا نمایش داده می‌شود.',
+    'dash.title':'داشبورد','dash.speed':'سرعت شبکه','dash.transport':'حالت اتصال','dash.proxy':'پروکسی',
+    'dash.transportHint':'برای اتصال بعدی اعمال می‌شود.','dash.stopToChange':'برای تغییر حالت، اتصال را قطع کن.',
+    'dash.manual':'دستی','dash.server':'سرور فعال','dash.allServers':'همهٔ سرورها','dash.stopping':'در حال قطع…',
+    'dash.retrying':'در حال اتصال مجدد…','dash.exitIp':'آی‌پی خروجی','dash.cancel':'لغو اتصال','dash.chartIdle':'برای نمایش فعالیت شبکه متصل شو.',
+    'dash.maximize':'بزرگ کردن یا بازگرداندن پنجره','dash.chartWaiting':'در انتظار داده‌های شبکه…','dash.nativeProbe':'تست تأخیر واقعی در نسخهٔ نصب‌شده در دسترس است.' }
+};

@@ -38,7 +38,7 @@ app.whenReady().then(async () => {
     return new Response(response.body,{ status:response.status,headers });
   });
   const store=new Store(path.join(app.getPath('userData'),'data'),safeStorage);store.requireEncryption=process.platform==='darwin';await store.init();
-  window=new BrowserWindow({ width:380,height:646,minWidth:360,minHeight:620,frame:false,resizable:true,backgroundColor:'#121311',title:'Vyrax',icon:path.join(root,'ui','vyrax-icon.png'),webPreferences:{ preload:path.join(__dirname,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true,devTools:!app.isPackaged } });
+  window=new BrowserWindow({ width:1040,height:720,minWidth:360,minHeight:560,frame:false,resizable:true,backgroundColor:'#141212',title:'Vyrax',icon:path.join(root,'ui','vyrax-icon.png'),webPreferences:{ preload:path.join(__dirname,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true,devTools:!app.isPackaged } });
   window.webContents.setWindowOpenHandler(() => ({ action:'deny' }));
   window.webContents.on('will-navigate',(event,url) => { if (url!=='vyrax://app/index.html') event.preventDefault(); });
   window.webContents.session.setPermissionRequestHandler((_wc,_permission,callback) => callback(false));
@@ -46,13 +46,19 @@ app.whenReady().then(async () => {
   await backend.init();
   const actions={
     load:() => store.load(),save:args => backend.save(args),ready:() => backend.ready(),status:() => backend.snapshot(),
+    networkInfo:() => ({ addresses:Object.entries(require('node:os').networkInterfaces()).filter(([name])=>!/^vyrax|^tun|^utun/i.test(name)).flatMap(([,items])=>items||[]).filter(item=>item.family==='IPv4'&&!item.internal).map(item=>item.address) }),
+    freeRequest:args=>backend.free.request(args),freeSave:async args=>{if(backend.profileId.startsWith('firefox:'))await backend.disconnect();return backend.free.save(args);},freeAccount:args=>backend.free.account(args.operation || 'status'),
+    freeLogout:async()=>{if(backend.profileId.startsWith('firefox:'))await backend.disconnect();return backend.free.logout();},
+    freeSwitch:async args=>{if(backend.profileId.startsWith('firefox:'))await backend.disconnect();return backend.free.switchAccount(args.email);},
+    freeRemove:async args=>{if(backend.free.session.email===args.email&&backend.profileId.startsWith('firefox:'))await backend.disconnect();return backend.free.remove(args.email);},
     connect:args => backend.connect(args.profile,args.settings || { preferencesVersion:1,mode:args.mode,mtu:args.mtu }),
     disconnect:() => backend.disconnect(),select:args => backend.select(args.profiles,args.selectedId,args.selectionMode,args.activeSourceId || ''),
     delay:args => backend.delay(args.profile),ping:args => backend.delay(args.profile),subscription:args => backend.subscription(args.url),geo:args => backend.geo(args.hosts),
     validateSettings:async args => { const { preferences }=await import('./config.mjs');const settings=preferences(args);return { splitAddresses:settings.splitAddresses,bypassAddresses:settings.bypassAddresses }; },
     clipboard:() => clipboard.readText(),copy:args => { if (typeof args.text!=='string' || Buffer.byteLength(args.text)>4*1024*1024) throw Error('err.tooBig');clipboard.writeText(args.text);return true; },
     file:async () => { const result=await dialog.showOpenDialog(window,{ properties:['openFile'],filters:[{ name:'VPN configurations',extensions:['txt','json','yaml','yml','conf'] }] });if (result.canceled) return '';const file=result.filePaths[0];if ((await fs.stat(file)).size>4*1024*1024) throw Error('err.tooBig');return fs.readFile(file,'utf8'); },
-    minimize:() => { window.minimize();return true; },close:() => { if (tray) window.hide();else app.quit();return true; },drag:() => true,language:() => true,
+    pin:args=>{window.setAlwaysOnTop(args.value===true);return true;},
+    minimize:() => { window.minimize();return true; },maximize:() => { window.isMaximized() ? window.unmaximize() : window.maximize();return true; },close:() => { if (tray) window.hide();else app.quit();return true; },drag:() => true,language:() => true,
     openProjectLink:async args => { if (!Object.hasOwn(links,args.target)) throw Error('err.action');await shell.openExternal(links[args.target]);return true; },
     checkUpdates:async () => { try { const { text }=await fetchText((...args) => net.fetch(...args),`https://api.github.com/repos/${project.repository}/releases/latest`,{ timeout:12000,limit:262144,headers:{ Accept:'application/vnd.github+json','User-Agent':`Vyrax/${version}`,'X-GitHub-Api-Version':'2022-11-28' } });return { release:text ? JSON.parse(text) : null }; } catch { throw Error('err.updateCheck'); } }
   };

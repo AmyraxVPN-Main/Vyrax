@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, Copy, QrCode, RefreshCw, Trash2, Plus, X } from 'lucide-react';
+import { Check, Copy, QrCode, RefreshCw, Trash2, Plus, X, Gift } from './Glyph.jsx';
 import QRCode from 'qrcode';
 import { useI18n } from '../i18n.jsx';
-import { isLocalSubscription, subscriptionContent } from '../lib/subscriptions.mjs';
+import { isLocalSubscription, isFreeSubscription, subscriptionContent } from '../lib/subscriptions.mjs';
 
 const amount = n => `${((Number(n) || 0) / 1073741824).toFixed(2)} GB`;
 
-export default function SubscriptionSheet({ subscriptions, profiles, activeId, onSelect, onRefresh, onDelete, onCopy, onAdd, onClose, busy, refreshingId }) {
+export default function SubscriptionSheet({ subscriptions, profiles, activeId, onSelect, onRefresh, onDelete, onCopy, onAdd, onFree, onClose, busy, refreshingId }) {
   const { t, lang } = useI18n();
   const dialog = useRef(null);
   const [qr, setQr] = useState(null);
@@ -56,6 +56,7 @@ export default function SubscriptionSheet({ subscriptions, profiles, activeId, o
           {profiles.some(p => !p.sourceId) && <button className={`sub-manual ${!activeId ? 'on' : ''}`} disabled={busy} onClick={() => onSelect('')}><span>{t('sub.manual')}</span>{!activeId && <Check size={16} />}</button>}
           {subscriptions.map(sub => {
             const local = isLocalSubscription(sub);
+            const free = isFreeSubscription(sub);
             const count = profiles.filter(p => p.sourceId === sub.id).length;
             const used = (sub.usage?.upload || 0) + (sub.usage?.download || 0);
             const total = sub.usage?.total || 0;
@@ -68,8 +69,8 @@ export default function SubscriptionSheet({ subscriptions, profiles, activeId, o
               </button>
               <div className="sub-actions">
                 {!local && <button className={refreshingId === sub.id ? 'spin' : ''} disabled={busy} aria-busy={refreshingId === sub.id} aria-label={`${t('sub.refresh')} · ${sub.name}`} onClick={() => onRefresh(sub)}><RefreshCw size={15} /></button>}
-                <button disabled={!count} aria-label={`${t(local ? 'sub.copyConfigs' : 'sub.copy')} · ${sub.name}`} onClick={() => onCopy(sub)}><Copy size={15} /></button>
-                <button disabled={!count} aria-label={`${t('sub.qr')} · ${sub.name}`} onClick={() => showQr(sub)}><QrCode size={15} /></button>
+                {free?<button onClick={onFree} aria-label={t('free.accounts')}><Gift size={15}/></button>:<><button disabled={!count} aria-label={`${t(local ? 'sub.copyConfigs' : 'sub.copy')} · ${sub.name}`} onClick={() => onCopy(sub)}><Copy size={15} /></button>
+                <button disabled={!count} aria-label={`${t('sub.qr')} · ${sub.name}`} onClick={() => showQr(sub)}><QrCode size={15} /></button></>}
                 <button className={arming === sub.id ? 'armed' : ''} disabled={busy} aria-label={`${t(arming === sub.id ? 'sub.confirmDelete' : 'sub.delete')} · ${sub.name}`} onClick={() => { if (arming === sub.id) { onDelete(sub); setArming(''); } else setArming(sub.id); }}><Trash2 size={15} />{arming === sub.id && <span>{t('sub.confirmDelete')}</span>}</button>
               </div>
             </article>;
@@ -78,6 +79,7 @@ export default function SubscriptionSheet({ subscriptions, profiles, activeId, o
         </div>
         {qrError && <p className="sheet-error">{t('sub.qrError')}</p>}
         <button className="sheet-btn primary sub-add" disabled={busy} onClick={onAdd}><Plus size={15} />{t('sub.add')}</button>
+        <button className="sheet-btn" onClick={onFree}><Gift size={15}/>{t('free.title')}</button>
       </>}
     </section>
   </div>;

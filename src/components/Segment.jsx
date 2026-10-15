@@ -1,26 +1,8 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Amyrax
 import React from 'react';
-import { MotionSurface as Liquid } from './Surface.jsx';
-import Surface from './Surface.jsx';
 import { useI18n } from '../i18n.jsx';
-
-export default function Segment({ options, value, onChange }) {
-  const index = Math.max(0, options.findIndex((opt) => opt.id === value));
-  const { lang } = useI18n();
-  const rtl = lang === 'fa';
-  return (
-    <div className="seg" dir={rtl ? 'rtl' : 'ltr'}>
-      <Surface blur={6} className="seg-track" aria-hidden="true">
-        <Surface.Item observe><div className="seg-bg" /></Surface.Item>
-      </Surface>
-      <Liquid blur={6} contrast={20} fill="var(--accent-fill)" className="seg-thumb-layer" aria-hidden="true">
-        <Liquid.Item effect="move" move={{ springiness: .6, trail: .45 }}>
-          <div className="seg-thumb" style={{ width: `${100 / options.length}%`, transform: `translateX(${(rtl ? options.length - 1 - index : index) * 100}%)` }} />
-        </Liquid.Item>
-      </Liquid>
-      {options.map((opt) => (
-        <button key={opt.id} type="button" className={`seg-btn ${value === opt.id ? 'on' : ''}`}
-          aria-pressed={value === opt.id} onClick={() => onChange(opt.id)}>{opt.label}</button>
-      ))}
-    </div>
-  );
+export default function Segment({ options,value,onChange }) {
+  const { lang }=useI18n(),index=Math.max(0,options.findIndex(option=>option.id===value));
+  return <div className="material-segment" role="group" dir={lang==='fa'?'rtl':'ltr'} style={{'--segments':options.length,'--segment-index':lang==='fa'?options.length-1-index:index}}><span className="material-segment-highlight" aria-hidden="true"/>{options.map(option=><button key={option.id} type="button" aria-pressed={value===option.id} onClick={()=>onChange(option.id)}>{option.label}</button>)}</div>;
 }

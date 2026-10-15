@@ -20,7 +20,7 @@ public static class Json {
 }
 
 public static class Config {
-    static readonly string[] Protocols = {"vless","vmess","trojan","shadowsocks"};
+    static readonly string[] Protocols = {"vless","vmess","trojan","shadowsocks","firefox"};
     static readonly string[] Transports = {"tcp","ws","grpc","httpupgrade","xhttp"};
     static readonly string[] Bounded = {"name","password","uuid","path","wsHost","serviceName","sni","publicKey","shortId","flow","fingerprint"};
 
@@ -31,6 +31,7 @@ public static class Config {
         var host=Json.Str(p,"host");
         if(host.Length==0||host.Length>253||Regex.IsMatch(host,@"[\s/\\@?#\x00-\x1f]"))throw new Exception("err.host");
         var port=Json.Int(p,"port");if(port<1||port>65535)throw new Exception("err.port");
+        if(protocol=="firefox"&&(Json.Str(p,"sourceId")!="vyrax-firefox-free"||!Regex.IsMatch(host,@"\A[a-z0-9]+(?:[.-][a-z0-9]+)*\.fastly-masque\.net\z",RegexOptions.IgnoreCase)))throw new Exception("err.freeServer");
         Guid parsed;
         if((protocol=="vless"||protocol=="vmess")&&!Guid.TryParse(Json.Str(p,"uuid"),out parsed))throw new Exception("err.uuid");
         if((protocol=="trojan"||protocol=="shadowsocks")&&String.IsNullOrEmpty(Json.Str(p,"password")))throw new Exception("err.password");
@@ -42,6 +43,12 @@ public static class Config {
         Validate(p);
         var protocol=Json.Str(p,"protocol");var transport=Json.Str(p,"transport","tcp");
         var host=Json.Str(p,"host");var port=Json.Int(p,"port");
+        if(protocol=="firefox") {
+            var pass=Json.Str(p,"proxyPass");if(pass.Length==0||pass.Length>16384||Regex.IsMatch(pass,@"[\s\x00-\x1f]"))throw new Exception("err.freeAuth");
+            var httpStream=Json.Obj("network","tcp","security","tls","tlsSettings",Json.Obj("serverName",host,"allowInsecure",false,"alpn",new[]{"h2"}));
+            if(!String.IsNullOrEmpty(networkInterface))httpStream["sockopt"]=Json.Obj("interface",networkInterface,"domainStrategy","ForceIPv4v6");
+            return Json.Obj("tag","proxy","protocol","http","settings",Json.Obj("servers",new[]{Json.Obj("address",host,"port",port)},"headers",Json.Obj("Proxy-Authorization","Bearer "+pass)),"streamSettings",httpStream);
+        }
         object settings;
         if(protocol=="vless"||protocol=="vmess") {
             var user=Json.Obj("id",Json.Str(p,"uuid"));

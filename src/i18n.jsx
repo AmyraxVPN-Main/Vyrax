@@ -1,5 +1,7 @@
+import { DASHBOARD_STRINGS } from './lib/dashboard-strings.mjs';
 import React, { useContext, useEffect, useState } from 'react';
 import I18nContext from './i18n-context.js';
+import { FREE_STRINGS } from './lib/free-strings.mjs';
 import { platform, call, mobile } from './bridge.js';
 
 export const LANGS = [
@@ -239,7 +241,7 @@ const STRINGS = {
     'set.autoReconnect': 'auto-reconnect',
     'set.autoReconnectSub': 'if the connection drops, bring it back on its own',
     'set.favouriteIps': 'favourite IPs',
-    'set.favouriteIpsSub': 'tap ☆ next to the IP while connected to save one',
+    'set.favouriteIpsSub': 'open Connection and tap ☆ next to the server address to save it',
     'set.favouriteIpsSet': 'each location always connects to its saved IP',
     'set.favHint':
       'if a saved IP stops working (for example it gets blocked), tap ☆ to remove it',
@@ -506,7 +508,7 @@ const STRINGS = {
     'set.autoReconnect': 'اتصال دوباره',
     'set.autoReconnectSub': 'اگر اتصال قطع شد، خودش برش گرداند',
     'set.favouriteIps': 'آی‌پی‌های محبوب',
-    'set.favouriteIpsSub': 'وقتی وصل شدی، کنار آی‌پی روی ☆ بزن تا ذخیره شود',
+    'set.favouriteIpsSub': 'در بخش اتصال، کنار آدرس سرور روی ☆ بزن تا ذخیره شود',
     'set.favouriteIpsSet': 'هر مکان همیشه به آی‌پی ذخیره‌شده‌اش وصل می‌شود',
     'set.favHint':
       'اگر آی‌پی ذخیره‌شده از کار افتاد (مثلاً بلاک شد)، برای حذف روی ☆ بزن',
@@ -607,7 +609,7 @@ export function I18nProvider({ children }) {
   }, [lang]);
 
   function t(key, vars) {
-    const s = (platform === 'ios' ? IOS_STRINGS[lang]?.[key] : platform === 'macos' ? MAC_STRINGS[lang]?.[key] : undefined) ?? STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
+    const s = DASHBOARD_STRINGS[lang]?.[key] ?? FREE_STRINGS[lang]?.[key] ?? (platform === 'ios' ? IOS_STRINGS[lang]?.[key] : platform === 'macos' ? MAC_STRINGS[lang]?.[key] : undefined) ?? STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key;
     return vars ? s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? '')) : s;
   }
 

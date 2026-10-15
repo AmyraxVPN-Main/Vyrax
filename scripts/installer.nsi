@@ -5,13 +5,14 @@
 !include "LogicLib.nsh"
 
 !define APPNAME    "Vyrax"
-!define APPVERSION "0.1.24"
+!define APPVERSION "0.1.32"
 !ifndef APPDIR
 !define APPDIR "..\release\Vyrax"
 !endif
 !define REGKEY     "Software\Microsoft\Windows\CurrentVersion\Uninstall\Vyrax"
 
 Name "${APPNAME}"
+BrandingText "Vyrax | Amyrax"
 OutFile "..\release\VyraxSetup-${APPVERSION}.exe"
 InstallDir "$LOCALAPPDATA\Programs\Vyrax"
 InstallDirRegKey HKCU "Software\Vyrax" "InstallDir"
@@ -22,16 +23,20 @@ Unicode true
 !define MUI_ABORTWARNING
 !define MUI_ICON "..\native\Vyrax.ico"
 !define MUI_UNICON "..\native\Vyrax.ico"
+!define MUI_WELCOMEPAGE_TITLE "Vyrax ${APPVERSION}"
+!define MUI_WELCOMEPAGE_TEXT "Install the complete Vyrax application for Windows.$\r$\n$\r$\nClose Vyrax before continuing. Your saved accounts, subscriptions and settings are kept."
 !define MUI_FINISHPAGE_RUN "$INSTDIR\Vyrax.exe"
 !define MUI_FINISHPAGE_RUN_TEXT "Run Vyrax now"
 !define MUI_FINISHPAGE_RUN_FUNCTION LaunchVyrax
 
-VIProductVersion "0.1.24.0"
+VIProductVersion "0.1.32.0"
 VIAddVersionKey /LANG=1033 "ProductName" "Vyrax"
 VIAddVersionKey /LANG=1033 "FileDescription" "Vyrax Installer"
-VIAddVersionKey /LANG=1033 "FileVersion" "0.1.24"
+VIAddVersionKey /LANG=1033 "FileVersion" "0.1.32"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) 2026 Amyrax"
 
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "..\LICENSE"
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -58,9 +63,9 @@ FunctionEnd
 
 Section "Vyrax" SecMain
   SetOutPath "$INSTDIR"
-  ; قبل از کپی، خودِ پوشه را پاک می‌کنیم تا فایلِ کش‌ماندهٔ نسخهٔ قبلی (مثل
-  ; ui/assets/index-XXXX قدیمی) روی پوشهٔ جدید سوار نشود و رابط را به قبل برنگرداند.
-  RMDir /r "$INSTDIR"
+  ; Overwrite the application payload without deleting a user-selected folder.
+  ; The new index references its own hashed assets; the host clears its UI cache.
+  SetOverwrite on
   File /r "${APPDIR}\*.*"
 
   WriteUninstaller "$INSTDIR\Uninstall.exe"

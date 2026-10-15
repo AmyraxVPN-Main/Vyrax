@@ -1,6 +1,7 @@
 import { exportProfiles, mergeProfiles, parseImport } from './profiles.mjs';
 
 export const isLocalSubscription = sub => sub?.kind === 'local';
+export const isFreeSubscription = sub => sub?.kind === 'firefox';
 const cleanGroupName = value => String(value || '').replace(/[\x00-\x1f\x7f]/g, '').trim().slice(0, 100);
 
 export function importLocalSubscription(text, profiles, subscriptions, name, t) {
@@ -14,6 +15,7 @@ export function importLocalSubscription(text, profiles, subscriptions, name, t) 
 }
 
 export function subscriptionContent(sub, profiles) {
+  if(isFreeSubscription(sub))throw Error('err.freeShare');
   return isLocalSubscription(sub) ? exportProfiles(scopedProfiles(profiles, sub.id)) : sub.url;
 }
 
@@ -79,12 +81,12 @@ export function subscriptionMetadata(response, url, previousName = '') {
 }
 
 export function needsSubscriptionName(sub) {
-  if (isLocalSubscription(sub)) return false;
+  if (isLocalSubscription(sub) || isFreeSubscription(sub)) return false;
   try { return !sub.name || sub.name === new URL(sub.url).hostname || genericName(sub.name); } catch { return false; }
 }
 
 export function migrateSubscriptions(saved, localName = 'Imported servers') {
-  const subscriptions = Array.isArray(saved?.subscriptions) ? saved.subscriptions.filter(s => s?.id && (s.url || isLocalSubscription(s))) : [];
+  const subscriptions = Array.isArray(saved?.subscriptions) ? saved.subscriptions.filter(s => s?.id && (s.url || isLocalSubscription(s) || isFreeSubscription(s))) : [];
   const mapped = new Map(subscriptions.filter(s => !isLocalSubscription(s)).map(s => [s.url, s.id]));
   const linked = (Array.isArray(saved?.profiles) ? saved.profiles : []).map(p => {
     if (!/^https?:\/\//i.test(p.sourceId || '')) return p;

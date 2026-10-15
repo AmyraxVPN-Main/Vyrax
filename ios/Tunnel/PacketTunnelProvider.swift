@@ -6,6 +6,9 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
     private let lifecycle = DispatchQueue(label:"Vyrax.tunnel.lifecycle")
     private let network:OperationQueue = {let q=OperationQueue();q.maxConcurrentOperationCount=3;q.qualityOfService = .utility;return q}()
     private let pump = PacketPump()
+    private let free=FreeProvider()
+    private var renewal:DispatchSourceTimer?
+    private var appliedConfig:Data?
     private var session:[String:Any] = [:]
     private var started = false
     private var generation=0
@@ -15,7 +18,7 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
             do {
                 session = try SharedStore.load(name:"session")
                 guard let config = session["config"] as? [String:Any] else {throw VyraxError.code("err.config")}
-                _ = try NativeCore.invoke("start",config)
+                try applyConfig("start",config)
                 let settings = session["settings"] as? [String:Any] ?? [:]
                 let net = NEPacketTunnelNetworkSettings(tunnelRemoteAddress:"127.0.0.1")
                 net.mtu = NSNumber(value:settings["mtu"] as? Int ?? 1280)
@@ -34,6 +37,7 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
                             try pump.start(flow:packetFlow,mtu:settings["mtu"] as? Int ?? 1280)
                             started = true;session["since"] = ISO8601DateFormatter().string(from:Date())
                             try SharedStore.save(session,name:"session")
+                            startRenewal()
                             completionHandler(nil)
                         } catch {
                             if token==generation{if started{pump.stop();started=false};_ = try? NativeCore.invoke("stop")}
@@ -47,6 +51,7 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
     override func stopTunnel(with reason:NEProviderStopReason,completionHandler:@escaping()->Void) {
         lifecycle.async { [self] in
             generation+=1
+            renewal?.cancel();renewal=nil
             if started{pump.stop();started=false}
             _ = try? NativeCore.invoke("stop")
             completionHandler()
@@ -63,7 +68,7 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
             lifecycle.async { [self] in
                 do {
                     guard let config = args["config"] as? [String:Any] else{throw VyraxError.code("err.config")}
-                    _ = try NativeCore.invoke("select",config)
+                    try applyConfig("select",config)
                     for key in ["config","profileId","selectionMode","activeSourceId"]{session[key]=args[key]}
                     try SharedStore.save(session,name:"session");finish(snapshot(),nil)
                 }catch{finish(nil,error)}
@@ -74,7 +79,9 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
             network.addOperation {
                 do {
                     switch action {
-                    case "delay","ping":finish(try NativeCore.invoke("delay",args["outbound"] ?? [:]),nil)
+                    case "delay","ping":finish(try NativeCore.invoke("delay",self.free.prepare(args["outbound"] as? [String:Any] ?? [:],single:true)),nil)
+                    case "freeRequest":finish(try self.free.request(args),nil)
+                    case "freeAccount","freeSave","freeSwitch","freeRemove","freeLogout":finish(try self.free.perform(action,args),nil)
                     case "subscription":finish(try NativeCore.invoke("http",args),nil)
                     case "checkUpdates":finish(try NativeCore.invoke("http",["url":"https://api.github.com/repos/AmyraxVPN-Main/Vyrax/releases/latest","update":true]),nil)
                     default:throw VyraxError.code("err.action")
@@ -87,5 +94,21 @@ final class PacketTunnelProvider:NEPacketTunnelProvider {
         var value = pump.stats();value["status"] = started ? "connected":"connecting";value["elevated"]=true
         for key in ["profileId","selectionMode","since","settings"]{value[key]=session[key]}
         return value
+    }
+    private func startRenewal() {
+        renewal?.cancel()
+        let timer=DispatchSource.makeTimerSource(queue:lifecycle)
+        timer.schedule(deadline:.now()+30,repeating:30)
+        timer.setEventHandler{[weak self] in
+            guard let self,self.started,(self.session["activeSourceId"] as? String)=="vyrax-firefox-free",let config=self.session["config"] as? [String:Any] else{return}
+            do{try self.applyConfig("select",config)}
+            catch{if ["err.freeAuth","err.freeQuota"].contains(code(error)){self.cancelTunnelWithError(error)}}
+        }
+        renewal=timer;timer.resume()
+    }
+    private func applyConfig(_ method:String,_ raw:[String:Any]) throws {
+        let prepared=try free.prepare(raw),bytes=try JSONSerialization.data(withJSONObject:prepared,options:.sortedKeys)
+        if method=="select",bytes==appliedConfig{return}
+        _ = try NativeCore.invoke(method,prepared);appliedConfig=bytes
     }
 }

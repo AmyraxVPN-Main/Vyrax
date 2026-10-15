@@ -197,16 +197,18 @@ export function countryFromHost(profile) {
 /* ---------- ترتیب نهایی ---------- */
 
 export function countryOf(profile) {
+  if(profile.protocol==='firefox')return profile.cc || null;
   return countryFromName(profile) || countryFromHost(profile) || profile.cc || null;
 }
 
 /* فقط وقتی از میزبان بپرسیم که از روی متن چیزی نفهمیده باشیم */
 export function needsGeo(profile) {
+  if(profile.protocol==='firefox')return false;
   if (!profile.host || profile.cc) return false;
   return !countryFromName(profile) && !countryFromHost(profile);
 }
 
-const PROTO = { vless: 'VL', vmess: 'VM', trojan: 'TR', shadowsocks: 'SS' };
+const PROTO = { vless: 'VL', vmess: 'VM', trojan: 'TR', shadowsocks: 'SS', firefox:'FX' };
 
 export function protoLabel(profile) {
   return PROTO[profile.protocol] || String(profile.protocol || '??').slice(0, 2).toUpperCase();

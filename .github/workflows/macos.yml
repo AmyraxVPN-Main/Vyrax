@@ -27,7 +27,7 @@ jobs:
       - name: Native build and package
         run: bash scripts/build-macos.sh '${{ matrix.arch }}'
       - name: Shared and permission lifecycle checks
-        run: node --test linux/tests/config.test.mjs macos/tests/backend.test.mjs
+        run: node --test tests/*.test.mjs linux/tests/config.test.mjs macos/tests/backend.test.mjs
       - name: Disposable macOS network integration
         run: node macos/tests/network.mjs '${{ matrix.arch }}'
       - name: Install isolated UI test dependency

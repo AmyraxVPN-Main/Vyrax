@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -56,6 +57,8 @@ public sealed class Store {
         catch { throw new Exception("err.storeRead"); }
     }
     public void Save(object value) {
+        var payload=value as Dictionary<string,object>;object profiles;
+        if(payload!=null&&payload.TryGetValue("profiles",out profiles))foreach(var p in Json.Items(profiles).OfType<Dictionary<string,object>>())p.Remove("proxyPass");
         var text=Json.Write(value);
         if(text.Length>8*1024*1024)throw new Exception("err.storeWrite");
         var bytes=ProtectedData.Protect(Encoding.UTF8.GetBytes(text),null,DataProtectionScope.CurrentUser);

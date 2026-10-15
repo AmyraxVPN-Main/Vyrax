@@ -1,6 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
-import Surface from './components/Surface.jsx';
+import { ChevronRight } from './components/Glyph.jsx';
 
 /* رنگ عدد بر پایهٔ کیفیت تأخیر */
 export function speedClass(ms) {
@@ -34,15 +33,10 @@ export function Toggle({ on, onClick, label, disabled = false }) {
       aria-checked={on}
       aria-label={label}
       disabled={disabled}
-      className={`toggle ${on ? 'on' : ''}`}
+      className={`material-switch ${on ? 'on' : ''}`}
       onClick={onClick}
     >
-      <Surface blur={6} className="toggle-liquid" aria-hidden="true">
-        <Surface.Item><span className="toggle-track" /></Surface.Item>
-        <Surface.Item x={on ? 22 : 0} transition="bouncy">
-          <span className="toggle-knob"><i /></span>
-        </Surface.Item>
-      </Surface>
+      <span aria-hidden="true"/>
     </button>
   );
 }

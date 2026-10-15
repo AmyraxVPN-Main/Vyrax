@@ -23,6 +23,8 @@ final class NativeHttp {
     }
     static JSONObject project(Context context)throws Exception{try(InputStream input=context.getAssets().open("project.json")){return new JSONObject(read(input,16384));}}
     static String projectLink(Context context,String target)throws Exception{
+        if(target.equals("firefoxAccount"))return "https://accounts.firefox.com/";
+        if(target.equals("firefoxHelp"))return "https://support.mozilla.org/en-US/kb/firefox-vpn";
         JSONObject project=project(context);String repository=project.getString("repository");
         if(!repository.matches("[A-Za-z0-9-]+/[A-Za-z0-9_.-]+"))throw new IllegalArgumentException("err.action");
         switch(target){case "source":return "https://github.com/"+repository;case "release":return "https://github.com/"+repository+"/releases/latest";case "telegram":String link=project.getString("telegram");if(!link.matches("https://t\\.me/[A-Za-z0-9_]+"))throw new IllegalArgumentException("err.action");return link;default:throw new IllegalArgumentException("err.action");}

@@ -9,7 +9,7 @@
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --soft-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
-  --font: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-fa: "Vazirmatn", "Segoe UI", Tahoma, system-ui, sans-serif;
 
   /* نشان Vyrax: یک «V» بولد با پژواکِ کوتاه؛ به‌صورت ماسک تا رنگش از currentColor بیاید */

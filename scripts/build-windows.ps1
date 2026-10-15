@@ -81,6 +81,7 @@ foreach ($component in @('xray','sing-box','webview2','wintun')) {
         ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $bundleDir ('licenses\' + $component + '-' + $_.Name)) -Force }
 }
 Copy-Item -LiteralPath 'third_party\GPL-3.0.txt' -Destination (Join-Path $bundleDir 'licenses\GPL-3.0.txt') -Force
+Copy-Item -LiteralPath 'third_party\FoxyVPN-MIT.txt' -Destination (Join-Path $bundleDir 'licenses\FoxyVPN-MIT.txt') -Force
 Copy-Item -Path 'vendor\npm-licenses\*' -Destination (Join-Path $bundleDir 'licenses') -Force
 
 Write-Output ('ready: ' + $bundleDir)

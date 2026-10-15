@@ -25,6 +25,7 @@ Copy-Item -Path 'dist\*' -Destination "$assets\ui" -Recurse -Force
 Copy-Item -LiteralPath 'project.json','native\geo.bin' -Destination $assets -Force
 Copy-Item -LiteralPath 'LICENSE','THIRD_PARTY_NOTICES.md','third_party\GPL-3.0.txt','vendor\android-versions.json' -Destination "$assets\licenses" -Force
 Copy-Item -Path 'third_party\android\*','vendor\npm-licenses\*' -Destination "$assets\licenses" -Force
+Copy-Item -LiteralPath 'third_party\FoxyVPN-MIT.txt' -Destination "$assets\licenses" -Force
 $icon=Join-Path $projectDir 'android\app\src\main\res\mipmap-xxxhdpi'
 New-Item -ItemType Directory -Path $icon -Force | Out-Null
 Copy-Item -LiteralPath 'public\vyrax-icon.png' -Destination "$icon\ic_launcher.png" -Force

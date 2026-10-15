@@ -1,0 +1,9 @@
+/* Flex gap arrived after the first Android 10 WebView. */
+[data-flex-gap='no'] .dash-card-heading > .vyrax-glyph { margin-inline-end:8px; }
+[data-flex-gap='no'] .dash-title-actions > button + button { margin-inline-start:8px; }
+[data-flex-gap='no'] .dash-strategy-options > button > .vyrax-glyph { margin-inline-end:9px; }
+[data-flex-gap='no'] .dash-rates > span + span { margin-inline-start:9px; }
+[data-flex-gap='no'] .dash-rates bdi { margin-inline-start:3px; }
+[data-flex-gap='no'] .dash-traffic-value > .vyrax-glyph { margin-inline-end:8px; }
+[data-flex-gap='no'] .connect-fab.running .connect-symbol,
+[data-flex-gap='no'] .connect-fab.busy .connect-symbol { margin-inline-end:10px; }
