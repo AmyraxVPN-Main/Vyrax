@@ -3,6 +3,8 @@
 import { createHash } from 'node:crypto';
 import { isIP } from 'node:net';
 import { validatePreferences } from '../src/lib/preferences.mjs';
+import { validateFreeProfile, freeOutbound } from '../src/lib/free-servers.mjs';
+import { firefoxTls } from './firefox-tls.mjs';
 
 export const PROBE_URL = 'https://www.gstatic.com/generate_204';
 export function preferences(raw = {}) {
@@ -14,7 +16,8 @@ export function preferences(raw = {}) {
   return settings;
 }
 export function validate(p) {
-  if (!p || !['vless','vmess','trojan','shadowsocks'].includes(p.protocol)) throw Error('err.protocol');
+  if (!p || !['vless','vmess','trojan','shadowsocks','firefox'].includes(p.protocol)) throw Error('err.protocol');
+  if(p.protocol==='firefox')validateFreeProfile(p);
   if (!['tcp','ws','grpc','httpupgrade','xhttp'].includes(p.transport || 'tcp')) throw Error('err.transport');
   if (typeof p.host !== 'string' || !p.host.length || p.host.length > 253 || /[\s/\\@?#\x00-\x1f]/.test(p.host)) throw Error('err.host');
   if (!Number.isInteger(p.port) || p.port < 1 || p.port > 65535) throw Error('err.port');
@@ -25,6 +28,7 @@ export function validate(p) {
 }
 export function outbound(p) {
   validate(p);
+  if(p.protocol==='firefox')return firefoxTls(freeOutbound(p));
   const { protocol, host, port } = p;
   let settings;
   if (['vless','vmess'].includes(protocol)) {
@@ -79,7 +83,7 @@ export function xray(profiles, selectedId, mode, source, raw, ports) {
     routing:selection.config,
     // Resolve transport domains independently of the system resolver after TUN
     // takes ownership of DNS. Xray's own sockets are excluded by the helper.
-    dns:{ tag:'dns-bootstrap',queryStrategy:'UseIP',enableParallelQuery:true,servers:[{ address:'https://1.1.1.1/dns-query',timeoutMs:4000 },{ address:'https://8.8.8.8/dns-query',timeoutMs:4000 }] },
+    dns:{ tag:'dns-bootstrap',queryStrategy:'UseIP',enableParallelQuery:true,servers:['localhost',{ address:'https://1.1.1.1/dns-query',timeoutMs:4000 },{ address:'https://8.8.8.8/dns-query',timeoutMs:4000 }] },
     api:{ tag:'api', listen:`127.0.0.1:${ports.api}`, services:['RoutingService','HandlerService'] },
     metrics:{ tag:'metrics', listen:`127.0.0.1:${ports.metrics}` }, stats:{}, policy:{ system:{ statsOutboundUplink:true, statsOutboundDownlink:true } },
     observatory:{ subjectSelector:['node-'], probeURL:PROBE_URL, probeInterval:'45s', enableConcurrency:true }

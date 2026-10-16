@@ -1,10 +1,16 @@
-name: macOS builds and checks
+name: macOS 0.1.34 native repair and verification
 on:
   workflow_dispatch:
+    inputs:
+      reuse_run_id:
+        description: Reverify unchanged native packages from a previous build
+        required: false
+        default: ''
 permissions:
-  contents: read
+  contents: write
+  actions: read
 jobs:
-  macos:
+  repair:
     strategy:
       fail-fast: false
       matrix:
@@ -14,32 +20,81 @@ jobs:
           - arch: x64
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 40
+    timeout-minutes: 35
+    env:
+      VYRAX_APP_OVERLAY: ${{ github.workspace }}/macos/build/overlay
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - name: Native build and package
+      - uses: actions/setup-go@v5
+        if: inputs.reuse_run_id == ''
+        with:
+          go-version: '1.26.1'
+          cache: false
+      - name: Restore private supplied application resources
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p macos/build/overlay
+          gh api repos/AmyraxVPN-Main/Vyrax/releases/assets/645954037 -H 'Accept: application/octet-stream' > macos/build/seed.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile, hashlib
+          seed=Path('macos/build/seed.zip')
+          assert hashlib.file_digest(seed.open('rb'),'sha256').hexdigest()=='4a301a242aa0d4a8e843f6045dc5987ab560061fbef7a6688e7deac58526010a'
+          root=Path('macos/build/overlay').resolve()
+          with zipfile.ZipFile(seed) as source:
+              for member in source.infolist():
+                  assert (root/member.filename).resolve().is_relative_to(root)
+              source.extractall(root)
+          PY
+      - name: Native build, sign and package both architecture components
+        if: inputs.reuse_run_id == ''
         run: bash scripts/build-macos.sh '${{ matrix.arch }}'
-      - name: Shared and permission lifecycle checks
+      - name: Retrieve unchanged native packages for additional checks
+        if: inputs.reuse_run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: Vyrax-0.1.34-macos-${{ matrix.arch }}-macfix1
+          path: release/macos-0.1.34/
+          run-id: ${{ inputs.reuse_run_id }}
+          github-token: ${{ github.token }}
+      - name: Restore and verify the signed native app
+        if: inputs.reuse_run_id != ''
+        run: |
+          mkdir -p 'macos/build/${{ matrix.arch }}'
+          ditto -x -k 'release/macos-0.1.34/Vyrax-0.1.34-macos-${{ matrix.arch }}.zip' 'macos/build/${{ matrix.arch }}'
+          python3 scripts/verify-macos.py 'macos/build/${{ matrix.arch }}/Vyrax.app' '${{ matrix.arch }}'
+      - name: Use shipped modules for verification
+        run: |
+          app='macos/build/${{ matrix.arch }}/Vyrax.app/Contents/Resources/app'
+          ditto "$app/linux" linux
+          ditto "$app/macos" macos
+          ditto "$app/src/lib" src/lib
+      - name: Configuration and permission lifecycle checks
         run: node --test linux/tests/config.test.mjs macos/tests/backend.test.mjs
-      - name: Disposable macOS network integration
+      - name: Disposable macOS Proxy, TUN and recovery integration
+        timeout-minutes: 5
         run: node macos/tests/network.mjs '${{ matrix.arch }}'
+      - name: Firefox TLS, delay, automatic selection and TUN transport
+        timeout-minutes: 5
+        run: node macos/tests/firefox-network.mjs '${{ matrix.arch }}'
       - name: Install isolated UI test dependency
         run: npm install --prefix macos/build/test-tools --no-audit --no-fund playwright-core@1.64.0
-      - name: Sandboxed desktop UI
+      - name: Sandboxed supplied desktop UI
         timeout-minutes: 3
         run: node macos/tests/desktop.mjs '${{ matrix.arch }}'
-      - name: Upload packages, exact core sources and verification reports
+      - name: Upload installers, exact core source and verification reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Vyrax-macos-${{ matrix.arch }}
-          path: release/macos-*/
+          name: Vyrax-0.1.34-macos-${{ matrix.arch }}-macfix1
+          path: release/macos-0.1.34/
           if-no-files-found: error
           retention-days: 14
+          compression-level: 0

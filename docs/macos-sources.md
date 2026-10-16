@@ -6,6 +6,14 @@ with its included Chromium notices. These separate executables are not
 relicensed under the application's license. Exact upstream source archives
 are provided here; `vendor/macos-versions.json` pins source and binary releases.
 
+The macfix1 packages rebuild Xray with the included literal HTTP-header patch.
+Internal observatory probes can send static proxy authorization headers without
+an inbound socket; dynamic header templates retain their original validation.
+The exact modified source archive and regression test accompany the binaries.
+Run `scripts/build-xray-macos.sh arm64` (or `x64`) after preparing the pinned
+archives to reproduce the core. `scripts/build-macos.sh` calls this automatically
+and signs the cores, native helpers and app in the required order.
+
 Use the Go version required by each source's go.mod and its included upstream
 release scripts/build tags. A basic native rebuild is:
 
