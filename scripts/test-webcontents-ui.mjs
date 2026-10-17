@@ -15,15 +15,15 @@ export async function testWebContentsUI(app, output, platform, port) {
  const store={profiles:[{id:'fixture',sourceId:'group',name:'Loopback UI fixture',protocol:'vless',transport:'tcp',host:'127.0.0.1',port,uuid:'00000000-0000-4000-8000-000000000001',cc:'de'}],subscriptions:[{id:'group',kind:'local',name:'Local UI fixture'}],selectedId:'fixture',activeSourceId:'group',selectionMode:'manual',settings:{preferencesVersion:1,mode:'proxy',theme:'dark',mtu:1280}};
  await evaluate(`(async()=>{await window.VyraxMac.call('save',${JSON.stringify(store)});localStorage.setItem('vyrax-lang','en');location.reload();})()`);
  await wait("!!document.querySelector('.dashboard-grid')");await delay(700);await screenshot('desktop-en.png');
- await click('.dock-slot:nth-child(2)');await click('.loc-head .icon-btn');await click('.source-picker');
+ await click('.dock-slot:nth-of-type(2)');await click('.loc-head .icon-btn');await click('.source-picker');
  await click('.sheet .sub-actions button');await wait("!!document.querySelector('.toast')");
  assert.ok(await evaluate("+getComputedStyle(document.querySelector('.toast')).zIndex>80"));
  await click('.sheet .sub-actions button:nth-child(2)');await wait("!!document.querySelector('.qr-share img')");
  await click('.sheet-close');await wait("!document.querySelector('.sheet.subscriptions-sheet')");
- await click('.dock-slot:nth-child(5)');await click('.tool-card');
+ await click('.dock-slot:nth-of-type(5)');await click('.tool-card');
  await evaluate("[...document.querySelectorAll('button')].find(e=>e.textContent.trim()==='فارسی').click()");await wait("document.documentElement.dir==='rtl'");
  await click('.dock-slot');await delay(600);await screenshot('desktop-fa.png');
- await click('.dock-slot:nth-child(5)');await click('.tool-card:nth-child(6)');await delay(500);
+ await click('.dock-slot:nth-of-type(5)');await click('.tool-card:nth-child(6)');await delay(500);
  assert.ok(await evaluate("document.querySelector('.about-brand').textContent.includes('0.1.35')"));await screenshot('about-fa.png');
  await fs.writeFile(path.join(output,'native-ui.json'),JSON.stringify({platform,version:'0.1.35',nativeLaunch:true,automationAdapter:'Electron webContents; Playwright page discovery timed out',sandbox:true,contextIsolation:true,subscriptionCopy:true,subscriptionQr:true,nonblockingPingModal:true,rtl:true,versionVerified:true,realAccountLoginTested:false},null,2));
  console.log('Native webContents UI checks passed:',platform);
