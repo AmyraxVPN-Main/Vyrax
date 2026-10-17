@@ -23,8 +23,16 @@ try{
   await exec('security',['list-keychains','-d','user','-s',keychain,...previousList]);await exec('security',['default-keychain','-d','user','-s',keychain]);
   await exec('security',['add-generic-password','-a','Vyrax','-s','Vyrax Safe Storage','-w','Synthetic UI fixture','-A',keychain]);
  }
- app=await _electron.launch({executablePath:executable,chromiumSandbox:true,env:{...process.env,VYRAX_TEST_USER_DATA:temporary,XDG_CONFIG_HOME:temporary,XDG_CURRENT_DESKTOP:'GNOME'}});
- const page=await app.firstWindow(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ app=await _electron.launch({executablePath:executable,chromiumSandbox:true,env:{...process.env,VYRAX_TEST_USER_DATA:temporary,XDG_CONFIG_HOME:temporary,XDG_CURRENT_DESKTOP:'GNOME',ELECTRON_ENABLE_LOGGING:'1'}});
+ let nativeLog='';for(const stream of [app.process().stdout,app.process().stderr])stream?.on('data',chunk=>{nativeLog+=chunk.toString();});
+ let page;
+ try{page=await app.firstWindow({timeout:90000});}
+ catch(error){
+  await fs.writeFile(path.join(output,'native-startup.log'),nativeLog);
+  const state=await app.evaluate(({app,BrowserWindow})=>({ready:app.isReady(),windows:BrowserWindow.getAllWindows().map(w=>({id:w.id,visible:w.isVisible(),url:w.webContents.getURL()}))})).catch(e=>({error:String(e)}));
+  await fs.writeFile(path.join(output,'native-startup.json'),JSON.stringify(state,null,2));throw error;
+ }
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.waitForSelector('.shell');
  assert.equal(await page.evaluate(()=>document.documentElement.dataset.platform),platform);
  const security=await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences());
