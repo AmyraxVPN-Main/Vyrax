@@ -26,12 +26,17 @@ try{
  app=await _electron.launch({executablePath:executable,chromiumSandbox:true,env:{...process.env,VYRAX_TEST_USER_DATA:temporary,XDG_CONFIG_HOME:temporary,XDG_CURRENT_DESKTOP:'GNOME',ELECTRON_ENABLE_LOGGING:'1'}});
  let nativeLog='';for(const stream of [app.process().stdout,app.process().stderr])stream?.on('data',chunk=>{nativeLog+=chunk.toString();});
  let page;
- try{page=await app.firstWindow({timeout:90000});}
+ try{page=await app.firstWindow({timeout:30000});}
  catch(error){
   await fs.writeFile(path.join(output,'native-startup.log'),nativeLog);
   const state=await app.evaluate(({app,BrowserWindow})=>({ready:app.isReady(),windows:BrowserWindow.getAllWindows().map(w=>({id:w.id,visible:w.isVisible(),url:w.webContents.getURL()}))})).catch(e=>({error:String(e)}));
-  await fs.writeFile(path.join(output,'native-startup.json'),JSON.stringify(state,null,2));throw error;
+  await fs.writeFile(path.join(output,'native-startup.json'),JSON.stringify(state,null,2));
+  if(platform==='macos'&&state.windows?.some(w=>w.url==='vyrax://app/index.html')){
+   const {testWebContentsUI}=await import('./test-webcontents-ui.mjs');
+   await testWebContentsUI(app,output,platform,stalled.address().port);process.exitCode=0;
+  }else throw error;
  }
+ if(page){
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.waitForSelector('.shell');
  assert.equal(await page.evaluate(()=>document.documentElement.dataset.platform),platform);
@@ -56,6 +61,7 @@ try{
  assert.deepEqual(errors,[]);
  await fs.writeFile(path.join(output,'native-ui.json'),JSON.stringify({platform,version:'0.1.35',nativeLaunch:true,sandbox:true,contextIsolation:true,nonblockingPingModal:true,subscriptionCopy:true,subscriptionQr:true,rtl:true,versionVerified:true,errors,realAccountLoginTested:false},null,2));
  console.log('Native UI checks passed:',platform);
+ }
 }finally{
  for(const socket of sockets)socket.destroy();stalled.close();if(app)await app.close();
  if(keychain){await exec('security',['default-keychain','-d','user','-s',previousDefault]).catch(()=>{});await exec('security',['list-keychains','-d','user','-s',...previousList]).catch(()=>{});await exec('security',['delete-keychain',keychain]).catch(()=>{});}
