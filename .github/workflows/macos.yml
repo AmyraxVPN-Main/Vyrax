@@ -1,16 +1,11 @@
-name: macOS 0.1.34 native repair and verification
+name: macOS shared UI 0.1.35 packaging
 on:
   workflow_dispatch:
-    inputs:
-      reuse_run_id:
-        description: Reverify unchanged native packages from a previous build
-        required: false
-        default: ''
 permissions:
-  contents: write
+  contents: read
   actions: read
 jobs:
-  repair:
+  package:
     strategy:
       fail-fast: false
       matrix:
@@ -20,81 +15,46 @@ jobs:
           - arch: x64
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 35
-    env:
-      VYRAX_APP_OVERLAY: ${{ github.workspace }}/macos/build/overlay
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/download-artifact@v4
         with:
-          python-version: '3.13'
-      - uses: actions/setup-go@v5
-        if: inputs.reuse_run_id == ''
-        with:
-          go-version: '1.26.1'
-          cache: false
-      - name: Restore private supplied application resources
+          name: Vyrax-0.1.34-macos-${{ matrix.arch }}-macfix1
+          run-id: 38846308074
+          github-token: ${{ github.token }}
+          path: base
+      - name: Verify and restore presentation input
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p macos/build/overlay
-          gh api repos/AmyraxVPN-Main/Vyrax/releases/assets/645954037 -H 'Accept: application/octet-stream' > macos/build/seed.zip
+          gh api repos/AmyraxVPN-Main/Vyrax/releases/assets/649007591 -H 'Accept: application/octet-stream' > ui.zip
           python3 - <<'PY'
-          from pathlib import Path
-          import zipfile, hashlib
-          seed=Path('macos/build/seed.zip')
-          assert hashlib.file_digest(seed.open('rb'),'sha256').hexdigest()=='4a301a242aa0d4a8e843f6045dc5987ab560061fbef7a6688e7deac58526010a'
-          root=Path('macos/build/overlay').resolve()
-          with zipfile.ZipFile(seed) as source:
-              for member in source.infolist():
-                  assert (root/member.filename).resolve().is_relative_to(root)
-              source.extractall(root)
+          import hashlib,zipfile,pathlib
+          assert hashlib.sha256(pathlib.Path('ui.zip').read_bytes()).hexdigest()=='baa50ec03ef2ed62bfcbcc138c11fa3a0b945c9c3455a4bac3ad53786e67dafd'
+          with zipfile.ZipFile('ui.zip') as z:
+              root=pathlib.Path('presentation').resolve()
+              assert all((root/n).resolve().is_relative_to(root) for n in z.namelist())
+              z.extractall(root)
           PY
-      - name: Native build, sign and package both architecture components
-        if: inputs.reuse_run_id == ''
-        run: bash scripts/build-macos.sh '${{ matrix.arch }}'
-      - name: Retrieve unchanged native packages for additional checks
-        if: inputs.reuse_run_id != ''
-        uses: actions/download-artifact@v4
-        with:
-          name: Vyrax-0.1.34-macos-${{ matrix.arch }}-macfix1
-          path: release/macos-0.1.34/
-          run-id: ${{ inputs.reuse_run_id }}
-          github-token: ${{ github.token }}
-      - name: Restore and verify the signed native app
-        if: inputs.reuse_run_id != ''
-        run: |
           mkdir -p 'macos/build/${{ matrix.arch }}'
-          ditto -x -k 'release/macos-0.1.34/Vyrax-0.1.34-macos-${{ matrix.arch }}.zip' 'macos/build/${{ matrix.arch }}'
-          python3 scripts/verify-macos.py 'macos/build/${{ matrix.arch }}/Vyrax.app' '${{ matrix.arch }}'
-      - name: Use shipped modules for verification
-        run: |
-          app='macos/build/${{ matrix.arch }}/Vyrax.app/Contents/Resources/app'
-          ditto "$app/linux" linux
-          ditto "$app/macos" macos
-          ditto "$app/src/lib" src/lib
-      - name: Configuration and permission lifecycle checks
-        run: node --test linux/tests/config.test.mjs macos/tests/backend.test.mjs
-      - name: Disposable macOS Proxy, TUN and recovery integration
-        timeout-minutes: 5
-        run: node macos/tests/network.mjs '${{ matrix.arch }}'
-      - name: Firefox TLS, delay, automatic selection and TUN transport
-        timeout-minutes: 5
-        run: node macos/tests/firefox-network.mjs '${{ matrix.arch }}'
-      - name: Install isolated UI test dependency
+          ditto -x -k 'base/Vyrax-0.1.34-macos-${{ matrix.arch }}.zip' 'macos/build/${{ matrix.arch }}'
+      - name: Overlay, verify unchanged native files, sign and package
+        run: python3 scripts/package-ui-macos.py 'macos/build/${{ matrix.arch }}/Vyrax.app' presentation 'release/macos-0.1.35/${{ matrix.arch }}' '${{ matrix.arch }}'
+      - name: Prepare isolated UI test dependency
         run: npm install --prefix macos/build/test-tools --no-audit --no-fund playwright-core@1.64.0
-      - name: Sandboxed supplied desktop UI
-        timeout-minutes: 3
-        run: node macos/tests/desktop.mjs '${{ matrix.arch }}'
-      - name: Upload installers, exact core source and verification reports
+      - name: Native sandbox, clipboard, subscription and RTL verification
+        env:
+          VYRAX_PLAYWRIGHT_MODULE: ${{ github.workspace }}/macos/build/test-tools/node_modules/playwright-core/index.mjs
+        run: node scripts/test-packaged-desktop.mjs 'macos/build/${{ matrix.arch }}/Vyrax.app/Contents/MacOS/Vyrax' 'release/macos-0.1.35/${{ matrix.arch }}/verification'
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: Vyrax-0.1.34-macos-${{ matrix.arch }}-macfix1
-          path: release/macos-0.1.34/
-          if-no-files-found: error
+          name: Vyrax-0.1.35-macos-${{ matrix.arch }}
+          path: release/macos-0.1.35/
           retention-days: 14
           compression-level: 0
+          if-no-files-found: error
