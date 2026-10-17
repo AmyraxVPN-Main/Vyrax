@@ -2,7 +2,7 @@ name: macOS shared UI 0.1.35 packaging
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   actions: read
 jobs:
   package:
