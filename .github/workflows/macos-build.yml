@@ -25,13 +25,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # macos-26 is the current Intel-hosted image (macOS 26 SDK + Xcode 26).
-          # macos-15-intel ships Xcode 16.4, whose macOS 15.5 SDK lacks
-          # NWPath.isUltraConstrained, which breaks compiling connectivity_plus.
+          # macos-26 resolves to Apple-Silicon hardware in practice (verified:
+          # the produced app and the Go toolchain were arm64), even though the
+          # image readme advertises Intel tooling.
+          # macos-15-intel still schedules real x86_64 machines (Xcode 16.4),
+          # which is what the amd64 artifact needs. Its macOS 15.5 SDK lacks
+          # NWPath.isUltraConstrained, so connectivity_plus gets a tiny
+          # compile-time shim step below.
           - arch: amd64
-            runner: macos-26
+            runner: macos-15-intel
           - arch: arm64
-            runner: macos-26-arm64
+            runner: macos-latest
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     steps:
@@ -96,6 +100,33 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Shim connectivity_plus for the macOS 15 SDK
+        if: matrix.arch == 'amd64'
+        run: |
+          set -euxo pipefail
+          # connectivity_plus 7.2.0 reads NWPath.isUltraConstrained, a symbol
+          # that only exists in Apple's macOS 26 SDK. The Intel runner compiles
+          # with the macOS 15.5 SDK (Xcode 16.4), so the compiler fails on the
+          # symbol itself before any #available branch could guard it. Swap in
+          # a compile-safe shim: everything else in connectivity_plus behaves
+          # identically, only macOS 26 satellite detection is dropped.
+          file="$(echo "$HOME"/.pub-cache/hosted/pub.dev/connectivity_plus-*)/"
+          file="${file%/}"
+          file="$file/macos/connectivity_plus/Sources/connectivity_plus/PathMonitorConnectivityProvider.swift"
+          test -f "$file"
+          if ! grep -q ultraConstrainedCompat "$file"; then
+            perl -pi -e 's/, path\.isUltraConstrained \{/, ultraConstrainedCompat(path) \{/' "$file"
+            grep -q 'ultraConstrainedCompat(path)' "$file"
+            cat >> "$file" <<'EOF'
+
+          private func ultraConstrainedCompat(_ path: NWPath) -> Bool {
+            // NWPath.isUltraConstrained requires the macOS 26 SDK, which this
+            // runner's Xcode does not carry; report false (never satellite).
+            return false
+          }
+          EOF
+          fi
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
@@ -113,6 +144,18 @@ jobs:
           test -n "$app_path"
           ditto -c -k --sequesterRsrc --keepParent "$app_path" \
             "dist/Vyrax-0.2.0-macos-${{ matrix.arch }}.zip"
+
+      - name: Normalize DMG name to the requested architecture
+        run: |
+          set -euxo pipefail
+          # The DMG name comes from the arch detected on the runner; force it to
+          # the intended machine architecture so the artifact names stay stable.
+          dmg_path="$(find dist -maxdepth 1 -name '*.dmg' | head -n 1)"
+          test -n "$dmg_path"
+          expected="dist/Vyrax-0.2.0-macos-${{ matrix.arch }}.dmg"
+          if [ "$dmg_path" != "$expected" ]; then
+            mv "$dmg_path" "$expected"
+          fi
 
       - name: Verify bundle and DMG
         run: |
