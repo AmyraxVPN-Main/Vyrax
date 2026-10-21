@@ -1,0 +1,226 @@
+name: macos-build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - flclash-0.2.0
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.6'
+  GO_VERSION: '1.27.2'
+  RUST_VERSION: '1.99.0'
+
+jobs:
+  build:
+    name: macOS ${{ matrix.arch }} DMG
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: macos-15-intel
+          - arch: arm64
+            runner: macos-latest
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    steps:
+      - name: Record runner environment
+        run: |
+          {
+            date -u
+            uname -a
+            uname -m
+            sw_vers
+            sysctl -n machdep.cpu.brand_string || true
+            xcodebuild -version || true
+            ls -d /Applications/Xcode*.app || true
+            node --version || true
+          } | tee runner-env.txt
+
+      # core/Clash.Meta is vendored in this branch with the Vyrax patches; no
+      # submodules are fetched, so the runner builds exactly this source.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: core/go.sum
+
+      - name: Setup Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "$RUST_VERSION" --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: macos-${{ matrix.arch }}
+          workspaces: |
+            services/helper
+            plugins/rust_api/rust
+          cache-directories: .dart_tool/hooks_runner
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Put pub cache bin on PATH (flutter_distributor)
+        run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Record toolchain
+        run: |
+          {
+            xcodebuild -version
+            flutter --version
+            go version
+            rustc --version
+            cargo --version
+          } | tee -a runner-env.txt
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Disable Impeller on Intel macOS
+        if: matrix.arch == 'amd64'
+        run: plutil -replace FLTEnableImpeller -bool NO macos/Runner/Info.plist
+
+      - name: Build release DMG
+        run: dart setup.dart macos --env stable -v
+
+      - name: Create app ZIP
+        run: |
+          set -euxo pipefail
+          app_path="$(find build/macos -type d -name '*.app' | head -n 1)"
+          test -n "$app_path"
+          ditto -c -k --sequesterRsrc --keepParent "$app_path" \
+            "dist/Vyrax-0.2.0-macos-${{ matrix.arch }}.zip"
+
+      - name: Verify bundle and DMG
+        run: |
+          set -euxo pipefail
+          app_path="$(find build/macos -type d -name '*.app' | head -n 1)"
+          dmg_path="$(find dist -maxdepth 1 -name '*.dmg' | head -n 1)"
+          test -n "$app_path"
+          test -n "$dmg_path"
+          {
+            echo "=== Info.plist ($app_path) ==="
+            plutil -p "$app_path/Contents/Info.plist"
+            echo
+            echo "=== Bundle file tree ==="
+            find "$app_path" -type f | sort
+            echo
+            echo "=== Mach-O type and architectures ==="
+            while IFS= read -r f; do
+              file "$f" || true
+              lipo -info "$f" 2>/dev/null || true
+            done < <(find "$app_path/Contents" \( -name '*.dylib' -o -name '*.so' \) -type f; \
+                     find "$app_path/Contents/MacOS" -type f -perm -111)
+            echo
+            echo "=== otool -L ==="
+            while IFS= read -r f; do
+              echo "--- $f"
+              otool -L "$f" || true
+            done < <(find "$app_path/Contents" \( -name '*.dylib' -o -name '*.so' \) -type f; \
+                     find "$app_path/Contents/MacOS" -type f -perm -111)
+            echo
+            echo "=== Dependency path scan (LC_RPATH, absolute load commands) ==="
+            while IFS= read -r f; do
+              otool -l "$f" | grep -B1 -A2 'cmd /LC_RPATH\|cmd /LC_LOAD_DYLIB' \
+                | grep -E 'path /Users/|path /private/|path /home/|path /Volumes/' && \
+                echo "!! absolute personal path in $f" || true
+            done < <(find "$app_path/Contents" \( -name '*.dylib' -o -name '*.so' \) -type f; \
+                     find "$app_path/Contents/MacOS" -type f -perm -111)
+            echo
+            echo "=== codesign ==="
+            codesign -dv --verbose=4 "$app_path" 2>&1 || true
+            codesign --verify --deep --strict --verbose=4 "$app_path" 2>&1
+            echo
+            echo "=== spctl (ad-hoc build, not notarized; rejection is expected) ==="
+            spctl -a -t exec -vvv "$app_path" 2>&1 || true
+            echo
+            echo "=== hdiutil verify ==="
+            hdiutil verify "$dmg_path"
+            echo
+            echo "=== DMG mount inspection ==="
+            mnt="/tmp/vyrax-dmg-mount"
+            rm -rf "$mnt"
+            mkdir -p "$mnt"
+            hdiutil attach -readonly -nobrowse -mountpoint "$mnt" "$dmg_path"
+            ls -la "$mnt"
+            test -d "$mnt/Vyrax.app"
+            test -L "$mnt/Applications"
+            readlink "$mnt/Applications"
+            file "$mnt/Vyrax.app/Contents/MacOS/"*
+            lipo -info "$mnt/Vyrax.app/Contents/MacOS/"*
+            otool -L "$mnt/Vyrax.app/Contents/MacOS/"*
+            hdiutil detach "$mnt" -force || true
+          } 2>&1 | tee verify-macos.txt
+
+      - name: Launch smoke test
+        timeout-minutes: 3
+        run: |
+          set -u
+          app_path="$(find build/macos -type d -name '*.app' | head -n 1)"
+          exe="$(find "$app_path/Contents/MacOS" -type f -perm -111 | head -n 1)"
+          test -n "$exe"
+          "$exe" > launch-smoke.txt 2>&1 &
+          pid=$!
+          sleep 20
+          if kill -0 "$pid" 2>/dev/null; then
+            echo "LAUNCH SMOKE: process $pid still alive after 20s" >> launch-smoke.txt
+            kill "$pid" 2>/dev/null || true
+          else
+            echo "LAUNCH SMOKE: process exited before 20s" >> launch-smoke.txt
+          fi
+          sleep 2
+          kill -9 "$pid" 2>/dev/null || true
+          {
+            echo "--- process output ---"
+            cat launch-smoke.txt
+            echo "--- recent DiagnosticReports ---"
+            ls -t ~/Library/Logs/DiagnosticReports 2>/dev/null | head -5 || true
+            for f in ~/Library/Logs/DiagnosticReports/Vyrax*; do
+              if [ -f "$f" ]; then
+                echo "--- $f ---"
+                sed -n '1,60p' "$f"
+              fi
+            done
+          } | tee launch-smoke.txt.tmp
+          mv launch-smoke.txt.tmp launch-smoke.txt
+          exit 0
+
+      - name: Compute SHA256
+        run: |
+          shopt -s nullglob
+          cd dist
+          shasum -a 256 * | tee ../SHA256SUMS-macos.txt
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vyrax-0.2.0-macos-${{ matrix.arch }}
+          path: |
+            dist
+            SHA256SUMS-macos.txt
+            verify-macos.txt
+            runner-env.txt
+            launch-smoke.txt
+          retention-days: 14
+          if-no-files-found: error

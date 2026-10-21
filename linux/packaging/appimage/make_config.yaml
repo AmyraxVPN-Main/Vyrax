@@ -1,0 +1,26 @@
+display_name: Vyrax
+
+icon: ./assets/images/icon.png
+
+supported_mime_type:
+  - x-scheme-handler/clash
+  - x-scheme-handler/clashmeta
+  - x-scheme-handler/flclash
+  - x-scheme-handler/vyrax
+
+keywords:
+  - Vyrax
+  - Clash
+  - ClashMeta
+  - Proxy
+
+generic_name: Vyrax
+
+categories:
+  - Network
+
+startup_notify: true
+
+startup_wm_class: com.amyrax.vyrax
+
+include: []

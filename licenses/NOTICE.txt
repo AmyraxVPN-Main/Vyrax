@@ -1,0 +1,16 @@
+Vyrax feature adaptations
+
+Copyright (c) 2026 Amyrax.
+Reference source: Vyrax 0.1.35, https://github.com/AmyraxVPN-Main/Vyrax
+
+The named theme palettes, account workflow and selected interface translations
+in this port are adapted from the user-provided Vyrax source. Vyrax 0.1.35 is
+distributed under GPL-3.0-only. The port is distributed with FLClash under GPLv3;
+see the project's LICENSE. Vyrax's original MIT grant is retained separately in
+Vyrax-original-MIT.txt and does not replace the later distribution's GPL terms.
+
+Firefox Accounts / Guardian protocol work is adapted from FoxyVPN, copyright
+(c) 2026 Vauth, under the MIT license in FoxyVPN-MIT.txt.
+
+Mozilla, Firefox and Fastly names identify their respective third-party
+services. This port is not an endorsement, partnership or service guarantee.

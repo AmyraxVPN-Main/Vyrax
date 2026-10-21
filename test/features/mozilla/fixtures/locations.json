@@ -1,0 +1,599 @@
+{
+  "data": [
+    {
+      "name": "South Africa",
+      "code": "ZA",
+      "locked": false,
+      "cities": [
+        {
+          "name": "South Africa",
+          "code": "FAOR",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "faor73.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Peru",
+      "code": "PE",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Peru",
+          "code": "SPJC",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "spjc128.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brazil",
+      "code": "BR",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Brazil",
+          "code": "SBSP",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "sbsp209.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Korea",
+      "code": "KR",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Korea",
+          "code": "ICN",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "icn145.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ghana",
+      "code": "GH",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Ghana",
+          "code": "ACC",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "acc96.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Argentina",
+      "code": "AR",
+      "locked": false,
+      "cities": [
+        {
+          "name": "Argentina",
+          "code": "EZE",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "eze223.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Philippines",
+      "code": "PH",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Philippines",
+          "code": "MNL",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "mnl215.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "United Kingdom",
+      "code": "GB",
+      "locked": true,
+      "cities": [
+        {
+          "name": "United Kingdom",
+          "code": "EGLC",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "eglc860.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "France",
+      "code": "FR",
+      "locked": true,
+      "cities": [
+        {
+          "name": "France",
+          "code": "LFPB",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "lfpb115.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Canada",
+      "code": "CA",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Canada",
+          "code": "CA",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "ca.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Singapore",
+      "code": "SG",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Singapore",
+          "code": "WSAT",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "wsat188.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sweden",
+      "code": "SE",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Sweden",
+          "code": "ESSB",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "essb127.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Finland",
+      "code": "FI",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Finland",
+          "code": "HEL",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "hel141.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "New Zealand",
+      "code": "NZ",
+      "locked": true,
+      "cities": [
+        {
+          "name": "New Zealand",
+          "code": "AKL",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "akl103.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Denmark",
+      "code": "DK",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Denmark",
+          "code": "CPH",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "cph232.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chile",
+      "code": "CL",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Chile",
+          "code": "SCL",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "scl222.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Norway",
+      "code": "NO",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Norway",
+          "code": "OSL",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "osl65.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Netherlands",
+      "code": "NL",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Netherlands",
+          "code": "EHRD",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "ehrd229.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Belgium",
+      "code": "BE",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Belgium",
+          "code": "BRU",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "bru148.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Malaysia",
+      "code": "MY",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Malaysia",
+          "code": "KUL",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "kul98.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Spain",
+      "code": "ES",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Spain",
+          "code": "LETO",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "leto235.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Austria",
+      "code": "AT",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Austria",
+          "code": "VIE",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "vie63.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Australia",
+      "code": "AU",
+      "locked": false,
+      "cities": [
+        {
+          "name": "Australia",
+          "code": "YSBK",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "ysbk106.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Portugal",
+      "code": "PT",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Portugal",
+          "code": "LIS",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "lis149.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Japan",
+      "code": "JP",
+      "locked": false,
+      "cities": [
+        {
+          "name": "Japan",
+          "code": "RJTF",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "rjtf770.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mexico",
+      "code": "MX",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Mexico",
+          "code": "MMQT",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "mmqt107.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Colombia",
+      "code": "CO",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Colombia",
+          "code": "SKBO",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "skbo234.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Italy",
+      "code": "IT",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Italy",
+          "code": "MXP",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "mxp69.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ireland",
+      "code": "IE",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Ireland",
+          "code": "DUB",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "dub43.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Germany",
+      "code": "DE",
+      "locked": false,
+      "cities": [
+        {
+          "name": "Germany",
+          "code": "MUC",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "muc139.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "United States",
+      "code": "US",
+      "locked": false,
+      "cities": [
+        {
+          "name": "United States",
+          "code": "US",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "us.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Thailand",
+      "code": "TH",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Thailand",
+          "code": "BKK",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "bkk228.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bulgaria",
+      "code": "BG",
+      "locked": true,
+      "cities": [
+        {
+          "name": "Bulgaria",
+          "code": "SOF",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "sof151.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Recomended Location",
+      "code": "REC",
+      "locked": false,
+      "cities": [
+        {
+          "name": "Recomended City",
+          "code": "REC",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "p.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CatchAll Anycast",
+      "code": "US",
+      "locked": false,
+      "cities": [
+        {
+          "name": "USA",
+          "code": "Q30",
+          "servers": [
+            {
+              "port": 2499,
+              "hostname": "p.m1.fastly-masque.net"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
