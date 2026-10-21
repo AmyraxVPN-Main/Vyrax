@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/providers/proxy_favorites.dart';
+import 'package:fl_clash/features/mozilla/flags.dart';
 import 'package:fl_clash/features/mozilla/view.dart';
 import 'package:fl_clash/views/proxies/list.dart';
 import 'package:fl_clash/views/proxies/providers.dart';
@@ -103,6 +106,8 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   @override
   void initState() {
     super.initState();
+    unawaited(mozillaFlags.load());
+    unawaited(mozillaFlags.syncFromNetwork());
     ref.listenManual(providersProvider.select((state) => state.isNotEmpty), (
       prev,
       next,

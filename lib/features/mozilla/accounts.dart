@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import 'api.dart';
 import 'catalog.dart';
+import 'flags.dart';
 
 abstract interface class MozillaVault {
   Future<String?> read();
@@ -163,7 +164,7 @@ class MozillaAccounts extends ChangeNotifier {
   Future<String> _access() async {
     final account = _account;
     if (account['accessToken'] is String &&
-        (account['expiresAt'] as num? ?? 0) > _now + 60) {
+        (mozillaJsonNum(account['expiresAt']) ?? 0) > _now + 60) {
       return account['accessToken'] as String;
     }
     final response = await api.request(
@@ -208,15 +209,18 @@ class MozillaAccounts extends ChangeNotifier {
     final previous = quota;
     final values = <String, dynamic>{};
     for (final key in ['limit', 'remaining', 'reset']) {
-      final value = response.headers['x-quota-$key'];
-      values[key] = value != null && RegExp(r'^\d+$').hasMatch(value)
-          ? int.tryParse(value)
-          : null;
+      values[key] = mozillaJsonNum(response.headers['x-quota-$key']);
     }
-    values['limit'] ??= data?['maxBytes'] ?? previous['limit'];
+    values['limit'] ??=
+        mozillaJsonNum(data?['maxBytes']) ?? previous['limit'];
     _account['quota'] = values;
-    if (data?['subscribed'] is bool) {
-      _account['activated'] = data!['subscribed'];
+    if (data != null &&
+        ((data['subscribed'] is bool) ||
+            (data['limited_bandwidth'] is bool))) {
+      // FoxyVPN parity: free-tier accounts work with limited_bandwidth, the
+      // `subscribed` flag only marks paid subscriptions.
+      _account['activated'] =
+          data['subscribed'] == true || data['limited_bandwidth'] == true;
     }
   }
 
@@ -224,13 +228,15 @@ class MozillaAccounts extends ChangeNotifier {
     var response = await _authorized(activate ? 'activate' : 'status');
     var data = response.json();
     _quota(response, data);
-    if (activate && data['subscribed'] != true) {
+    if (activate && !activated) {
       response = await _authorized('status');
       data = response.json();
       _quota(response, data);
-    }
-    if (activate && !activated) {
-      throw const MozillaException(MozillaError.notActivated);
+      if (!activated) {
+        // FoxyVPN parity: activation must show an entitlement (paid
+        // subscription or free limited_bandwidth tier).
+        throw const MozillaException(MozillaError.notActivated);
+      }
     }
     if (activated) {
       response = await _authorized('token');
@@ -255,7 +261,7 @@ class MozillaAccounts extends ChangeNotifier {
         RegExp(r'[\s\x00-\x1f\x7f]').hasMatch(token)) {
       throw const MozillaException(MozillaError.auth);
     }
-    _passExpiry = (data['expires_at'] as num?)?.toInt() ?? 0;
+    _passExpiry = mozillaJsonNum(data['expires_at']) ?? 0;
     if (_passExpiry == 0) {
       try {
         _passExpiry =
@@ -289,8 +295,15 @@ class MozillaAccounts extends ChangeNotifier {
     return _pass;
   });
 
-  Future<List<Map<String, dynamic>>> servers() async =>
-      parseMozillaServers((await api.request('servers')).json());
+  Future<List<Map<String, dynamic>>> servers() async {
+    final countryCodes = <String, String>{};
+    final proxies = parseMozillaServers(
+      (await api.request('servers')).json(),
+      countryCodes: countryCodes,
+    );
+    await mozillaFlags.update(countryCodes);
+    return proxies;
+  }
 
   Future<void> switchAccount(String email) => _run(() async {
     if (!emails.contains(email)) {

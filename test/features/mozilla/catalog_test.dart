@@ -76,8 +76,26 @@ void main() {
               ).readAsStringSync(),
             )
             as Map<String, dynamic>;
-    final proxies = parseMozillaServers(raw);
+    final countryCodes = <String, String>{};
+    final proxies = parseMozillaServers(raw, countryCodes: countryCodes);
     expect(proxies.length, greaterThan(20));
     expect(proxies.every((p) => isMozillaEdge(p['server'])), isTrue);
+    expect(countryCodes, isNotEmpty);
+    expect(
+      countryCodes.values.every(
+        (code) => RegExp(r'^(?:[A-Z]{2}|REC)$').hasMatch(code),
+      ),
+      isTrue,
+    );
+  });
+  test('country codes map every edge host to its ISO country', () {
+    final countryCodes = <String, String>{};
+    parseMozillaServers(
+      catalog([
+        {'hostname': 'de.example.fastly-masque.net', 'port': 443},
+      ]),
+      countryCodes: countryCodes,
+    );
+    expect(countryCodes, {'de.example.fastly-masque.net': 'DE'});
   });
 }

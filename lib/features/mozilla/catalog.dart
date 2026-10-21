@@ -8,7 +8,10 @@ final _edge = RegExp(
 bool isMozillaEdge(Object? host) =>
     host is String && host.length <= 253 && _edge.hasMatch(host);
 
-List<Map<String, dynamic>> parseMozillaServers(Map<String, dynamic> raw) {
+List<Map<String, dynamic>> parseMozillaServers(
+  Map<String, dynamic> raw, {
+  Map<String, String>? countryCodes,
+}) {
   final records = raw['data'];
   if (records is! List) throw const MozillaException(MozillaError.service);
   final result = <String, Map<String, dynamic>>{};
@@ -16,12 +19,13 @@ List<Map<String, dynamic>> parseMozillaServers(Map<String, dynamic> raw) {
     final country = record['country'] is Map
         ? record['country'] as Map
         : record;
-    final code = country['code'];
-    if (code is! String ||
-        code.trim().isEmpty ||
+    final Object? rawCode = country['code'];
+    if (rawCode is! String ||
+        rawCode.trim().isEmpty ||
         country['name'] == 'CatchAll Anycast') {
       continue;
     }
+    final code = rawCode;
     final cities = country['cities'];
     if (cities is! List) continue;
     for (final city in cities.whereType<Map>()) {
@@ -44,7 +48,11 @@ List<Map<String, dynamic>> parseMozillaServers(Map<String, dynamic> raw) {
             ?.toString()
             .toLowerCase();
         final port = protocol?['port'] ?? server['port'];
-        if (!isMozillaEdge(host) || port is! int || port < 1 || port > 65535) {
+        final edgeHost = host ?? '';
+        if (!isMozillaEdge(edgeHost) ||
+            port is! int ||
+            port < 1 ||
+            port > 65535) {
           continue;
         }
         final countryName = (country['name'] ?? code).toString();
@@ -68,6 +76,9 @@ List<Map<String, dynamic>> parseMozillaServers(Map<String, dynamic> raw) {
           'skip-cert-verify': false,
           'x-flclash-mozilla': true,
         };
+        if (countryCodes != null) {
+          countryCodes[edgeHost] = code;
+        }
         if (result.length > 256) {
           throw const MozillaException(MozillaError.service);
         }

@@ -30,6 +30,11 @@ void main() {
   var stopped = 0;
   var tokenRequests = 0;
   var statusActivated = false;
+  String? freeTierStub;
+  Map<String, String> tokenHeaders = {
+    'x-quota-limit': '50000',
+    'x-quota-remaining': '42000',
+  };
   var verified = true;
   String? tokenBody;
   setUp(() {
@@ -37,6 +42,8 @@ void main() {
     stopped = 0;
     tokenRequests = 0;
     statusActivated = false;
+    freeTierStub = null;
+    tokenHeaders = {'x-quota-limit': '50000', 'x-quota-remaining': '42000'};
     verified = true;
     tokenBody = null;
     accounts = MozillaAccounts(
@@ -56,17 +63,21 @@ void main() {
               200,
               '{"access_token":"access","refresh_token":"refresh","expires_in":3600}',
             ),
-            'activate' => const MozillaResponse(204, ''),
+            'activate' => MozillaResponse(
+              200,
+              freeTierStub ?? jsonEncode({'subscribed': statusActivated}),
+            ),
             'status' => MozillaResponse(
               200,
-              jsonEncode({'subscribed': statusActivated, 'maxBytes': 50000}),
+              freeTierStub ??
+                  jsonEncode({'subscribed': statusActivated, 'maxBytes': 50000}),
             ),
-            'token' => (() {
+             'token' => (() {
               tokenRequests++;
               return MozillaResponse(
                 200,
                 tokenBody ?? '{"token":"runtime-pass"}',
-                {'x-quota-limit': '50000', 'x-quota-remaining': '42000'},
+                tokenHeaders,
               );
             })(),
             _ => throw StateError('unexpected endpoint $endpoint'),
@@ -182,6 +193,24 @@ void main() {
       ),
     );
     expect(accounts.activated, isFalse);
+  });
+  test('free tier works with limited_bandwidth and string quotas', () async {
+    await accounts.signIn('tester@example.com', 'sample-password');
+    await expectLater(
+      accounts.refresh(activate: true),
+      throwsA(isA<MozillaException>()),
+    );
+    statusActivated = false;
+    freeTierStub = jsonEncode({
+      'subscribed': false,
+      'limited_bandwidth': true,
+      'maxBytes': '53687091200',
+    });
+    tokenHeaders = {};
+    await accounts.refresh(activate: true);
+    expect(accounts.activated, isTrue);
+    expect(accounts.quota['limit'], 53687091200);
+    expect(await accounts.proxyPass(), 'runtime-pass');
   });
   test('concurrent pass requests share cached credentials', () async {
     await accounts.signIn('tester@example.com', 'sample-password');
