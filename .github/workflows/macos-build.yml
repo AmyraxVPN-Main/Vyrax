@@ -25,10 +25,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # macos-26 is the current Intel-hosted image (macOS 26 SDK + Xcode 26).
+          # macos-15-intel ships Xcode 16.4, whose macOS 15.5 SDK lacks
+          # NWPath.isUltraConstrained, which breaks compiling connectivity_plus.
           - arch: amd64
-            runner: macos-15-intel
+            runner: macos-26
           - arch: arm64
-            runner: macos-latest
+            runner: macos-26-arm64
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     steps:
