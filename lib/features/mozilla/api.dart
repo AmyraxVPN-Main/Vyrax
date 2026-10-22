@@ -625,8 +625,9 @@ class FastlyChallengeSolver {
       'pow' => () {
         final baseText = data['base']?.toString() ?? '';
         final answer = _solvePoW(baseText, data['hash']?.toString() ?? '');
-        if (answer == null)
+        if (answer == null) {
           throw const MozillaException(MozillaError.challenge);
+        }
         return <String, dynamic>{
           'ty': 'pow',
           'base': baseText,
