@@ -157,12 +157,7 @@ class MozillaFlagBadge extends StatelessWidget {
 
   const MozillaFlagBadge(this.proxyName, {super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final flag = mozillaFlags.flagForName(proxyName);
-    if (flag == null) {
-      return const SizedBox.shrink();
-    }
+  Widget _emojiFlag(String flag) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 6),
       child: Text(
@@ -171,6 +166,44 @@ class MozillaFlagBadge extends StatelessWidget {
           fontFamily: FontFamily.twEmoji.value,
           fontSize: 14,
           height: 1.2,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final code = mozillaFlags.codeForName(proxyName);
+    if (code == null) {
+      return const SizedBox.shrink();
+    }
+    if (code.toUpperCase() == 'REC') {
+      return _emojiFlag('🌐');
+    }
+    if (code.toUpperCase() == 'IR') {
+      return _tricolorFlag();
+    }
+    return _emojiFlag(code.countryFlagEmoji);
+  }
+
+  Widget _tricolorFlag() {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(color: const Color(0x33000000)),
+        ),
+        child: const SizedBox(
+          width: 19,
+          height: 14,
+          child: Column(
+            children: [
+              Expanded(child: ColoredBox(color: Color(0xFF239F40))),
+              Expanded(child: ColoredBox(color: Color(0xFFFFFFFF))),
+              Expanded(child: ColoredBox(color: Color(0xFFDA0000))),
+            ],
+          ),
         ),
       ),
     );

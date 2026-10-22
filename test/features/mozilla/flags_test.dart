@@ -75,6 +75,24 @@ void main() {
     expect(find.text('🌐', findRichText: true), findsOneWidget);
   });
 
+  testWidgets('Iran renders as a plain green-white-red tricolor', (
+    tester,
+  ) async {
+    await mozillaFlags.update({'irn301.m1.fastly-masque.net': 'IR'});
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MozillaFlagBadge(
+          'Iran · Tehran · irn301.m1.fastly-masque.net:2499',
+        ),
+      ),
+    );
+    final boxes = tester.widgetList<ColoredBox>(
+      find.byType(ColoredBox),
+    ).map((box) => box.color).toSet();
+    expect(boxes, containsAll(const [Color(0xFF239F40), Color(0xFFDA0000)]));
+    expect(find.textContaining('🇮', findRichText: true), findsNothing);
+  });
+
   testWidgets('badge collapses for names without a location', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: MozillaFlagBadge('bogus')));
     expect(find.text('🇧🇷', findRichText: true), findsNothing);
