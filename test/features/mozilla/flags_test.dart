@@ -69,18 +69,14 @@ void main() {
     expect(find.text('🇧🇷', findRichText: true), findsOneWidget);
     await tester.pumpWidget(
       const MaterialApp(
-        home: MozillaFlagBadge(
-          'Recommended · edge.m1.fastly-masque.net:2499',
-        ),
+        home: MozillaFlagBadge('Recommended · edge.m1.fastly-masque.net:2499'),
       ),
     );
     expect(find.text('🌐', findRichText: true), findsOneWidget);
   });
 
   testWidgets('badge collapses for names without a location', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: MozillaFlagBadge('bogus')),
-    );
+    await tester.pumpWidget(const MaterialApp(home: MozillaFlagBadge('bogus')));
     expect(find.text('🇧🇷', findRichText: true), findsNothing);
   });
 }

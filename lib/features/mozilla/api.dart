@@ -67,8 +67,7 @@ class MozillaResponse {
   }
 }
 
-typedef _RawExchange =
-    ({int status, String body, Map<String, String> headers});
+typedef _RawExchange = ({int status, String body, Map<String, String> headers});
 
 typedef MozillaRequest =
     Future<MozillaResponse> Function(
@@ -524,17 +523,16 @@ class FastlyChallengeSolver {
     String accept = _htmlAccept,
     String? origin,
     MozillaCookieJar? jar,
-  }) async =>
-      MozillaApi._exchange(
-        Uri.parse(url),
-        method,
-        body: body,
-        proxy: proxy,
-        userAgent: _solverUserAgent,
-        accept: accept,
-        cookies: jar,
-        origin: origin,
-      );
+  }) async => MozillaApi._exchange(
+    Uri.parse(url),
+    method,
+    body: body,
+    proxy: proxy,
+    userAgent: _solverUserAgent,
+    accept: accept,
+    cookies: jar,
+    origin: origin,
+  );
 
   bool _isChallenge(String body) =>
       body.contains('/_fs-ch-') && body.contains('Client Challenge');
@@ -593,7 +591,11 @@ class FastlyChallengeSolver {
           throw const MozillaException(MozillaError.challenge);
         }
         for (final cookie in issued) {
-          MozillaCookieJar.app.install(cookie.name, cookie.value, 'firefox.com');
+          MozillaCookieJar.app.install(
+            cookie.name,
+            cookie.value,
+            'firefox.com',
+          );
         }
         return;
       }
@@ -623,7 +625,8 @@ class FastlyChallengeSolver {
       'pow' => () {
         final baseText = data['base']?.toString() ?? '';
         final answer = _solvePoW(baseText, data['hash']?.toString() ?? '');
-        if (answer == null) throw const MozillaException(MozillaError.challenge);
+        if (answer == null)
+          throw const MozillaException(MozillaError.challenge);
         return <String, dynamic>{
           'ty': 'pow',
           'base': baseText,
@@ -632,7 +635,10 @@ class FastlyChallengeSolver {
           'expires': data['expires']?.toString() ?? '',
         };
       }(),
-      'pat' => <String, dynamic>{'ty': 'pat', 'auth': await _pat(prefix, token)},
+      'pat' => <String, dynamic>{
+        'ty': 'pat',
+        'auth': await _pat(prefix, token),
+      },
       'clientmetrics' => _clientMetricsAnswer(),
       _ => throw const MozillaException(MozillaError.challenge),
     };

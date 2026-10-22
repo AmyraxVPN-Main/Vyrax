@@ -44,9 +44,9 @@ Map<String, String> _bindgenEnvironment(BuildInput input) {
     Architecture.arm => 'armv7-linux-androideabi',
     Architecture.x64 => 'x86_64-linux-android',
     _ => throw StateError(
-        'Unsupported Android architecture: '
-        '${input.config.code.targetArchitecture}',
-      ),
+      'Unsupported Android architecture: '
+      '${input.config.code.targetArchitecture}',
+    ),
   };
   final sysrootTriple = switch (targetTriple) {
     'armv7-linux-androideabi' => 'arm-linux-androideabi',
@@ -76,8 +76,7 @@ Directory _libclangDirectory(Uri compiler) {
     final override = Platform.environment[name];
     if (override != null && override.isNotEmpty) {
       final directory = Directory(override);
-      if (directory.existsSync() &&
-          directory.listSync().any(_isLibclang)) {
+      if (directory.existsSync() && directory.listSync().any(_isLibclang)) {
         return directory;
       }
     }
@@ -128,9 +127,7 @@ bool _hasBuiltinHeaders(Directory resourceDir) {
     '${resourceDir.path}${Platform.pathSeparator}include',
   );
   return include.existsSync() &&
-      File(
-        '${include.path}${Platform.pathSeparator}stdarg.h',
-      ).existsSync();
+      File('${include.path}${Platform.pathSeparator}stdarg.h').existsSync();
 }
 
 bool _isLibclang(FileSystemEntity entity) {

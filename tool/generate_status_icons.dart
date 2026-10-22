@@ -103,10 +103,9 @@ Future<void> _writeIco(
 }
 
 Future<String?> _findExecutable(String executable) async {
-  final result = await Process.run(
-    Platform.isWindows ? 'where.exe' : 'which',
-    [executable],
-  );
+  final result = await Process.run(Platform.isWindows ? 'where.exe' : 'which', [
+    executable,
+  ]);
   if (result.exitCode != 0) {
     return null;
   }

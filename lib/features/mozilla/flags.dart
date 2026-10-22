@@ -32,9 +32,7 @@ class MozillaFlags {
   static const fileName = 'mozilla-countries.json';
 
   static Future<String?> _defaultRead() async {
-    final file = File(
-      join(await appPath.homeDirPath, fileName),
-    );
+    final file = File(join(await appPath.homeDirPath, fileName));
     if (await file.exists()) {
       return file.readAsString();
     }
@@ -114,10 +112,7 @@ class MozillaFlags {
       if (response.status != 200) {
         return;
       }
-      parseMozillaServers(
-        response.json(),
-        countryCodes: countryCodes,
-      );
+      parseMozillaServers(response.json(), countryCodes: countryCodes);
       await update(countryCodes);
     } catch (_) {
       // Flags stay name-only until the next successful sync.

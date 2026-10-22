@@ -70,9 +70,12 @@ void main() {
             'status' => MozillaResponse(
               200,
               freeTierStub ??
-                  jsonEncode({'subscribed': statusActivated, 'maxBytes': 50000}),
+                  jsonEncode({
+                    'subscribed': statusActivated,
+                    'maxBytes': 50000,
+                  }),
             ),
-             'token' => (() {
+            'token' => (() {
               tokenRequests++;
               return MozillaResponse(
                 200,

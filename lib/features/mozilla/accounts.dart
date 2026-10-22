@@ -211,12 +211,10 @@ class MozillaAccounts extends ChangeNotifier {
     for (final key in ['limit', 'remaining', 'reset']) {
       values[key] = mozillaJsonNum(response.headers['x-quota-$key']);
     }
-    values['limit'] ??=
-        mozillaJsonNum(data?['maxBytes']) ?? previous['limit'];
+    values['limit'] ??= mozillaJsonNum(data?['maxBytes']) ?? previous['limit'];
     _account['quota'] = values;
     if (data != null &&
-        ((data['subscribed'] is bool) ||
-            (data['limited_bandwidth'] is bool))) {
+        ((data['subscribed'] is bool) || (data['limited_bandwidth'] is bool))) {
       // FoxyVPN parity: free-tier accounts work with limited_bandwidth, the
       // `subscribed` flag only marks paid subscriptions.
       _account['activated'] =
