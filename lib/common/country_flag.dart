@@ -9,21 +9,22 @@ class CountryFlagEmoji extends StatelessWidget {
   const CountryFlagEmoji(this.code, {this.style, super.key});
 
   Widget _tricolor(double fontSize) {
-    return DecoratedBox(
+    return Container(
+      width: fontSize * 1.36,
+      height: fontSize,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(3),
         border: Border.all(color: const Color(0x33000000)),
       ),
-      child: SizedBox(
-        width: fontSize * 1.36,
-        height: fontSize,
-        child: const Column(
-          children: [
-            Expanded(child: ColoredBox(color: Color(0xFF239F40))),
-            Expanded(child: ColoredBox(color: Color(0xFFFFFFFF))),
-            Expanded(child: ColoredBox(color: Color(0xFFDA0000))),
-          ],
-        ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: ColoredBox(color: Color(0xFF239F40))),
+          Spacer(),
+          Expanded(child: ColoredBox(color: Color(0xFFDA0000))),
+        ],
       ),
     );
   }

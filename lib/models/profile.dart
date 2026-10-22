@@ -119,11 +119,26 @@ abstract class DisabledRule with _$DisabledRule {
       _DisabledRule;
 }
 
+/// Reserved ids for app-managed profiles: snowflake ids are at least
+/// `(timestamp ms) << 22`, so any id below `1 << 22` can never collide.
+const kSpoofSystemProfileId = 1;
+const kMozillaSystemProfileId = 2;
+
+const systemProfileIds = {kSpoofSystemProfileId, kMozillaSystemProfileId};
+
+extension ProfileSystemX on Profile {
+  bool get isSystemProfile => systemProfileIds.contains(id);
+}
 extension ProfilesExt on List<Profile> {
   Profile? getProfile(int? profileId) {
     final index = indexWhere((profile) => profile.id == profileId);
     return index == -1 ? null : this[index];
   }
+
+  List<Profile> pinSystemProfilesFirst() => [
+    ...where((profile) => profile.isSystemProfile),
+    ...where((profile) => !profile.isSystemProfile),
+  ];
 
   Profile optimizeLabel(Profile profile) {
     return profile.copyWith(

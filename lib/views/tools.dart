@@ -1,6 +1,7 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/mozilla/view.dart';
+import 'package:fl_clash/features/spoof/view.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
@@ -59,6 +60,12 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           title: Text(context.appLocalizations.mozillaTitle),
           subtitle: Text(context.appLocalizations.mozillaIntro),
           onTap: () => showMozillaDialog(context),
+        ),
+        ListItem(
+          leading: const GlyphIcon(AppGlyphs.vpn),
+          title: Text(context.appLocalizations.spoofTitle),
+          subtitle: Text(context.appLocalizations.spoofIntro),
+          onTap: () => showSpoofDialog(context),
         ),
         ListItem.open(
           leading: const GlyphIcon(AppGlyphs.star),

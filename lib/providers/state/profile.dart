@@ -4,7 +4,10 @@ part of '../state.dart';
 ProfilesState profilesState(Ref ref) {
   final currentProfileId = ref.watch(currentProfileIdProvider);
   final profiles = ref.watch(profilesProvider);
-  return ProfilesState(profiles: profiles, currentProfileId: currentProfileId);
+  return ProfilesState(
+    profiles: profiles.pinSystemProfilesFirst(),
+    currentProfileId: currentProfileId,
+  );
 }
 
 @riverpod

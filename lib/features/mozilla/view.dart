@@ -166,14 +166,16 @@ class _MozillaViewState extends ConsumerState<MozillaView> {
     final servers = await _accounts.servers();
     if (!mounted) return;
     final label = context.appLocalizations.mozillaProfile;
-    final store = await preferences.sharedPreferencesCompleter.future;
-    if (store == null) throw const MozillaException(MozillaError.storage);
-    final existingId = store.getInt('mozilla-profile-id');
     final existing = ref
         .read(profilesProvider)
-        .where((p) => p.id == existingId)
+        .where((p) => p.id == kMozillaSystemProfileId)
         .firstOrNull;
-    final profile = existing ?? Profile.normal(label: label);
+    final profile =
+        existing ??
+        Profile.normal(label: label).copyWith(
+          id: kMozillaSystemProfileId,
+          order: -1,
+        );
     final core = ref.read(coreHandlerProvider);
     final saved = await profile
         .copyWith(autoUpdate: false)
@@ -183,7 +185,6 @@ class _MozillaViewState extends ConsumerState<MozillaView> {
         );
     if (!mounted) return;
     ref.read(profilesActionProvider.notifier).setProfileAndAutoApply(saved);
-    await store.setInt('mozilla-profile-id', saved.id);
     if (!mounted) return;
     ref.read(currentProfileIdProvider.notifier).value = saved.id;
     setState(() {

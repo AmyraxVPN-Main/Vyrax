@@ -7598,6 +7598,266 @@ class AppLocalizations {
   }
 
   /// `Free servers`
+  /// `SNI spoof tunnels`
+  String get spoofTitle {
+    return Intl.message(
+      'SNI spoof tunnels',
+      name: 'spoofTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.`
+  String get spoofIntro {
+    return Intl.message(
+      'Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.',
+      name: 'spoofIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import links`
+  String get spoofImport {
+    return Intl.message(
+      'Import links',
+      name: 'spoofImport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste vless://, trojan:// or vmess:// links (separate with new lines)`
+  String get spoofImportHint {
+    return Intl.message(
+      'Paste vless://, trojan:// or vmess:// links (separate with new lines)',
+      name: 'spoofImportHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Links imported`
+  String get spoofImported {
+    return Intl.message(
+      'Links imported',
+      name: 'spoofImported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No valid links found in the text`
+  String get spoofImportFailed {
+    return Intl.message(
+      'No valid links found in the text',
+      name: 'spoofImportFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No links yet. Import a link to get started.`
+  String get spoofEmpty {
+    return Intl.message(
+      'No links yet. Import a link to get started.',
+      name: 'spoofEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect`
+  String get spoofConnect {
+    return Intl.message(
+      'Connect',
+      name: 'spoofConnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Disconnect`
+  String get spoofDisconnect {
+    return Intl.message(
+      'Disconnect',
+      name: 'spoofDisconnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This link is currently selected. Remove anyway?`
+  String get spoofRemoveConfirm {
+    return Intl.message(
+      'This link is currently selected. Remove anyway?',
+      name: 'spoofRemoveConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto`
+  String get spoofCarrierAuto {
+    return Intl.message(
+      'Auto',
+      name: 'spoofCarrierAuto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MCI`
+  String get spoofCarrierMci {
+    return Intl.message(
+      'MCI',
+      name: 'spoofCarrierMci',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Irancell`
+  String get spoofCarrierIrancell {
+    return Intl.message(
+      'Irancell',
+      name: 'spoofCarrierIrancell',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep Iranian sites direct`
+  String get spoofIranDirect {
+    return Intl.message(
+      'Keep Iranian sites direct',
+      name: 'spoofIranDirect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No fragmentation`
+  String get spoofFragmentPlain {
+    return Intl.message(
+      'No fragmentation',
+      name: 'spoofFragmentPlain',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading Xray`
+  String get spoofDownloading {
+    return Intl.message(
+      'Downloading Xray',
+      name: 'spoofDownloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Idle`
+  String get spoofIdle {
+    return Intl.message(
+      'Idle',
+      name: 'spoofIdle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Running`
+  String get spoofRunning {
+    return Intl.message(
+      'Running',
+      name: 'spoofRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed`
+  String get spoofFailed {
+    return Intl.message(
+      'Failed',
+      name: 'spoofFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exit`
+  String get spoofExit {
+    return Intl.message(
+      'Exit',
+      name: 'spoofExit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Operator`
+  String get spoofCarrier {
+    return Intl.message(
+      'Operator',
+      name: 'spoofCarrier',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fragmentation`
+  String get spoofFragment {
+    return Intl.message(
+      'Fragmentation',
+      name: 'spoofFragment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Spoof settings`
+  String get spoofSettings {
+    return Intl.message(
+      'Spoof settings',
+      name: 'spoofSettings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Links`
+  String get spoofLinks {
+    return Intl.message(
+      'Links',
+      name: 'spoofLinks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Status`
+  String get spoofStatus {
+    return Intl.message(
+      'Status',
+      name: 'spoofStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `servers`
+  String get spoofServers {
+    return Intl.message(
+      'servers',
+      name: 'spoofServers',
+      desc: '',
+      args: [],
+    );
+  }
+
   String get mozillaTitle {
     return Intl.message(
       'Free servers',

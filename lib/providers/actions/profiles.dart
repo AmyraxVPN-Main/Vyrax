@@ -22,6 +22,9 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<void> deleteProfile(int id) async {
+    if (systemProfileIds.contains(id)) {
+      return;
+    }
     await ref.read(profilesProvider.notifier).del(id);
     await clearEffect(id);
     final currentProfileId = ref.read(currentProfileIdProvider);
@@ -477,8 +480,17 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   void reorder(List<Profile> profiles) {
-    ref.read(profilesProvider.notifier).reorder(profiles);
+    final systemProfiles = profiles.where(_isSystemProfile).toList();
+    final ordered = [
+      ...systemProfiles,
+      for (final profile in profiles)
+        if (!_isSystemProfile(profile)) profile,
+    ];
+    ref.read(profilesProvider.notifier).reorder(ordered);
   }
+
+  bool _isSystemProfile(Profile profile) =>
+      systemProfileIds.contains(profile.id);
 
   Future<void> clearEffect(int profileId) async {
     final profilePath = await appPath.getProfilePath(profileId.toString());

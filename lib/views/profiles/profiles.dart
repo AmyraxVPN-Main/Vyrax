@@ -438,6 +438,30 @@ class ProfileItem extends ConsumerWidget {
     final appLocalizations = context.appLocalizations;
     final isUrl = profile.type == ProfileType.url;
     final isCustom = profile.type == ProfileType.custom;
+    if (profile.isSystemProfile) {
+      return [
+        CommonPopupMenuItem(
+          glyph: AppGlyphs.moreCircle,
+          label: appLocalizations.more,
+          subItems: [
+            CommonPopupMenuItem(
+              glyph: AppGlyphs.eye,
+              label: appLocalizations.finalConfig,
+              onPressed: () {
+                _handlePreview(context);
+              },
+            ),
+            CommonPopupMenuItem(
+              glyph: AppGlyphs.export,
+              label: appLocalizations.exportFile,
+              onPressed: () {
+                _handleExportFile(context);
+              },
+            ),
+          ],
+        ),
+      ];
+    }
     return [
       CommonPopupMenuItem(
         glyph: AppGlyphs.edit,
@@ -572,11 +596,25 @@ class _ProfileCardTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = ChipTitle(
-      title: profile.realLabel,
-      expire: expire,
-      style: context.textTheme.titleMedium,
-    );
+    final title = profile.isSystemProfile
+        ? Row(
+            children: [
+              Flexible(
+                child: ChipTitle(
+                  title: profile.realLabel,
+                  expire: expire,
+                  style: context.textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const _PinBadge(),
+            ],
+          )
+        : ChipTitle(
+            title: profile.realLabel,
+            expire: expire,
+            style: context.textTheme.titleMedium,
+          );
     final info = this.info;
     if (info == null) {
       return title;
@@ -593,6 +631,30 @@ class _ProfileCardTitle extends StatelessWidget {
           child: info,
         ),
       ],
+    );
+  }
+}
+
+class _PinBadge extends StatelessWidget {
+  const _PinBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        color: colorScheme.secondaryContainer,
+        shape: AppShape.sm,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        child: GlyphIcon(
+          AppGlyphs.pin,
+          size: 13,
+          fill: 1,
+          color: colorScheme.onSecondaryContainer,
+        ),
+      ),
     );
   }
 }
@@ -626,7 +688,21 @@ class _ReorderableProfilesSheetState
       child: DecorationListItem(
         contentPadding: const EdgeInsets.only(left: 16),
         trailing: SortHandle(index: index),
-        title: Text(profile.realLabel),
+        title: Row(
+          children: [
+            Flexible(
+              child: Text(
+                profile.realLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (profile.isSystemProfile) ...[
+              const SizedBox(width: 8),
+              const _PinBadge(),
+            ],
+          ],
+        ),
       ),
     );
   }
