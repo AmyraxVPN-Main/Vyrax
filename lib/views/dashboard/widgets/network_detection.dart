@@ -1,6 +1,5 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/service_probe.dart';
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/features.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/providers/outbound_ip.dart';
@@ -47,9 +46,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection>
     final isSaved =
         ipInfo != null && (saved.asData?.value.containsKey(ipInfo.ip) ?? false);
     final failed = shownPhase(entry) == ProbePhase.failed;
-    final emojiTextStyle = context.textTheme.titleMedium?.toLight.copyWith(
-      fontFamily: FontFamily.twEmoji.value,
-    );
+    final flagTextStyle = context.textTheme.titleMedium?.toLight;
     final titleTextStyle = context.colorScheme.onSurfaceVariant;
     final textScale = DashboardWidgetMetrics.textScaleOf(context);
     return SizedBox(
@@ -69,10 +66,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection>
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   ipInfo != null
-                      ? Text(
-                          ipInfo.countryCode.countryFlagEmoji,
-                          style: emojiTextStyle,
-                        )
+                      ? CountryFlagEmoji(ipInfo.countryCode, style: flagTextStyle)
                       : GlyphIcon(
                           AppGlyphs.networkCheck,
                           color: titleTextStyle,

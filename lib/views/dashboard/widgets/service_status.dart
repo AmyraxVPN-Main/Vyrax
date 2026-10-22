@@ -504,10 +504,7 @@ class _OutboundIpLine extends StatelessWidget {
       spacing: 4,
       children: [
         if (flag != null)
-          Text(
-            flag.countryFlagEmoji,
-            style: style?.copyWith(fontFamily: FontFamily.twEmoji.value),
-          ),
+          CountryFlagEmoji(flag, style: style),
         if (ip != null)
           Flexible(
             child: IpQualityText(ip: ip.ip, style: style),
