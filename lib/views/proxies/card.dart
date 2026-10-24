@@ -135,7 +135,11 @@ class ProxyCard extends ConsumerWidget {
                     children: [
                       ValueListenableBuilder<int>(
                         valueListenable: mozillaFlagsRevision,
-                        builder: (_, _, _) => MozillaFlagBadge(proxy.name),
+                        builder: (_, _, _) => mozillaFlags.hasFlagForName(
+                          proxy.name,
+                        )
+                            ? MozillaFlagBadge(proxy.name)
+                            : ConfigFlagBadge(proxy.name),
                       ),
                       Expanded(child: proxyNameText),
                       if (favorite)

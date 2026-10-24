@@ -149,6 +149,10 @@ class MozillaFlags {
     }
     return code.countryFlagEmoji;
   }
+
+  /// True when the mozilla flag badge renders a badge for [name]; the
+  /// generic name based badge must stay hidden so flags never duplicate.
+  bool hasFlagForName(String name) => codeForName(name) != null;
 }
 
 /// Rounded flag badge rendered next to the Mozilla proxy name.

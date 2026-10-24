@@ -37,6 +37,16 @@ class SystemAction extends _$SystemAction {
 
   @protected
   Future<void> cleanupExitResources(bool needSave) async {
+    // Kill the UAC PoW sidecars (Psiphon/WARP leg); leaving them alive
+    // orphans the tunnel on the fixed exit ports across app restarts.
+    try {
+      await ref
+          .read(powControllerProvider)
+          .disconnect()
+          .timeout(const Duration(seconds: 2));
+    } on Exception catch (_) {
+      // exit proceeds regardless
+    }
     final saveOperation = needSave ? _savePreferencesSafely() : null;
     final tray = trayPort;
     if (tray != null) {

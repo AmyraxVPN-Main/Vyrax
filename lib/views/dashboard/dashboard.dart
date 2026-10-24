@@ -1,6 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/mozilla/view.dart';
+import 'package:fl_clash/features/pow/view.dart';
+import 'package:fl_clash/features/spoof/view.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -178,7 +183,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         body: Builder(
           builder: (context) {
             final padding = const EdgeInsets.all(16).copyWith(
-              top: context.contentTopPadding,
+              top: math.max(0, context.contentTopPadding - 8),
               bottom: 16 + BottomInsetScope.of(context),
             );
             return Align(
@@ -196,37 +201,46 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                           constraints: BoxConstraints(
                             maxWidth: dashboardMaxGridWidth,
                           ),
-                          child: LayoutBuilder(
-                            builder: (_, constraints) {
-                              final band = DashboardGridBand.of(
-                                constraints.maxWidth,
-                              );
-                              final columns = band.columns;
-                              final grid = SuperGrid(
-                                key: key,
-                                editing: isEdit,
-                                crossAxisCount: columns,
-                                crossAxisSpacing: spacing,
-                                mainAxisSpacing: spacing,
-                                onChanged: _saveDashboardWidgets,
-                                revealPadding: padding.copyWith(
-                                  left: 0,
-                                  right: 0,
-                                ),
-                                children: children,
-                              );
-                              return DashboardWidgetMetrics(
-                                unitHeight: dashboardUnitHeight(
-                                  constraints.maxWidth,
-                                ),
-                                child: isEdit
-                                    ? BackLayerScope(
-                                        onBack: _handleExitEdit,
-                                        child: grid,
-                                      )
-                                    : grid,
-                              );
-                            },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (!isEdit) ...[
+                                const _QuickAccessSection(),
+                                SizedBox(height: spacing),
+                              ],
+                              LayoutBuilder(
+                                builder: (_, constraints) {
+                                  final band = DashboardGridBand.of(
+                                    constraints.maxWidth,
+                                  );
+                                  final columns = band.columns;
+                                  final grid = SuperGrid(
+                                    key: key,
+                                    editing: isEdit,
+                                    crossAxisCount: columns,
+                                    crossAxisSpacing: spacing,
+                                    mainAxisSpacing: spacing,
+                                    onChanged: _saveDashboardWidgets,
+                                    revealPadding: padding.copyWith(
+                                      left: 0,
+                                      right: 0,
+                                    ),
+                                    children: children,
+                                  );
+                                  return DashboardWidgetMetrics(
+                                    unitHeight: dashboardUnitHeight(
+                                      constraints.maxWidth,
+                                    ),
+                                    child: isEdit
+                                        ? BackLayerScope(
+                                            onBack: _handleExitEdit,
+                                            child: grid,
+                                          )
+                                        : grid,
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -319,6 +333,90 @@ class _AddedContainer extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _QuickAccessSection extends StatelessWidget {
+  const _QuickAccessSection();
+
+  static const _entries = [
+    (AppGlyphs.account, showMozillaDialog),
+    (AppGlyphs.vpn, showSpoofDialog),
+    (AppGlyphs.sparkle, showPowDialog),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = [
+      context.appLocalizations.mozillaTitle,
+      context.appLocalizations.spoofTitle,
+      context.appLocalizations.powTitle,
+    ];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: [
+        for (final (index, entry) in _entries.indexed)
+          _QuickAccessChip(
+            glyph: entry.$1,
+            label: labels[index],
+            onOpen: entry.$2,
+            badge: index == 0 || index == 2
+                ? context.appLocalizations.free
+                : null,
+          ),
+      ],
+    );
+  }
+}
+
+typedef _QuickAccessDialogBuilder = Future<void> Function(BuildContext);
+
+class _QuickAccessChip extends StatelessWidget {
+  final Glyph glyph;
+  final String label;
+  final _QuickAccessDialogBuilder onOpen;
+  final String? badge;
+
+  const _QuickAccessChip({
+    required this.glyph,
+    required this.label,
+    required this.onOpen,
+    this.badge,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      visualDensity: VisualDensity.compact,
+      side: BorderSide(color: context.colorScheme.outlineVariant),
+      backgroundColor: Colors.transparent,
+      avatar: GlyphIcon(glyph, size: 16),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label, style: context.textTheme.bodySmall),
+          if (badge != null) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: context.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                badge!,
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: context.colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+      onPressed: () => onOpen(context),
     );
   }
 }

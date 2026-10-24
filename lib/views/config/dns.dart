@@ -119,7 +119,7 @@ String _patchDnsDescription(AppLocalizations l) => l.dnsOverrideDesc;
 
 class DnsView extends OverrideView<DnsOverrideKey, Dns> {
   /// The keys written over the DNS of every subscription and file profile.
-  const DnsView({super.key})
+  const DnsView({super.key, super.header})
     : super(
         spec: const _DnsOverrideSpec(
           PatchOverrideTarget(
@@ -131,7 +131,7 @@ class DnsView extends OverrideView<DnsOverrideKey, Dns> {
         ),
       );
 
-  DnsView.profile(int profileId, {super.key})
+  DnsView.profile(int profileId, {super.key, super.header})
     : super(
         spec: _ProfileDnsOverrideSpec(
           ProfileOverrideTarget(

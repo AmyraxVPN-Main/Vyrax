@@ -599,6 +599,7 @@ class _ProfileCardTitle extends StatelessWidget {
     final title = profile.isSystemProfile
         ? Row(
             children: [
+              ConfigFlagBadge(profile.realLabel, fontSize: 16),
               Flexible(
                 child: ChipTitle(
                   title: profile.realLabel,
@@ -610,10 +611,17 @@ class _ProfileCardTitle extends StatelessWidget {
               const _PinBadge(),
             ],
           )
-        : ChipTitle(
-            title: profile.realLabel,
-            expire: expire,
-            style: context.textTheme.titleMedium,
+        : Row(
+            children: [
+              ConfigFlagBadge(profile.realLabel, fontSize: 16),
+              Flexible(
+                child: ChipTitle(
+                  title: profile.realLabel,
+                  expire: expire,
+                  style: context.textTheme.titleMedium,
+                ),
+              ),
+            ],
           );
     final info = this.info;
     if (info == null) {

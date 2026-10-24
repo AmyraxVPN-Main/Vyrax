@@ -179,59 +179,64 @@ class _NullStatusState extends State<NullStatus> {
     final compact = MediaQuery.sizeOf(context).height < _compactHeight;
     return Align(
       alignment: const Alignment(0.0, -0.2),
-      child: SingleChildScrollView(
-        controller: _controller,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _EnterItem(
-                child: EmptyIllustration(
-                  type: illustration,
-                  dimension: compact ? 120 : 160,
-                ),
-              ),
-              if (label != null) ...[
-                SizedBox(height: compact ? 12 : 16),
+      // The status barely scrolls (only on very short windows), so it keeps
+      // no scrollbar; the wheel and touch still work.
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: SingleChildScrollView(
+          controller: _controller,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 320),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 _EnterItem(
-                  delay: _staggerStep,
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onSurface,
+                  child: EmptyIllustration(
+                    type: illustration,
+                    dimension: compact ? 120 : 160,
+                  ),
+                ),
+                if (label != null) ...[
+                  SizedBox(height: compact ? 12 : 16),
+                  _EnterItem(
+                    delay: _staggerStep,
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                      ),
                     ),
                   ),
-                ),
-              ],
-              if (description != null) ...[
-                const SizedBox(height: 8),
-                _EnterItem(
-                  delay: _staggerStep * 2,
-                  child: Text(
-                    description,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
+                ],
+                if (description != null) ...[
+                  const SizedBox(height: 8),
+                  _EnterItem(
+                    delay: _staggerStep * 2,
+                    child: Text(
+                      description,
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
-                ),
-              ],
-              if (action != null) ...[
-                const SizedBox(height: 24),
-                _EnterItem(
-                  delay: _staggerStep * (description != null ? 3 : 2),
-                  child: Theme(
-                    data: Theme.of(
-                      context,
-                    ).copyWith(visualDensity: VisualDensity.standard),
-                    child: action,
+                ],
+                if (action != null) ...[
+                  const SizedBox(height: 24),
+                  _EnterItem(
+                    delay: _staggerStep * (description != null ? 3 : 2),
+                    child: Theme(
+                      data: Theme.of(
+                        context,
+                      ).copyWith(visualDensity: VisualDensity.standard),
+                      child: action,
+                    ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

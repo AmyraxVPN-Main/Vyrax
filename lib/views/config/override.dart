@@ -393,9 +393,13 @@ mixin OverrideQuickEdit<K extends OverrideKey, M> on OverrideSpec<K, M> {
 }
 
 class OverrideView<K extends OverrideKey, M> extends ConsumerWidget {
-  const OverrideView({super.key, required this.spec});
+  const OverrideView({super.key, required this.spec, this.header});
 
   final OverrideSpec<K, M> spec;
+
+  /// Shown at the top of the page, above the override list and its empty
+  /// state, already clear of the floating bar.
+  final Widget? header;
 
   void _handleAdd(BuildContext context, WidgetRef ref) {
     final appLocalizations = context.appLocalizations;
@@ -513,6 +517,22 @@ class OverrideView<K extends OverrideKey, M> extends ConsumerWidget {
       ),
     );
     final addEntry = target.addEntry(appLocalizations);
+    final body = NullStatusSwitcher(
+      isEmpty: isEmpty,
+      nullStatus: NullStatus(
+        label: appLocalizations.nullTip(target.entries(appLocalizations)),
+        description: target.description(appLocalizations),
+        illustration: spec.illustration,
+        action: ElasticButton(
+          child: FilledButton.tonalIcon(
+            onPressed: () => _handleAdd(context, ref),
+            icon: const GlyphIcon(AppGlyphs.addCircle, fill: 1),
+            label: Text(addEntry),
+          ),
+        ),
+      ),
+      child: _OverrideList(spec: spec),
+    );
     return CommonScaffold(
       title: spec.title(appLocalizations),
       iconActions: [
@@ -529,22 +549,23 @@ class OverrideView<K extends OverrideKey, M> extends ConsumerWidget {
             tooltip: appLocalizations.quickEdit,
           ),
       ],
-      body: NullStatusSwitcher(
-        isEmpty: isEmpty,
-        nullStatus: NullStatus(
-          label: appLocalizations.nullTip(target.entries(appLocalizations)),
-          description: target.description(appLocalizations),
-          illustration: spec.illustration,
-          action: ElasticButton(
-            child: FilledButton.tonalIcon(
-              onPressed: () => _handleAdd(context, ref),
-              icon: const GlyphIcon(AppGlyphs.addCircle, fill: 1),
-              label: Text(addEntry),
+      body: header == null
+          ? body
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    context.contentTopPadding,
+                    16,
+                    0,
+                  ),
+                  child: header!,
+                ),
+                Expanded(child: TopInsetScope(inset: 12, child: body)),
+              ],
             ),
-          ),
-        ),
-        child: _OverrideList(spec: spec),
-      ),
     );
   }
 }

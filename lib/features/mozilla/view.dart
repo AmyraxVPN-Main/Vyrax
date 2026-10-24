@@ -40,6 +40,7 @@ Future<void> showMozillaDialog(BuildContext context) => showDialog<void>(
   barrierColor: context.colorScheme.modalScrim,
   builder: (context) => Dialog(
     insetPadding: const EdgeInsets.all(24),
+    clipBehavior: Clip.antiAlias,
     shape: AppShape.xxl.copyWith(
       side: BorderSide(color: context.colorScheme.outlineVariant),
     ),

@@ -123,8 +123,13 @@ abstract class DisabledRule with _$DisabledRule {
 /// `(timestamp ms) << 22`, so any id below `1 << 22` can never collide.
 const kSpoofSystemProfileId = 1;
 const kMozillaSystemProfileId = 2;
+const kPowSystemProfileId = 3;
 
-const systemProfileIds = {kSpoofSystemProfileId, kMozillaSystemProfileId};
+const systemProfileIds = {
+  kSpoofSystemProfileId,
+  kMozillaSystemProfileId,
+  kPowSystemProfileId,
+};
 
 extension ProfileSystemX on Profile {
   bool get isSystemProfile => systemProfileIds.contains(id);

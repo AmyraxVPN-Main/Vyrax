@@ -11,6 +11,7 @@ import 'package:fl_clash/database/database.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/mozilla/provider.dart';
 import 'package:fl_clash/features/mozilla/api.dart';
+import 'package:fl_clash/features/pow/provider.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/plugins/service.dart';

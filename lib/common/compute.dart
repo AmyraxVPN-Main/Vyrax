@@ -27,7 +27,11 @@ List<Group> computeSort({
         ),
     };
     return List.of(proxies)
-      ..sort((a, b) => delayStates[a.name]!.compareTo(delayStates[b.name]!));
+      ..sort((a, b) {
+        final byDelay = delayStates[a.name]!.compareTo(delayStates[b.name]!);
+        if (byDelay != 0) return byDelay;
+        return a.name.compareTo(b.name);
+      });
   }
 
   List<Proxy> sortOfName(List<Proxy> proxies) {
@@ -36,8 +40,19 @@ List<Group> computeSort({
 
   return groups.map((group) {
     final proxies = group.all;
+    // An auto-select group (FASTEST, fallback) reads slowest-first in its raw
+    // order, so the default sort ranks it by delay; a selector keeps the
+    // profile's own order until the user picks a sort.
     final newProxies = switch (sortType) {
-      ProxiesSortType.none => proxies,
+      ProxiesSortType.none => group.type.isComputedSelected
+          ? sortOfDelay(
+              groups: groups,
+              proxies: proxies,
+              delayMap: delayMap,
+              selectedMap: selectedMap,
+              testUrl: group.testUrl.takeFirstValid([defaultTestUrl]),
+            )
+          : proxies,
       ProxiesSortType.delay => sortOfDelay(
         groups: groups,
         proxies: proxies,

@@ -17,6 +17,7 @@ Future<void> showSpoofDialog(BuildContext context) => showDialog<void>(
   barrierColor: context.colorScheme.modalScrim,
   builder: (context) => Dialog(
     insetPadding: const EdgeInsets.all(24),
+    clipBehavior: Clip.antiAlias,
     shape: AppShape.xxl.copyWith(
       side: BorderSide(color: context.colorScheme.outlineVariant),
     ),
@@ -243,15 +244,34 @@ class _SpoofViewState extends ConsumerState<SpoofView> {
     final controller = ref.watch(spoofControllerProvider);
     return ListenableBuilder(
       listenable: controller,
-      builder: (context, child) => _buildContent(context, controller),
+      builder: (context, child) {
+        final content = _contentList(context, controller);
+        if (!widget.modal) {
+          return CommonScaffold(
+            title: context.appLocalizations.spoofTitle,
+            actions: [
+              controller.activeId != null && controller.engineState.running
+                  ? IconButton(
+                      tooltip: context.appLocalizations.spoofDisconnect,
+                      onPressed: controller.busy
+                          ? null
+                          : () => unawaited(_disconnect()),
+                      icon: const GlyphIcon(AppGlyphs.close, size: 20),
+                    )
+                  : const SizedBox.shrink(),
+            ],
+            body: content,
+          );
+        }
+        return _modalShell(context, content);
+      },
     );
   }
 
-  Widget _buildContent(BuildContext context, SpoofController controller) {
+  Widget _contentList(BuildContext context, SpoofController controller) {
     final l = context.appLocalizations;
     final state = controller.engineState;
     final installProgress = controller.installProgress;
-    final connected = controller.activeId != null && state.running;
 
     final content = ListView(
       shrinkWrap: widget.modal,
@@ -318,7 +338,11 @@ class _SpoofViewState extends ConsumerState<SpoofView> {
                       onPressed: controller.busy || _links.text.isEmpty
                           ? null
                           : () => unawaited(_import()),
-                      icon: const GlyphIcon(AppGlyphs.importFile, size: 16),
+                      icon: const GlyphIcon(
+                        AppGlyphs.importFile,
+                        size: 16,
+                        fill: 1,
+                      ),
                       label: Text(l.spoofImport),
                     ),
                   ],
@@ -426,23 +450,11 @@ class _SpoofViewState extends ConsumerState<SpoofView> {
         const SizedBox(height: 8),
       ],
     );
+    return content;
+  }
 
-    if (!widget.modal) {
-      return CommonScaffold(
-        title: l.spoofTitle,
-        actions: [
-          connected
-              ? IconButton(
-                  tooltip: l.spoofDisconnect,
-                  onPressed: controller.busy ? null : () => unawaited(_disconnect()),
-                  icon: const GlyphIcon(AppGlyphs.close, size: 20),
-                )
-              : const SizedBox.shrink(),
-        ],
-        body: content,
-      );
-    }
-
+  Widget _modalShell(BuildContext context, Widget content) {
+    final l = context.appLocalizations;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

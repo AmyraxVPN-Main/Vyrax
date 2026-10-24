@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:fl_clash/common/share_links.dart';
+
 class ForeignProfileException implements Exception {
   const ForeignProfileException(this.format, this.node);
   final String format;
@@ -12,6 +14,12 @@ Uint8List convertForeignProfile(Uint8List bytes) {
       .decode(bytes, allowMalformed: true)
       .replaceFirst(RegExp(r'^\uFEFF'), '')
       .trim();
+  // Free-server lists usually arrive as plain share links (one per line),
+  // optionally base64-wrapped by a subscription wrapper.
+  final rawLinks = parseShareLinkList(text);
+  if (rawLinks != null) {
+    return _proxiesPayload(rawLinks);
+  }
   if (!text.startsWith('{') && !text.startsWith('[')) {
     try {
       final decoded = base64.decode(
@@ -19,6 +27,10 @@ Uint8List convertForeignProfile(Uint8List bytes) {
       );
       text = utf8.decode(decoded).trim();
       bytes = Uint8List.fromList(decoded);
+      final wrappedLinks = parseShareLinkList(text);
+      if (wrappedLinks != null) {
+        return _proxiesPayload(wrappedLinks);
+      }
     } on FormatException {
       return bytes;
     }
@@ -100,6 +112,11 @@ Uint8List convertForeignProfile(Uint8List bytes) {
     throw ForeignProfileException(converter.format, converter.node);
   }
 }
+
+Uint8List _proxiesPayload(List<Map<String, dynamic>> proxies) =>
+    Uint8List.fromList(
+      utf8.encode(jsonEncode({'proxies': proxies})),
+    );
 
 String _jsonWithoutComments(String input) {
   final output = StringBuffer();

@@ -20,6 +20,14 @@ const _allowed = {
   // `CoreEventManager` is a private-constructor singleton that fans core events
   // out for the whole run; closing its controller would end event delivery.
   'lib/core/event.dart#_controller',
+  // PoW sidecar processes live for the whole app run: their broadcast
+  // streams are only consumed by the coordinator that owns them, and
+  // closing them on teardown would race the still-listening coordinator.
+  'lib/features/pow/engine.dart#_emitter',
+  'lib/features/pow/engine.dart#_notices',
+  // Spoof engine state outlives the widget that built it (the controller
+  // owns the whole engine lifecycle).
+  'lib/features/spoof/engine.dart#state',
 };
 
 final _declaration = RegExp(

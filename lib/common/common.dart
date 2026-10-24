@@ -5,6 +5,7 @@ export 'changelog.dart';
 export 'cidr.dart';
 export 'color.dart';
 export 'compute.dart';
+export 'config_flag.dart';
 export 'constant.dart';
 export 'context.dart';
 export 'converter.dart';
