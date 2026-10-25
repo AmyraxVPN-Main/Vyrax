@@ -1,0 +1,44 @@
+name: android-pow-emulator
+on:
+  push:
+    branches: [vyrax-0.2.4-emulator]
+  workflow_dispatch:
+jobs:
+  pow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Boot emulator and install Vyrax
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -x
+            adb install -r ci/app.apk
+            adb shell pm list packages | grep amyrax
+            adb shell am start -n com.amyrax.vyrax/.MainActivity
+            sleep 30
+            adb exec-out screencap -p > home.png
+            adb shell uiautomator dump /sdcard/ui.xml || true
+            adb pull /sdcard/ui.xml ui.xml || true
+            adb logcat -d > logcat.txt || true
+            adb shell dumpsys activity activities > activities.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pow-emulator-home
+          path: |
+            home.png
+            ui.xml
+            logcat.txt
+            activities.txt
