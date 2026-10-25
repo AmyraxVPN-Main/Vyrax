@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/features/pow/provider.dart';
-import 'package:fl_clash/features/pow/view.dart';
 import 'package:fl_clash/icons/icons.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
@@ -106,30 +104,12 @@ class _StartButtonState extends ConsumerState<StartButton>
     ref.read(commonActionProvider.notifier).toggleRunning();
   }
 
-  /// Turning the VPN on while the active profile is the Vyrax Free one and
-  /// its tunnel is down would apply a config pointing at a dead exit: the
-  /// core runs but nothing routes. The run flow therefore raises the tunnel
-  /// first, inside a small connect dialog with live status and a green
-  /// check when the tunnel is really up. A healthy/absent profile keeps
-  /// the plain toggle.
+  /// Keep the dashboard Start button a plain, predictable core toggle.
+  /// Vyrax Free owns its dial from its own panel; a connect flow here made
+  /// the first click look like an accidental start and made Stop
+  /// timing-sensitive.
   Future<void> handleSwitchStartWithPowCheck() async {
-    final context = this.context;
-    final profileId = ref.read(currentProfileIdProvider);
-    // Reading the controller starts it after an app restart, which also
-    // kicks off the startup reconciliation (adopt the leftover tunnel or
-    // rescan) behind this dialog.
-    final controller = ref.read(powControllerProvider);
-    final needsFlow = powRunNeedsConnectFlow(
-      profileId: profileId,
-      hasServerSlot: controller.hasServerSlot,
-      tunnelUp: controller.connected,
-      busy: controller.busy,
-    );
-    if (!needsFlow) {
-      handleSwitchStart();
-      return;
-    }
-    await showPowConnectFlow(context);
+    handleSwitchStart();
   }
 
   void _updateDisplayRunTime(int? runTime) {

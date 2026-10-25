@@ -705,6 +705,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "dnsOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "Entries added here replace the DNS of every URL and file profile; anything not added keeps the profile\'s own setting. Custom profiles set their DNS in their content.",
     ),
+    "dnsPresets": MessageLookupByLibrary.simpleMessage("DNS presets"),
     "dnsQueries": MessageLookupByLibrary.simpleMessage("DNS queries"),
     "docked": MessageLookupByLibrary.simpleMessage("Docked"),
     "domain": MessageLookupByLibrary.simpleMessage("Domain"),
@@ -818,7 +819,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Clash, Xray or sing-box",
     ),
     "foreignProfileUnsupported": m26,
+    "free": MessageLookupByLibrary.simpleMessage("Free"),
     "fruitSaladScheme": MessageLookupByLibrary.simpleMessage("Fruit salad"),
+    "gamePreset": MessageLookupByLibrary.simpleMessage("Gaming"),
+    "gamePresetDesc": MessageLookupByLibrary.simpleMessage(
+      "Gaming flags plus the Radar Game DNS servers for lower in-game ping.",
+    ),
     "general": MessageLookupByLibrary.simpleMessage("General"),
     "geoResources": MessageLookupByLibrary.simpleMessage("Geo"),
     "geoSkipped": m27,
@@ -914,9 +920,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -1052,6 +1059,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "listenRoutingMarkDesc": MessageLookupByLibrary.simpleMessage(
       "Listen routing mark works only on Linux.",
     ),
+    "litePreset": MessageLookupByLibrary.simpleMessage("Lite"),
+    "litePresetDesc": MessageLookupByLibrary.simpleMessage(
+      "Memory-light geo loader plus AdGuard DNS, which also filters ads.",
+    ),
     "liveConnections": MessageLookupByLibrary.simpleMessage("Live connections"),
     "loading": MessageLookupByLibrary.simpleMessage("Loading…"),
     "local": MessageLookupByLibrary.simpleMessage("Local"),
@@ -1128,7 +1139,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "monthsAgo": m46,
     "monthsAgoShort": m47,
     "more": MessageLookupByLibrary.simpleMessage("More"),
-    "quickAccess": MessageLookupByLibrary.simpleMessage("Quick access"),
     "mozillaAccounts": MessageLookupByLibrary.simpleMessage("Saved accounts"),
     "mozillaAccountsError": MessageLookupByLibrary.simpleMessage(
       "Up to 10 accounts can be saved. Remove one before adding another.",
@@ -1226,113 +1236,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mozillaTcpOnly": MessageLookupByLibrary.simpleMessage(
       "This connection carries TCP traffic. Some games and apps requiring UDP may not work. If the service is unavailable on your network or in your region, select a personal subscription.",
     ),
-    "powTitle": MessageLookupByLibrary.simpleMessage("Vyrax Free"),
-    "powIntro": MessageLookupByLibrary.simpleMessage("Psiphon + Cloudflare WARP tunnel (UAC PoW) on this device, for networks where direct tunnels fail."),
-    "powConnect": MessageLookupByLibrary.simpleMessage("Connect"),
-    "powDisconnect": MessageLookupByLibrary.simpleMessage("Disconnect"),
-    "powSettings": MessageLookupByLibrary.simpleMessage("Settings"),
-    "powRegion": MessageLookupByLibrary.simpleMessage("Exit country"),
-    "powRegionAuto": MessageLookupByLibrary.simpleMessage("Automatic (nearby)"),
-    "powAuto": MessageLookupByLibrary.simpleMessage("Automatic"),
-    "powOuterTransport": MessageLookupByLibrary.simpleMessage("WARP transport"),
-    "powRecipe": MessageLookupByLibrary.simpleMessage("Link recipe"),
-    "powFirewall": MessageLookupByLibrary.simpleMessage("Firewall profile"),
-    "powFirewallAuto": MessageLookupByLibrary.simpleMessage("Automatic (Hamrah Aval)"),
-    "powFirewallIrancell": MessageLookupByLibrary.simpleMessage("Irancell"),
-    "powFirewallMci": MessageLookupByLibrary.simpleMessage("MCI (Hamrah Aval)"),
-    "powScanMode": MessageLookupByLibrary.simpleMessage("IP scan"),
-    "powScanTurbo": MessageLookupByLibrary.simpleMessage("Turbo"),
-    "powScanBalanced": MessageLookupByLibrary.simpleMessage("Balanced"),
-    "powScanThorough": MessageLookupByLibrary.simpleMessage("Thorough"),
-    "powKeyFetch": MessageLookupByLibrary.simpleMessage("Key fetch route"),
-    "powKeyAuto": MessageLookupByLibrary.simpleMessage("Auto (race ECH and split ClientHello)"),
-    "powKeyEch": MessageLookupByLibrary.simpleMessage("ECH only"),
-    "powKeyFragment": MessageLookupByLibrary.simpleMessage("Split ClientHello only"),
-    "powKeyExternal": MessageLookupByLibrary.simpleMessage("Current network only"),
-    "powObfuscation": MessageLookupByLibrary.simpleMessage("Obfuscation padding"),
-    "powChainPsiphon": MessageLookupByLibrary.simpleMessage("Psiphon chain"),
-    "powChainPsiphonDesc": MessageLookupByLibrary.simpleMessage("Turn off to use WARP only (no Psiphon hop)."),
-    "powH2Fragment": MessageLookupByLibrary.simpleMessage("Split ClientHello (HTTP/2)"),
-    "powOptimized": MessageLookupByLibrary.simpleMessage("Optimized mode (lower timeouts)"),
-    "powIrancellH3": MessageLookupByLibrary.simpleMessage("HTTP/3 on Irancell"),
-    "powDirectFirst": MessageLookupByLibrary.simpleMessage("Direct Psiphon first"),
-    "powStatus": MessageLookupByLibrary.simpleMessage("Status"),
-    "powStatusIdle": MessageLookupByLibrary.simpleMessage("Idle. Press Connect to start the tunnel."),
-    "powLogs": MessageLookupByLibrary.simpleMessage("Logs"),
-    "powShowLogs": MessageLookupByLibrary.simpleMessage("Show logs"),
-    "powHideLogs": MessageLookupByLibrary.simpleMessage("Hide logs"),
-    "powForgetNetworks": MessageLookupByLibrary.simpleMessage("Forget network memory"),
-    "powForgetNetworksDesc": MessageLookupByLibrary.simpleMessage("Clears remembered exit countries and strategy winners for your networks."),
-    "powWindowsOnly": MessageLookupByLibrary.simpleMessage("This feature is only available on Windows."),
-        "powServers": MessageLookupByLibrary.simpleMessage("Servers"),
-        "powAddServer": MessageLookupByLibrary.simpleMessage("Add server"),
-    "powRemove": MessageLookupByLibrary.simpleMessage("Remove Vyrax Free"),
-    "powRemoveDesc": MessageLookupByLibrary.simpleMessage("Removes the Vyrax Free server and its profile from this device. Press Connect to create it again."),
-    "powRescanStopped": MessageLookupByLibrary.simpleMessage("Vyrax Free still has no reachable server. Press Connect to try again."),
-        "spoofTitle": MessageLookupByLibrary.simpleMessage("SNI spoof tunnels"),
-    "spoofIntro": MessageLookupByLibrary.simpleMessage("Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections."),
-    "spoofImport": MessageLookupByLibrary.simpleMessage("Import links"),
-    "spoofImportHint": MessageLookupByLibrary.simpleMessage("Paste vless://, trojan:// or vmess:// links (separate with new lines)"),
-    "spoofImported": MessageLookupByLibrary.simpleMessage("Links imported"),
-    "spoofImportFailed": MessageLookupByLibrary.simpleMessage("No valid links found in the text"),
-    "spoofEmpty": MessageLookupByLibrary.simpleMessage("No links yet. Import a link to get started."),
-    "spoofConnect": MessageLookupByLibrary.simpleMessage("Connect"),
-    "spoofDisconnect": MessageLookupByLibrary.simpleMessage("Disconnect"),
-    "spoofRemoveConfirm": MessageLookupByLibrary.simpleMessage("This link is currently selected. Remove anyway?"),
-    "spoofCarrierAuto": MessageLookupByLibrary.simpleMessage("Auto"),
-    "spoofCarrierMci": MessageLookupByLibrary.simpleMessage("MCI"),
-    "spoofCarrierIrancell": MessageLookupByLibrary.simpleMessage("Irancell"),
-    "spoofIranDirect": MessageLookupByLibrary.simpleMessage("Keep Iranian sites direct"),
-    "spoofFragmentPlain": MessageLookupByLibrary.simpleMessage("No fragmentation"),
-    "spoofDownloading": MessageLookupByLibrary.simpleMessage("Downloading Xray"),
-    "spoofIdle": MessageLookupByLibrary.simpleMessage("Idle"),
-    "spoofRunning": MessageLookupByLibrary.simpleMessage("Running"),
-    "spoofFailed": MessageLookupByLibrary.simpleMessage("Failed"),
-    "spoofExit": MessageLookupByLibrary.simpleMessage("Exit"),
-    "spoofCarrier": MessageLookupByLibrary.simpleMessage("Operator"),
-    "spoofFragment": MessageLookupByLibrary.simpleMessage("Fragmentation"),
-    "spoofSettings": MessageLookupByLibrary.simpleMessage("Spoof settings"),
-    "spoofLinks": MessageLookupByLibrary.simpleMessage("Links"),
-    "spoofStatus": MessageLookupByLibrary.simpleMessage("Status"),
-    "spoofServers": MessageLookupByLibrary.simpleMessage("servers"),
-    "mozillaTitle": MessageLookupByLibrary.simpleMessage("Firefox Free Servers"),
-    "free": MessageLookupByLibrary.simpleMessage("Free"),
-    "powRescanStarted": MessageLookupByLibrary.simpleMessage(
-      "Vyrax Free server is unreachable — rescanning for a new server…",
-    ),
-    "powRescanCompleted": MessageLookupByLibrary.simpleMessage(
-      "Vyrax Free rescanned — you are connected again.",
-    ),
-    "powRescanFailed": MessageLookupByLibrary.simpleMessage(
-      "Vyrax Free rescan failed; will retry automatically.",
-    ),
-    "powFlowConnecting": MessageLookupByLibrary.simpleMessage(
-      "Connecting Vyrax Free…",
-    ),
-    "powFlowConnected": MessageLookupByLibrary.simpleMessage(
-      "Vyrax Free is connected.",
-    ),
-    "powFlowFailed": MessageLookupByLibrary.simpleMessage(
-      "Could not connect Vyrax Free.",
-    ),
-    "powFlowRetry": MessageLookupByLibrary.simpleMessage("Retry"),
-    "powFlowDone": MessageLookupByLibrary.simpleMessage("Done"),
-    "dnsPresets": MessageLookupByLibrary.simpleMessage("DNS presets"),
-    "optimization": MessageLookupByLibrary.simpleMessage("Optimization"),
-    "optimizationDesc": MessageLookupByLibrary.simpleMessage(
-      "One tap applies a tuned set of core settings.",
-    ),
-    "gamePreset": MessageLookupByLibrary.simpleMessage("Gaming"),
-    "litePreset": MessageLookupByLibrary.simpleMessage("Lite"),
-    "standardPresetDesc": MessageLookupByLibrary.simpleMessage(
-      "Low latency flags: unified delay and concurrent TCP dialing.",
-    ),
-    "gamePresetDesc": MessageLookupByLibrary.simpleMessage(
-      "Gaming flags plus the Radar Game DNS servers for lower in-game ping.",
-    ),
-    "litePresetDesc": MessageLookupByLibrary.simpleMessage(
-      "Memory-light geo loader plus AdGuard DNS, which also filters ads.",
-    ),
+    "mozillaTitle": MessageLookupByLibrary.simpleMessage("Free servers"),
     "mozillaUseServers": MessageLookupByLibrary.simpleMessage("Use servers"),
     "mozillaVerificationCode": MessageLookupByLibrary.simpleMessage(
       "Email verification code",
@@ -1428,6 +1332,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "Only count proxy traffic",
     ),
+    "optimization": MessageLookupByLibrary.simpleMessage("Optimization"),
+    "optimizationDesc": MessageLookupByLibrary.simpleMessage(
+      "One tap applies a tuned set of core settings.",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("Optional"),
     "options": MessageLookupByLibrary.simpleMessage("Options"),
     "other": MessageLookupByLibrary.simpleMessage("Other"),
@@ -1473,6 +1381,90 @@ class MessageLookup extends MessageLookupByLibrary {
     "portHopping": MessageLookupByLibrary.simpleMessage("Port hopping"),
     "portTip": m56,
     "ports": MessageLookupByLibrary.simpleMessage("Ports"),
+    "powAddServer": MessageLookupByLibrary.simpleMessage("Add server"),
+    "powAuto": MessageLookupByLibrary.simpleMessage("Automatic"),
+    "powChainPsiphon": MessageLookupByLibrary.simpleMessage("Psiphon chain"),
+    "powChainPsiphonDesc": MessageLookupByLibrary.simpleMessage(
+      "Turn off to use WARP only (no Psiphon hop).",
+    ),
+    "powConnect": MessageLookupByLibrary.simpleMessage("Connect"),
+    "powDirectFirst": MessageLookupByLibrary.simpleMessage(
+      "Direct Psiphon first",
+    ),
+    "powDisconnect": MessageLookupByLibrary.simpleMessage("Disconnect"),
+    "powFirewall": MessageLookupByLibrary.simpleMessage("Firewall profile"),
+    "powFirewallAuto": MessageLookupByLibrary.simpleMessage(
+      "Automatic (Hamrah Aval)",
+    ),
+    "powFirewallIrancell": MessageLookupByLibrary.simpleMessage("Irancell"),
+    "powFirewallMci": MessageLookupByLibrary.simpleMessage("MCI (Hamrah Aval)"),
+    "powForgetNetworks": MessageLookupByLibrary.simpleMessage(
+      "Forget network memory",
+    ),
+    "powForgetNetworksDesc": MessageLookupByLibrary.simpleMessage(
+      "Clears remembered exit countries and strategy winners for your networks.",
+    ),
+    "powH2Fragment": MessageLookupByLibrary.simpleMessage(
+      "Split ClientHello (HTTP/2)",
+    ),
+    "powHideLogs": MessageLookupByLibrary.simpleMessage("Hide logs"),
+    "powIntro": MessageLookupByLibrary.simpleMessage(
+      "Psiphon + Cloudflare WARP tunnel (UAC PoW) on this device, for networks where direct tunnels fail.",
+    ),
+    "powIrancellH3": MessageLookupByLibrary.simpleMessage("HTTP/3 on Irancell"),
+    "powKeyAuto": MessageLookupByLibrary.simpleMessage(
+      "Auto (race ECH and split ClientHello)",
+    ),
+    "powKeyEch": MessageLookupByLibrary.simpleMessage("ECH only"),
+    "powKeyExternal": MessageLookupByLibrary.simpleMessage(
+      "Current network only",
+    ),
+    "powKeyFetch": MessageLookupByLibrary.simpleMessage("Key fetch route"),
+    "powKeyFragment": MessageLookupByLibrary.simpleMessage(
+      "Split ClientHello only",
+    ),
+    "powLogs": MessageLookupByLibrary.simpleMessage("Logs"),
+    "powObfuscation": MessageLookupByLibrary.simpleMessage(
+      "Obfuscation padding",
+    ),
+    "powOptimized": MessageLookupByLibrary.simpleMessage(
+      "Optimized mode (lower timeouts)",
+    ),
+    "powOuterTransport": MessageLookupByLibrary.simpleMessage("WARP transport"),
+    "powRecipe": MessageLookupByLibrary.simpleMessage("Link recipe"),
+    "powRegion": MessageLookupByLibrary.simpleMessage("Exit country"),
+    "powRegionAuto": MessageLookupByLibrary.simpleMessage("Automatic (nearby)"),
+    "powRemove": MessageLookupByLibrary.simpleMessage("Remove Vyrax Free"),
+    "powRemoveDesc": MessageLookupByLibrary.simpleMessage(
+      "Removes the Vyrax Free server and its profile from this device. Press Connect to create it again.",
+    ),
+    "powRescanCompleted": MessageLookupByLibrary.simpleMessage(
+      "Vyrax Free rescanned — you are connected again.",
+    ),
+    "powRescanFailed": MessageLookupByLibrary.simpleMessage(
+      "Vyrax Free rescan failed; will retry automatically.",
+    ),
+    "powRescanStarted": MessageLookupByLibrary.simpleMessage(
+      "Vyrax Free server is unreachable — rescanning for a new server…",
+    ),
+    "powRescanStopped": MessageLookupByLibrary.simpleMessage(
+      "Vyrax Free still has no reachable server. Press Connect to try again.",
+    ),
+    "powScanBalanced": MessageLookupByLibrary.simpleMessage("Balanced"),
+    "powScanMode": MessageLookupByLibrary.simpleMessage("IP scan"),
+    "powScanThorough": MessageLookupByLibrary.simpleMessage("Thorough"),
+    "powScanTurbo": MessageLookupByLibrary.simpleMessage("Turbo"),
+    "powServers": MessageLookupByLibrary.simpleMessage("Servers"),
+    "powSettings": MessageLookupByLibrary.simpleMessage("Settings"),
+    "powShowLogs": MessageLookupByLibrary.simpleMessage("Show logs"),
+    "powStatus": MessageLookupByLibrary.simpleMessage("Status"),
+    "powStatusIdle": MessageLookupByLibrary.simpleMessage(
+      "Idle. Press Connect to start the tunnel.",
+    ),
+    "powTitle": MessageLookupByLibrary.simpleMessage("Vyrax Free"),
+    "powWindowsOnly": MessageLookupByLibrary.simpleMessage(
+      "This feature is only available on Windows.",
+    ),
     "preSharedKey": MessageLookupByLibrary.simpleMessage("Pre-shared key"),
     "prerequisites": MessageLookupByLibrary.simpleMessage("Prerequisites"),
     "pressKeyboard": MessageLookupByLibrary.simpleMessage(
@@ -1578,6 +1570,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "qrcodeDesc": MessageLookupByLibrary.simpleMessage(
       "Scan a QR code to obtain a profile",
     ),
+    "quickAccess": MessageLookupByLibrary.simpleMessage("Quick access"),
     "quickActions": MessageLookupByLibrary.simpleMessage("Quick actions"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("Quick edit"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Rainbow"),
@@ -1926,12 +1919,57 @@ class MessageLookup extends MessageLookupByLibrary {
     "splitStrategyNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Split strategy cannot be empty",
     ),
+    "spoofCarrier": MessageLookupByLibrary.simpleMessage("Operator"),
+    "spoofCarrierAuto": MessageLookupByLibrary.simpleMessage("Auto"),
+    "spoofCarrierIrancell": MessageLookupByLibrary.simpleMessage("Irancell"),
+    "spoofCarrierMci": MessageLookupByLibrary.simpleMessage("MCI"),
+    "spoofConnect": MessageLookupByLibrary.simpleMessage("Connect"),
+    "spoofDisconnect": MessageLookupByLibrary.simpleMessage("Disconnect"),
+    "spoofDownloading": MessageLookupByLibrary.simpleMessage(
+      "Downloading Xray",
+    ),
+    "spoofEmpty": MessageLookupByLibrary.simpleMessage(
+      "No links yet. Import a link to get started.",
+    ),
+    "spoofExit": MessageLookupByLibrary.simpleMessage("Exit"),
+    "spoofFailed": MessageLookupByLibrary.simpleMessage("Failed"),
+    "spoofFragment": MessageLookupByLibrary.simpleMessage("Fragmentation"),
+    "spoofFragmentPlain": MessageLookupByLibrary.simpleMessage(
+      "No fragmentation",
+    ),
+    "spoofIdle": MessageLookupByLibrary.simpleMessage("Idle"),
+    "spoofImport": MessageLookupByLibrary.simpleMessage("Import links"),
+    "spoofImportFailed": MessageLookupByLibrary.simpleMessage(
+      "No valid links found in the text",
+    ),
+    "spoofImportHint": MessageLookupByLibrary.simpleMessage(
+      "Paste vless://, trojan:// or vmess:// links (separate with new lines)",
+    ),
+    "spoofImported": MessageLookupByLibrary.simpleMessage("Links imported"),
+    "spoofIntro": MessageLookupByLibrary.simpleMessage(
+      "Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.",
+    ),
+    "spoofIranDirect": MessageLookupByLibrary.simpleMessage(
+      "Keep Iranian sites direct",
+    ),
+    "spoofLinks": MessageLookupByLibrary.simpleMessage("Links"),
+    "spoofRemoveConfirm": MessageLookupByLibrary.simpleMessage(
+      "This link is currently selected. Remove anyway?",
+    ),
+    "spoofRunning": MessageLookupByLibrary.simpleMessage("Running"),
+    "spoofServers": MessageLookupByLibrary.simpleMessage("servers"),
+    "spoofSettings": MessageLookupByLibrary.simpleMessage("Spoof settings"),
+    "spoofStatus": MessageLookupByLibrary.simpleMessage("Status"),
+    "spoofTitle": MessageLookupByLibrary.simpleMessage("SNI spoof tunnels"),
     "ssidsEmpty": MessageLookupByLibrary.simpleMessage("SSIDs are empty"),
     "stackMode": MessageLookupByLibrary.simpleMessage("Stack mode"),
     "stackTrace": MessageLookupByLibrary.simpleMessage("Stack trace"),
     "standard": MessageLookupByLibrary.simpleMessage("Standard"),
     "standardModeDesc": MessageLookupByLibrary.simpleMessage(
       "Standard mode: adds rules on top of the profile",
+    ),
+    "standardPresetDesc": MessageLookupByLibrary.simpleMessage(
+      "Low latency flags: unified delay and concurrent TCP dialing.",
     ),
     "start": MessageLookupByLibrary.simpleMessage("Start"),
     "startFromScratch": MessageLookupByLibrary.simpleMessage(

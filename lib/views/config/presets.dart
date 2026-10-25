@@ -75,7 +75,7 @@ class DnsPresetsCard extends ConsumerWidget {
               return ActionChip(
                 visualDensity: VisualDensity.compact,
                 avatar: selected
-                    ? const Icon(Icons.check, size: 16)
+                    ? const GlyphIcon(AppGlyphs.check, size: 16)
                     : const GlyphIcon(AppGlyphs.dns, size: 16),
                 label: Text(preset.label),
                 onPressed: () => _apply(ref, preset),
@@ -178,7 +178,7 @@ class OptimizationCard extends ConsumerWidget {
                   OptimizationPreset.lite => appLocalizations.litePresetDesc,
                 }),
                 trailing: currentOptimizationPreset(config) == preset
-                    ? const Icon(Icons.check)
+                    ? const GlyphIcon(AppGlyphs.check)
                     : null,
                 onTap: () => Navigator.of(dialogContext).pop(preset),
               ),

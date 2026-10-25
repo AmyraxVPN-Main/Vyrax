@@ -8,8 +8,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod/riverpod.dart';
 
 final _packageInfo = PackageInfo(
-  appName: 'FlClash',
-  packageName: 'com.follow.clash',
+  appName: 'Vyrax',
+  packageName: 'com.amyrax.vyrax',
   version: '1.2.3',
   buildNumber: '1',
 );
@@ -44,7 +44,7 @@ void main() {
       setGlobalUa('');
 
       expect(globalState.ua, _packageInfo.ua);
-      expect(globalState.ua, contains('FlClash/v1.2.3'));
+      expect(globalState.ua, contains('Vyrax/v1.2.3'));
     });
 
     test('prefers the configured global user agent', () {

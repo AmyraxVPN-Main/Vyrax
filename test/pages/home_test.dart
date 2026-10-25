@@ -473,27 +473,36 @@ void main() {
       );
       await tester.pump();
 
+      expect(find.byType(ToolsView), findsOneWidget);
       final generalItem = find.text('General');
-      await tester.scrollUntilVisible(
-        generalItem,
-        500,
-        scrollable: find.byType(Scrollable).first,
+      final pageScrollable = find.descendant(
+        of: find.byType(ToolsView),
+        matching: find.byType(Scrollable),
       );
+      if (pageScrollable.evaluate().isNotEmpty) {
+        await tester.scrollUntilVisible(
+          generalItem,
+          500,
+          scrollable: pageScrollable.first,
+        );
+      }
       await tester.tap(generalItem);
       await tester.pumpAndSettle();
       expect(find.byType(GeneralView), findsOneWidget);
 
       final logItem = find.text('Logcat');
-      await tester.scrollUntilVisible(
-        logItem,
-        500,
-        scrollable: find
-            .descendant(
-              of: find.byType(GeneralView),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
+      final settingsScrollable = find
+          .descendant(
+            of: find.byType(GeneralView),
+            matching: find.byType(Scrollable),
+          );
+      if (settingsScrollable.evaluate().isNotEmpty) {
+        await tester.scrollUntilVisible(
+          logItem,
+          500,
+          scrollable: settingsScrollable.first,
+        );
+      }
       await tester.tap(logItem);
       await tester.pumpAndSettle();
 

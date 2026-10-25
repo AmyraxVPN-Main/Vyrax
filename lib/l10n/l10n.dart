@@ -360,16 +360,6 @@ class AppLocalizations {
     return Intl.message('More', name: 'more', desc: '', args: []);
   }
 
-  /// `Quick access`
-  String get quickAccess {
-    return Intl.message(
-      'Quick access',
-      name: 'quickAccess',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Other`
   String get other {
     return Intl.message('Other', name: 'other', desc: '', args: []);
@@ -7608,856 +7598,10 @@ class AppLocalizations {
   }
 
   /// `Free servers`
-  /// `Vyrax Free`
-  String get powTitle {
-    return Intl.message(
-      'Vyrax Free',
-      name: 'powTitle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Psiphon + Cloudflare WARP tunnel (UAC PoW) on this device, for networks where direct tunnels fail.`
-  String get powIntro {
-    return Intl.message(
-      'Psiphon + Cloudflare WARP tunnel (UAC PoW) on this device, for networks where direct tunnels fail.',
-      name: 'powIntro',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Connect`
-  String get powConnect {
-    return Intl.message(
-      'Connect',
-      name: 'powConnect',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Disconnect`
-  String get powDisconnect {
-    return Intl.message(
-      'Disconnect',
-      name: 'powDisconnect',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Settings`
-  String get powSettings {
-    return Intl.message(
-      'Settings',
-      name: 'powSettings',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Exit country`
-  String get powRegion {
-    return Intl.message(
-      'Exit country',
-      name: 'powRegion',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Automatic`
-  String get powAuto {
-    return Intl.message(
-      'Automatic',
-      name: 'powAuto',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Automatic (nearby)`
-  String get powRegionAuto {
-    return Intl.message(
-      'Automatic (nearby)',
-      name: 'powRegionAuto',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `WARP transport`
-  String get powOuterTransport {
-    return Intl.message(
-      'WARP transport',
-      name: 'powOuterTransport',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Link recipe`
-  String get powRecipe {
-    return Intl.message(
-      'Link recipe',
-      name: 'powRecipe',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Firewall profile`
-  String get powFirewall {
-    return Intl.message(
-      'Firewall profile',
-      name: 'powFirewall',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Automatic (Hamrah Aval)`
-  String get powFirewallAuto {
-    return Intl.message(
-      'Automatic (Hamrah Aval)',
-      name: 'powFirewallAuto',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Irancell`
-  String get powFirewallIrancell {
-    return Intl.message(
-      'Irancell',
-      name: 'powFirewallIrancell',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `MCI (Hamrah Aval)`
-  String get powFirewallMci {
-    return Intl.message(
-      'MCI (Hamrah Aval)',
-      name: 'powFirewallMci',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `IP scan`
-  String get powScanMode {
-    return Intl.message(
-      'IP scan',
-      name: 'powScanMode',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Turbo`
-  String get powScanTurbo {
-    return Intl.message(
-      'Turbo',
-      name: 'powScanTurbo',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Balanced`
-  String get powScanBalanced {
-    return Intl.message(
-      'Balanced',
-      name: 'powScanBalanced',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Thorough`
-  String get powScanThorough {
-    return Intl.message(
-      'Thorough',
-      name: 'powScanThorough',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Key fetch route`
-  String get powKeyFetch {
-    return Intl.message(
-      'Key fetch route',
-      name: 'powKeyFetch',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Auto (race ECH and split ClientHello)`
-  String get powKeyAuto {
-    return Intl.message(
-      'Auto (race ECH and split ClientHello)',
-      name: 'powKeyAuto',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `ECH only`
-  String get powKeyEch {
-    return Intl.message(
-      'ECH only',
-      name: 'powKeyEch',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Split ClientHello only`
-  String get powKeyFragment {
-    return Intl.message(
-      'Split ClientHello only',
-      name: 'powKeyFragment',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Current network only`
-  String get powKeyExternal {
-    return Intl.message(
-      'Current network only',
-      name: 'powKeyExternal',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Obfuscation padding`
-  String get powObfuscation {
-    return Intl.message(
-      'Obfuscation padding',
-      name: 'powObfuscation',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Psiphon chain`
-  String get powChainPsiphon {
-    return Intl.message(
-      'Psiphon chain',
-      name: 'powChainPsiphon',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Turn off to use WARP only (no Psiphon hop).`
-  String get powChainPsiphonDesc {
-    return Intl.message(
-      'Turn off to use WARP only (no Psiphon hop).',
-      name: 'powChainPsiphonDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Split ClientHello (HTTP/2)`
-  String get powH2Fragment {
-    return Intl.message(
-      'Split ClientHello (HTTP/2)',
-      name: 'powH2Fragment',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Optimized mode (lower timeouts)`
-  String get powOptimized {
-    return Intl.message(
-      'Optimized mode (lower timeouts)',
-      name: 'powOptimized',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `HTTP/3 on Irancell`
-  String get powIrancellH3 {
-    return Intl.message(
-      'HTTP/3 on Irancell',
-      name: 'powIrancellH3',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Direct Psiphon first`
-  String get powDirectFirst {
-    return Intl.message(
-      'Direct Psiphon first',
-      name: 'powDirectFirst',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Status`
-  String get powStatus {
-    return Intl.message(
-      'Status',
-      name: 'powStatus',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Idle. Press Connect to start the tunnel.`
-  String get powStatusIdle {
-    return Intl.message(
-      'Idle. Press Connect to start the tunnel.',
-      name: 'powStatusIdle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Logs`
-  String get powLogs {
-    return Intl.message(
-      'Logs',
-      name: 'powLogs',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Show logs`
-  String get powShowLogs {
-    return Intl.message(
-      'Show logs',
-      name: 'powShowLogs',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Hide logs`
-  String get powHideLogs {
-    return Intl.message(
-      'Hide logs',
-      name: 'powHideLogs',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Forget network memory`
-  String get powForgetNetworks {
-    return Intl.message(
-      'Forget network memory',
-      name: 'powForgetNetworks',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Clears remembered exit countries and strategy winners for your networks.`
-  String get powForgetNetworksDesc {
-    return Intl.message(
-      'Clears remembered exit countries and strategy winners for your networks.',
-      name: 'powForgetNetworksDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This feature is only available on Windows.`
-  String get powWindowsOnly {
-    return Intl.message(
-      'This feature is only available on Windows.',
-      name: 'powWindowsOnly',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Servers`
-  String get powServers {
-    return Intl.message(
-      'Servers',
-      name: 'powServers',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Add server`
-  String get powAddServer {
-    return Intl.message(
-      'Add server',
-      name: 'powAddServer',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Remove Vyrax Free`
-  String get powRemove {
-    return Intl.message(
-      'Remove Vyrax Free',
-      name: 'powRemove',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Removes the Vyrax Free server and its profile from this device. Press Connect to create it again.`
-  String get powRemoveDesc {
-    return Intl.message(
-      'Removes the Vyrax Free server and its profile from this device. Press Connect to create it again.',
-      name: 'powRemoveDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Free servers`
-  /// `SNI spoof tunnels`
-  String get spoofTitle {
-    return Intl.message(
-      'SNI spoof tunnels',
-      name: 'spoofTitle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.`
-  String get spoofIntro {
-    return Intl.message(
-      'Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.',
-      name: 'spoofIntro',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Import links`
-  String get spoofImport {
-    return Intl.message(
-      'Import links',
-      name: 'spoofImport',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Paste vless://, trojan:// or vmess:// links (separate with new lines)`
-  String get spoofImportHint {
-    return Intl.message(
-      'Paste vless://, trojan:// or vmess:// links (separate with new lines)',
-      name: 'spoofImportHint',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Links imported`
-  String get spoofImported {
-    return Intl.message(
-      'Links imported',
-      name: 'spoofImported',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No valid links found in the text`
-  String get spoofImportFailed {
-    return Intl.message(
-      'No valid links found in the text',
-      name: 'spoofImportFailed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No links yet. Import a link to get started.`
-  String get spoofEmpty {
-    return Intl.message(
-      'No links yet. Import a link to get started.',
-      name: 'spoofEmpty',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Connect`
-  String get spoofConnect {
-    return Intl.message(
-      'Connect',
-      name: 'spoofConnect',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Disconnect`
-  String get spoofDisconnect {
-    return Intl.message(
-      'Disconnect',
-      name: 'spoofDisconnect',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This link is currently selected. Remove anyway?`
-  String get spoofRemoveConfirm {
-    return Intl.message(
-      'This link is currently selected. Remove anyway?',
-      name: 'spoofRemoveConfirm',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Auto`
-  String get spoofCarrierAuto {
-    return Intl.message(
-      'Auto',
-      name: 'spoofCarrierAuto',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `MCI`
-  String get spoofCarrierMci {
-    return Intl.message(
-      'MCI',
-      name: 'spoofCarrierMci',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Irancell`
-  String get spoofCarrierIrancell {
-    return Intl.message(
-      'Irancell',
-      name: 'spoofCarrierIrancell',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Keep Iranian sites direct`
-  String get spoofIranDirect {
-    return Intl.message(
-      'Keep Iranian sites direct',
-      name: 'spoofIranDirect',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No fragmentation`
-  String get spoofFragmentPlain {
-    return Intl.message(
-      'No fragmentation',
-      name: 'spoofFragmentPlain',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Downloading Xray`
-  String get spoofDownloading {
-    return Intl.message(
-      'Downloading Xray',
-      name: 'spoofDownloading',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Idle`
-  String get spoofIdle {
-    return Intl.message(
-      'Idle',
-      name: 'spoofIdle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Running`
-  String get spoofRunning {
-    return Intl.message(
-      'Running',
-      name: 'spoofRunning',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Failed`
-  String get spoofFailed {
-    return Intl.message(
-      'Failed',
-      name: 'spoofFailed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Exit`
-  String get spoofExit {
-    return Intl.message(
-      'Exit',
-      name: 'spoofExit',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Operator`
-  String get spoofCarrier {
-    return Intl.message(
-      'Operator',
-      name: 'spoofCarrier',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Fragmentation`
-  String get spoofFragment {
-    return Intl.message(
-      'Fragmentation',
-      name: 'spoofFragment',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Spoof settings`
-  String get spoofSettings {
-    return Intl.message(
-      'Spoof settings',
-      name: 'spoofSettings',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Links`
-  String get spoofLinks {
-    return Intl.message(
-      'Links',
-      name: 'spoofLinks',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Status`
-  String get spoofStatus {
-    return Intl.message(
-      'Status',
-      name: 'spoofStatus',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `servers`
-  String get spoofServers {
-    return Intl.message(
-      'servers',
-      name: 'spoofServers',
-      desc: '',
-      args: [],
-    );
-  }
-
   String get mozillaTitle {
     return Intl.message(
-      'Firefox Free Servers',
+      'Free servers',
       name: 'mozillaTitle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Free`
-  String get free {
-    return Intl.message('Free', name: 'free', desc: '', args: []);
-  }
-
-  /// `DNS presets`
-  String get dnsPresets {
-    return Intl.message(
-      'DNS presets',
-      name: 'dnsPresets',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Vyrax Free server is unreachable — rescanning for a new server…`
-  String get powRescanStarted {
-    return Intl.message(
-      'Vyrax Free server is unreachable — rescanning for a new server…',
-      name: 'powRescanStarted',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Vyrax Free rescanned — you are connected again.`
-  String get powRescanCompleted {
-    return Intl.message(
-      'Vyrax Free rescanned — you are connected again.',
-      name: 'powRescanCompleted',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Vyrax Free rescan failed; will retry automatically.`
-  String get powRescanFailed {
-    return Intl.message(
-      'Vyrax Free rescan failed; will retry automatically.',
-      name: 'powRescanFailed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Vyrax Free still has no reachable server. Press Connect to try again.`
-  String get powRescanStopped {
-    return Intl.message(
-      'Vyrax Free still has no reachable server. Press Connect to try again.',
-      name: 'powRescanStopped',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Connecting Vyrax Free…`
-  String get powFlowConnecting {
-    return Intl.message(
-      'Connecting Vyrax Free…',
-      name: 'powFlowConnecting',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Vyrax Free is connected.`
-  String get powFlowConnected {
-    return Intl.message(
-      'Vyrax Free is connected.',
-      name: 'powFlowConnected',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Could not connect Vyrax Free.`
-  String get powFlowFailed {
-    return Intl.message(
-      'Could not connect Vyrax Free.',
-      name: 'powFlowFailed',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Retry`
-  String get powFlowRetry {
-    return Intl.message(
-      'Retry',
-      name: 'powFlowRetry',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Done`
-  String get powFlowDone {
-    return Intl.message(
-      'Done',
-      name: 'powFlowDone',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Optimization`
-  String get optimization {
-    return Intl.message(
-      'Optimization',
-      name: 'optimization',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `One tap applies a tuned set of core settings.`
-  String get optimizationDesc {
-    return Intl.message(
-      'One tap applies a tuned set of core settings.',
-      name: 'optimizationDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Gaming`
-  String get gamePreset {
-    return Intl.message('Gaming', name: 'gamePreset', desc: '', args: []);
-  }
-
-  /// `Lite`
-  String get litePreset {
-    return Intl.message('Lite', name: 'litePreset', desc: '', args: []);
-  }
-
-  /// `Low latency flags: unified delay and concurrent TCP dialing.`
-  String get standardPresetDesc {
-    return Intl.message(
-      'Low latency flags: unified delay and concurrent TCP dialing.',
-      name: 'standardPresetDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Gaming flags plus the Radar Game DNS servers for lower in-game ping.`
-  String get gamePresetDesc {
-    return Intl.message(
-      'Gaming flags plus the Radar Game DNS servers for lower in-game ping.',
-      name: 'gamePresetDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Memory-light geo loader plus AdGuard DNS, which also filters ads.`
-  String get litePresetDesc {
-    return Intl.message(
-      'Memory-light geo loader plus AdGuard DNS, which also filters ads.',
-      name: 'litePresetDesc',
       desc: '',
       args: [],
     );
@@ -9121,6 +8265,676 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Vyrax Free`
+  String get powTitle {
+    return Intl.message('Vyrax Free', name: 'powTitle', desc: '', args: []);
+  }
+
+  /// `Psiphon + Cloudflare WARP tunnel (UAC PoW) on this device, for networks where direct tunnels fail.`
+  String get powIntro {
+    return Intl.message(
+      'Psiphon + Cloudflare WARP tunnel (UAC PoW) on this device, for networks where direct tunnels fail.',
+      name: 'powIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect`
+  String get powConnect {
+    return Intl.message('Connect', name: 'powConnect', desc: '', args: []);
+  }
+
+  /// `Disconnect`
+  String get powDisconnect {
+    return Intl.message(
+      'Disconnect',
+      name: 'powDisconnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Settings`
+  String get powSettings {
+    return Intl.message('Settings', name: 'powSettings', desc: '', args: []);
+  }
+
+  /// `Exit country`
+  String get powRegion {
+    return Intl.message('Exit country', name: 'powRegion', desc: '', args: []);
+  }
+
+  /// `Automatic (nearby)`
+  String get powRegionAuto {
+    return Intl.message(
+      'Automatic (nearby)',
+      name: 'powRegionAuto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic`
+  String get powAuto {
+    return Intl.message('Automatic', name: 'powAuto', desc: '', args: []);
+  }
+
+  /// `WARP transport`
+  String get powOuterTransport {
+    return Intl.message(
+      'WARP transport',
+      name: 'powOuterTransport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link recipe`
+  String get powRecipe {
+    return Intl.message('Link recipe', name: 'powRecipe', desc: '', args: []);
+  }
+
+  /// `Firewall profile`
+  String get powFirewall {
+    return Intl.message(
+      'Firewall profile',
+      name: 'powFirewall',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic (Hamrah Aval)`
+  String get powFirewallAuto {
+    return Intl.message(
+      'Automatic (Hamrah Aval)',
+      name: 'powFirewallAuto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Irancell`
+  String get powFirewallIrancell {
+    return Intl.message(
+      'Irancell',
+      name: 'powFirewallIrancell',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MCI (Hamrah Aval)`
+  String get powFirewallMci {
+    return Intl.message(
+      'MCI (Hamrah Aval)',
+      name: 'powFirewallMci',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `IP scan`
+  String get powScanMode {
+    return Intl.message('IP scan', name: 'powScanMode', desc: '', args: []);
+  }
+
+  /// `Turbo`
+  String get powScanTurbo {
+    return Intl.message('Turbo', name: 'powScanTurbo', desc: '', args: []);
+  }
+
+  /// `Balanced`
+  String get powScanBalanced {
+    return Intl.message(
+      'Balanced',
+      name: 'powScanBalanced',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thorough`
+  String get powScanThorough {
+    return Intl.message(
+      'Thorough',
+      name: 'powScanThorough',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Key fetch route`
+  String get powKeyFetch {
+    return Intl.message(
+      'Key fetch route',
+      name: 'powKeyFetch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto (race ECH and split ClientHello)`
+  String get powKeyAuto {
+    return Intl.message(
+      'Auto (race ECH and split ClientHello)',
+      name: 'powKeyAuto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ECH only`
+  String get powKeyEch {
+    return Intl.message('ECH only', name: 'powKeyEch', desc: '', args: []);
+  }
+
+  /// `Split ClientHello only`
+  String get powKeyFragment {
+    return Intl.message(
+      'Split ClientHello only',
+      name: 'powKeyFragment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current network only`
+  String get powKeyExternal {
+    return Intl.message(
+      'Current network only',
+      name: 'powKeyExternal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Obfuscation padding`
+  String get powObfuscation {
+    return Intl.message(
+      'Obfuscation padding',
+      name: 'powObfuscation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Psiphon chain`
+  String get powChainPsiphon {
+    return Intl.message(
+      'Psiphon chain',
+      name: 'powChainPsiphon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn off to use WARP only (no Psiphon hop).`
+  String get powChainPsiphonDesc {
+    return Intl.message(
+      'Turn off to use WARP only (no Psiphon hop).',
+      name: 'powChainPsiphonDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Split ClientHello (HTTP/2)`
+  String get powH2Fragment {
+    return Intl.message(
+      'Split ClientHello (HTTP/2)',
+      name: 'powH2Fragment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optimized mode (lower timeouts)`
+  String get powOptimized {
+    return Intl.message(
+      'Optimized mode (lower timeouts)',
+      name: 'powOptimized',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `HTTP/3 on Irancell`
+  String get powIrancellH3 {
+    return Intl.message(
+      'HTTP/3 on Irancell',
+      name: 'powIrancellH3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Direct Psiphon first`
+  String get powDirectFirst {
+    return Intl.message(
+      'Direct Psiphon first',
+      name: 'powDirectFirst',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Status`
+  String get powStatus {
+    return Intl.message('Status', name: 'powStatus', desc: '', args: []);
+  }
+
+  /// `Idle. Press Connect to start the tunnel.`
+  String get powStatusIdle {
+    return Intl.message(
+      'Idle. Press Connect to start the tunnel.',
+      name: 'powStatusIdle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logs`
+  String get powLogs {
+    return Intl.message('Logs', name: 'powLogs', desc: '', args: []);
+  }
+
+  /// `Show logs`
+  String get powShowLogs {
+    return Intl.message('Show logs', name: 'powShowLogs', desc: '', args: []);
+  }
+
+  /// `Hide logs`
+  String get powHideLogs {
+    return Intl.message('Hide logs', name: 'powHideLogs', desc: '', args: []);
+  }
+
+  /// `Forget network memory`
+  String get powForgetNetworks {
+    return Intl.message(
+      'Forget network memory',
+      name: 'powForgetNetworks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clears remembered exit countries and strategy winners for your networks.`
+  String get powForgetNetworksDesc {
+    return Intl.message(
+      'Clears remembered exit countries and strategy winners for your networks.',
+      name: 'powForgetNetworksDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This feature is only available on Windows.`
+  String get powWindowsOnly {
+    return Intl.message(
+      'This feature is only available on Windows.',
+      name: 'powWindowsOnly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Servers`
+  String get powServers {
+    return Intl.message('Servers', name: 'powServers', desc: '', args: []);
+  }
+
+  /// `Add server`
+  String get powAddServer {
+    return Intl.message('Add server', name: 'powAddServer', desc: '', args: []);
+  }
+
+  /// `Remove Vyrax Free`
+  String get powRemove {
+    return Intl.message(
+      'Remove Vyrax Free',
+      name: 'powRemove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Removes the Vyrax Free server and its profile from this device. Press Connect to create it again.`
+  String get powRemoveDesc {
+    return Intl.message(
+      'Removes the Vyrax Free server and its profile from this device. Press Connect to create it again.',
+      name: 'powRemoveDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS presets`
+  String get dnsPresets {
+    return Intl.message('DNS presets', name: 'dnsPresets', desc: '', args: []);
+  }
+
+  /// `Free`
+  String get free {
+    return Intl.message('Free', name: 'free', desc: '', args: []);
+  }
+
+  /// `Gaming`
+  String get gamePreset {
+    return Intl.message('Gaming', name: 'gamePreset', desc: '', args: []);
+  }
+
+  /// `Gaming flags plus the Radar Game DNS servers for lower in-game ping.`
+  String get gamePresetDesc {
+    return Intl.message(
+      'Gaming flags plus the Radar Game DNS servers for lower in-game ping.',
+      name: 'gamePresetDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lite`
+  String get litePreset {
+    return Intl.message('Lite', name: 'litePreset', desc: '', args: []);
+  }
+
+  /// `Memory-light geo loader plus AdGuard DNS, which also filters ads.`
+  String get litePresetDesc {
+    return Intl.message(
+      'Memory-light geo loader plus AdGuard DNS, which also filters ads.',
+      name: 'litePresetDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optimization`
+  String get optimization {
+    return Intl.message(
+      'Optimization',
+      name: 'optimization',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `One tap applies a tuned set of core settings.`
+  String get optimizationDesc {
+    return Intl.message(
+      'One tap applies a tuned set of core settings.',
+      name: 'optimizationDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quick access`
+  String get quickAccess {
+    return Intl.message(
+      'Quick access',
+      name: 'quickAccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Low latency flags: unified delay and concurrent TCP dialing.`
+  String get standardPresetDesc {
+    return Intl.message(
+      'Low latency flags: unified delay and concurrent TCP dialing.',
+      name: 'standardPresetDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vyrax Free server is unreachable — rescanning for a new server…`
+  String get powRescanStarted {
+    return Intl.message(
+      'Vyrax Free server is unreachable — rescanning for a new server…',
+      name: 'powRescanStarted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vyrax Free rescanned — you are connected again.`
+  String get powRescanCompleted {
+    return Intl.message(
+      'Vyrax Free rescanned — you are connected again.',
+      name: 'powRescanCompleted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vyrax Free rescan failed; will retry automatically.`
+  String get powRescanFailed {
+    return Intl.message(
+      'Vyrax Free rescan failed; will retry automatically.',
+      name: 'powRescanFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vyrax Free still has no reachable server. Press Connect to try again.`
+  String get powRescanStopped {
+    return Intl.message(
+      'Vyrax Free still has no reachable server. Press Connect to try again.',
+      name: 'powRescanStopped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SNI spoof tunnels`
+  String get spoofTitle {
+    return Intl.message(
+      'SNI spoof tunnels',
+      name: 'spoofTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.`
+  String get spoofIntro {
+    return Intl.message(
+      'Import vless, trojan or vmess links and connect over a local Xray tunnel with TLS fragmentation for hard to block connections.',
+      name: 'spoofIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import links`
+  String get spoofImport {
+    return Intl.message(
+      'Import links',
+      name: 'spoofImport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste vless://, trojan:// or vmess:// links (separate with new lines)`
+  String get spoofImportHint {
+    return Intl.message(
+      'Paste vless://, trojan:// or vmess:// links (separate with new lines)',
+      name: 'spoofImportHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Links imported`
+  String get spoofImported {
+    return Intl.message(
+      'Links imported',
+      name: 'spoofImported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No valid links found in the text`
+  String get spoofImportFailed {
+    return Intl.message(
+      'No valid links found in the text',
+      name: 'spoofImportFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No links yet. Import a link to get started.`
+  String get spoofEmpty {
+    return Intl.message(
+      'No links yet. Import a link to get started.',
+      name: 'spoofEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect`
+  String get spoofConnect {
+    return Intl.message('Connect', name: 'spoofConnect', desc: '', args: []);
+  }
+
+  /// `Disconnect`
+  String get spoofDisconnect {
+    return Intl.message(
+      'Disconnect',
+      name: 'spoofDisconnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This link is currently selected. Remove anyway?`
+  String get spoofRemoveConfirm {
+    return Intl.message(
+      'This link is currently selected. Remove anyway?',
+      name: 'spoofRemoveConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto`
+  String get spoofCarrierAuto {
+    return Intl.message('Auto', name: 'spoofCarrierAuto', desc: '', args: []);
+  }
+
+  /// `MCI`
+  String get spoofCarrierMci {
+    return Intl.message('MCI', name: 'spoofCarrierMci', desc: '', args: []);
+  }
+
+  /// `Irancell`
+  String get spoofCarrierIrancell {
+    return Intl.message(
+      'Irancell',
+      name: 'spoofCarrierIrancell',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep Iranian sites direct`
+  String get spoofIranDirect {
+    return Intl.message(
+      'Keep Iranian sites direct',
+      name: 'spoofIranDirect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No fragmentation`
+  String get spoofFragmentPlain {
+    return Intl.message(
+      'No fragmentation',
+      name: 'spoofFragmentPlain',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading Xray`
+  String get spoofDownloading {
+    return Intl.message(
+      'Downloading Xray',
+      name: 'spoofDownloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Idle`
+  String get spoofIdle {
+    return Intl.message('Idle', name: 'spoofIdle', desc: '', args: []);
+  }
+
+  /// `Running`
+  String get spoofRunning {
+    return Intl.message('Running', name: 'spoofRunning', desc: '', args: []);
+  }
+
+  /// `Failed`
+  String get spoofFailed {
+    return Intl.message('Failed', name: 'spoofFailed', desc: '', args: []);
+  }
+
+  /// `Exit`
+  String get spoofExit {
+    return Intl.message('Exit', name: 'spoofExit', desc: '', args: []);
+  }
+
+  /// `Operator`
+  String get spoofCarrier {
+    return Intl.message('Operator', name: 'spoofCarrier', desc: '', args: []);
+  }
+
+  /// `Fragmentation`
+  String get spoofFragment {
+    return Intl.message(
+      'Fragmentation',
+      name: 'spoofFragment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Spoof settings`
+  String get spoofSettings {
+    return Intl.message(
+      'Spoof settings',
+      name: 'spoofSettings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Links`
+  String get spoofLinks {
+    return Intl.message('Links', name: 'spoofLinks', desc: '', args: []);
+  }
+
+  /// `Status`
+  String get spoofStatus {
+    return Intl.message('Status', name: 'spoofStatus', desc: '', args: []);
+  }
+
+  /// `servers`
+  String get spoofServers {
+    return Intl.message('servers', name: 'spoofServers', desc: '', args: []);
   }
 }
 

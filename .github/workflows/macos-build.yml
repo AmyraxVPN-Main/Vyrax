@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - flclash-0.2.0
+      - vyrax-0.2.4-macos
 
 permissions:
   contents: read
@@ -100,6 +101,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Read application version
+        id: version
+        shell: bash
+        run: |
+          echo "version=$(sed -n 's/^version: *\([0-9][0-9.]*\).*/\1/p' pubspec.yaml | head -1)" >> "$GITHUB_OUTPUT"
+
       - name: Shim connectivity_plus for the macOS 15 SDK
         if: matrix.arch == 'amd64'
         run: |
@@ -143,7 +150,7 @@ jobs:
           app_path="$(find build/macos -type d -name '*.app' | head -n 1)"
           test -n "$app_path"
           ditto -c -k --sequesterRsrc --keepParent "$app_path" \
-            "dist/Vyrax-0.2.0-macos-${{ matrix.arch }}.zip"
+            "dist/Vyrax-${{ steps.version.outputs.version }}-macos-${{ matrix.arch }}.zip"
 
       - name: Normalize DMG name to the requested architecture
         run: |
@@ -152,7 +159,7 @@ jobs:
           # the intended machine architecture so the artifact names stay stable.
           dmg_path="$(find dist -maxdepth 1 -name '*.dmg' | head -n 1)"
           test -n "$dmg_path"
-          expected="dist/Vyrax-0.2.0-macos-${{ matrix.arch }}.dmg"
+          expected="dist/Vyrax-${{ steps.version.outputs.version }}-macos-${{ matrix.arch }}.dmg"
           if [ "$dmg_path" != "$expected" ]; then
             mv "$dmg_path" "$expected"
           fi
@@ -261,7 +268,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Vyrax-0.2.0-macos-${{ matrix.arch }}
+          name: Vyrax-${{ steps.version.outputs.version }}-macos-${{ matrix.arch }}
           path: |
             dist
             SHA256SUMS-macos.txt

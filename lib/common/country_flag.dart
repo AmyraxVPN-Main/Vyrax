@@ -1,6 +1,6 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CountryFlagEmoji extends StatelessWidget {
   final String code;
@@ -13,10 +13,11 @@ class CountryFlagEmoji extends StatelessWidget {
       width: fontSize * 1.36,
       height: fontSize,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: const Color(0x33000000)),
+        shape: AppShape.xs.copyWith(
+          side: const BorderSide(color: Color(0x33000000)),
+        ),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

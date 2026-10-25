@@ -36,7 +36,12 @@ final releaseMonitorProvider = Provider<ReleaseMonitor>((ref) {
     fireImmediately: true,
   );
   ref.onDispose(monitor.dispose);
-  monitor.start();
+  // Before the app is attached there is no window to notify, and a failed
+  // early probe would leave a retry timer behind; attach() starts the first
+  // check once the session is live.
+  if (globalState.isAttach == true) {
+    monitor.start();
+  }
   return monitor;
 });
 

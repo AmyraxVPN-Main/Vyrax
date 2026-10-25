@@ -15,9 +15,10 @@ Uint8List convertForeignProfile(Uint8List bytes) {
       .replaceFirst(RegExp(r'^\uFEFF'), '')
       .trim();
   // Free-server lists usually arrive as plain share links (one per line),
-  // optionally base64-wrapped by a subscription wrapper.
+  // optionally base64-wrapped by a subscription wrapper. A single link keeps
+  // the native share-link path so a one-node subscription stays refreshable.
   final rawLinks = parseShareLinkList(text);
-  if (rawLinks != null) {
+  if (rawLinks != null && rawLinks.length > 1) {
     return _proxiesPayload(rawLinks);
   }
   if (!text.startsWith('{') && !text.startsWith('[')) {
@@ -28,7 +29,7 @@ Uint8List convertForeignProfile(Uint8List bytes) {
       text = utf8.decode(decoded).trim();
       bytes = Uint8List.fromList(decoded);
       final wrappedLinks = parseShareLinkList(text);
-      if (wrappedLinks != null) {
+      if (wrappedLinks != null && wrappedLinks.length > 1) {
         return _proxiesPayload(wrappedLinks);
       }
     } on FormatException {

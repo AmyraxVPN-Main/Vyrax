@@ -147,7 +147,11 @@ class PowCoordinator {
   String _networkLabel = '';
   Completer<void>? _networkReady;
 
-  bool get connected => _exitPort != 0;
+  /// A listening exit port is not enough to call the tunnel connected: during
+  /// startup the sidecar may bind the port before its handshake completes.
+  /// The UI and dashboard must wait for the terminal connected phase.
+  bool get connected =>
+      _exitPort != 0 && status.snapshot.phase == PowPhase.connected;
 
   int get exitPort => _exitPort;
 
@@ -383,6 +387,12 @@ class PowCoordinator {
       _warpOnly = !chain;
       _outerLabel = chain ? 'Psiphon' : 'WARP';
       _stopFlag = false;
+      status.update(
+        PowPhase.connected,
+        100,
+        'Adopted existing UAC PoW tunnel',
+        outerLabel: _outerLabel,
+      );
       return true;
     } on Exception catch (error) {
       _emitLog('Tunnel adoption on port $port failed: $error');

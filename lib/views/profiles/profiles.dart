@@ -602,7 +602,9 @@ class _ProfileCardTitle extends StatelessWidget {
               ConfigFlagBadge(profile.realLabel, fontSize: 16),
               Flexible(
                 child: ChipTitle(
-                  title: profile.realLabel,
+                  title: profileLabelWithoutLeadingCountryCode(
+                    profile.realLabel,
+                  ),
                   expire: expire,
                   style: context.textTheme.titleMedium,
                 ),
@@ -616,7 +618,9 @@ class _ProfileCardTitle extends StatelessWidget {
               ConfigFlagBadge(profile.realLabel, fontSize: 16),
               Flexible(
                 child: ChipTitle(
-                  title: profile.realLabel,
+                  title: profileLabelWithoutLeadingCountryCode(
+                    profile.realLabel,
+                  ),
                   expire: expire,
                   style: context.textTheme.titleMedium,
                 ),

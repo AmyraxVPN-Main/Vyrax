@@ -63,7 +63,6 @@ class PowController extends ChangeNotifier {
     unawaited(
       globalState.safeRun(() async {
         final dir = Directory(await appPath.homeDirPath);
-        final powDir = Directory(path.join(dir.path, 'pow'));
         _store = PowStore(dir);
         settings = _store!.snapshot();
         _coordinator = PowCoordinator(
@@ -89,27 +88,14 @@ class PowController extends ChangeNotifier {
           await _removePowProfile();
         } else {
           await _relabelFromLastConnect();
-          // Self-heal: the slot survived but the profile is gone (e.g. it
-          // could not be validated earlier while the core was down).
-          final exists = ref
-              .read(profilesProvider)
-              .any((profile) => profile.id == kPowSystemProfileId);
-          if (!exists) {
-            try {
-              final saved = await _buildPowProfile(
-                pow_models.kPowPsiphonSocksPort,
-              );
-              ref.read(profilesProvider.notifier).put(saved);
-            } on Exception catch (error) {
-              _onLog('could not restore the Vyrax Free profile: $error');
-            }
-          }
+          // Do not recreate a missing profile during startup.  Selecting an
+          // exit country or pressing Connect is an explicit user action; a
+          // background restore must never add a profile by itself.
         }
-        try {
-          await installPowBinaries(powDir);
-        } on PowEngineException catch (error) {
-          _onLog(error.message);
-        }
+        // Do not install/copy the PoW sidecars while the user is merely
+        // opening the Vyrax Free panel.  The first panel click used to do
+        // all binary I/O here and caused a visible UI hitch. Connect() owns
+        // installation now, immediately before the first real dial.
         unawaited(_reconcileAfterStartup());
         _notify();
       }),
@@ -170,7 +156,10 @@ class PowController extends ChangeNotifier {
 
   int get exitPort => _coordinator?.exitPort ?? 0;
 
-  bool get connected => _coordinator?.exitPort != 0;
+  // A bound SOCKS port can exist briefly before the sidecars complete their
+  // handshake.  Expose the coordinator's terminal state to the UI so the
+  // first render never says Disconnect while the tunnel is only starting.
+  bool get connected => _coordinator?.connected ?? false;
 
   bool get isWindows => Platform.isWindows;
 
@@ -220,7 +209,9 @@ class PowController extends ChangeNotifier {
     if (matches.isEmpty) return;
     final expected = pow_models.regionName(clean);
     final current = matches.first.label;
-    if (current == 'Vyrax Free · $expected') return;
+    final expectedLabel =
+        '${clean.toUpperCase().countryFlagEmoji} Vyrax Free · $expected';
+    if (current == expectedLabel) return;
     unawaited(
       globalState.safeRun(() async {
         try {
@@ -334,7 +325,18 @@ class PowController extends ChangeNotifier {
   /// Full teardown: stops the tunnel, drops the server slots and removes
   /// the generated profile. A later Connect rebuilds everything.
   Future<void> removeVyraxFree() async {
-    if (busy && !_autoRecovering) return;
+    if (busy && !_autoRecovering) {
+      // The connect flow is waiting on sidecars.  A user Stop must cancel
+      // that attempt instead of being ignored while busy is true.
+      _manualStop = true;
+      _stopWatchdog(manual: true);
+      try {
+        await _coordinator?.disconnect(quiet: true);
+      } finally {
+        _notify();
+      }
+      return;
+    }
     _stopWatchdog(manual: true);
     busy = true;
     _autoRecovering = false;
@@ -369,12 +371,13 @@ class PowController extends ChangeNotifier {
         )) {
       return;
     }
+    final label = '${region.toUpperCase().countryFlagEmoji} '
+        'Vyrax Free · $location';
     ref
         .read(profilesProvider.notifier)
         .updateProfile(
           kPowSystemProfileId,
-          (profile) =>
-              profile.copyWith(label: 'Vyrax Free · $location'),
+          (profile) => profile.copyWith(label: label),
         );
   }
 
@@ -423,7 +426,13 @@ class PowController extends ChangeNotifier {
       await _installBinaries();
       await coordinator.connect(settings);
       if (coordinator.exitPort != 0) {
+        // Publish the local Vyrax Free profile as soon as the exit SOCKS is
+        // listening. Waiting for Psiphon's region notice here made the
+        // profile appear several seconds after Connect was pressed.
+        await _applyVyraxFreeProfile(coordinator.exitPort);
         await _awaitExitRegion(coordinator);
+        // The late region notice is only for the label/flag; the profile is
+        // already usable while that bounded lookup is running.
         await _applyVyraxFreeProfile(coordinator.exitPort);
         _startWatchdog();
       }
@@ -452,16 +461,38 @@ class PowController extends ChangeNotifier {
   }
 
   Future<void> disconnect() async {
+    final wasPowActive =
+        ref.read(currentProfileIdProvider) == kPowSystemProfileId;
     // A manual Disconnect must be able to cancel an automatic recovery
     // (it stops the tunnel underneath the in-flight connect), so only a
     // plain manual connect run locks the button like this.
-    if (busy && !_autoRecovering) return;
+    if (busy && !_autoRecovering) {
+      // Connect is running in the same controller task.  Mark it cancelled
+      // and stop the sidecars now; connect()'s finally block will finish the
+      // state transition without allowing a newly opened tunnel to survive.
+      _manualStop = true;
+      _stopWatchdog(manual: true);
+      try {
+        await _coordinator?.disconnect(quiet: true);
+        await _removePowProfile();
+      } finally {
+        if (wasPowActive) {
+          await ref.read(setupActionProvider.notifier).setRunning(false);
+        }
+        _notify();
+      }
+      return;
+    }
     busy = true;
     _notify();
     _stopWatchdog(manual: true);
     try {
       await _coordinator?.disconnect();
-      if (ref.read(currentProfileIdProvider) == kPowSystemProfileId) {
+      // The generated Vyrax Free profile is only valid while its local exit
+      // tunnel exists. Remove it on Disconnect so the next session must be
+      // started explicitly through Vyrax Free Connect.
+      await _removePowProfile();
+      if (wasPowActive) {
         await ref.read(setupActionProvider.notifier).setRunning(false);
       }
     } finally {
@@ -483,26 +514,10 @@ class PowController extends ChangeNotifier {
     if (_disposed || _manualStop || busy || _autoRecovering) return;
     final store = _store;
     if (store == null || store.servers().isEmpty) return;
-    final isCurrent = ref.read(currentProfileIdProvider) == kPowSystemProfileId;
-    final coordinator = _coordinator;
-    if (coordinator == null) return;
-    if (await coordinator.adoptOrphanTunnel()) {
-      _sessionHadTunnel = true;
-      _startWatchdog();
-      _onLog('Adopted the tunnel left by the previous session');
-      if (isCurrent) {
-        await _applyVyraxFreeProfile(coordinator.exitPort);
-      } else {
-        await _refreshPowProfile();
-      }
-      return;
-    }
-    if (!isCurrent) return;
-    // The profile is the active one but no tunnel is serving it: go through
-    // the shared recovery path (single scan, backoff, rescan notices) so
-    // the user sees "recovering" — never a final Failed for a profile that
-    // exists on disk.
-    await _recoverConnection();
+    // Startup is reconciliation only. Do not dial or rescan behind the
+    // user's back; the first connection attempt belongs to an explicit
+    // Play/Connect action.
+    _setHealthState(PowHealthState.disabled);
   }
 
 
@@ -747,7 +762,10 @@ class PowController extends ChangeNotifier {
         region = settings.exitCountryCode;
       }
       final location = region.isEmpty ? '' : pow_models.regionName(region);
-      final label = location.isEmpty ? 'Vyrax Free' : 'Vyrax Free · $location';
+    final flag = region.isEmpty ? '' : region.toUpperCase().countryFlagEmoji;
+    final label = location.isEmpty
+        ? 'Vyrax Free · Automatic'
+        : '$flag Vyrax Free · $location';
       ref.read(profilesProvider.notifier).updateProfile(
             kPowSystemProfileId,
             (profile) => profile.copyWith(label: label),
@@ -784,7 +802,10 @@ class PowController extends ChangeNotifier {
       region = tunnelRegion;
       location = region.isEmpty ? '' : pow_models.regionName(region);
     }
-    final label = location.isEmpty ? 'Vyrax Free' : 'Vyrax Free · $location';
+    final flag = region.isEmpty ? '' : region.toUpperCase().countryFlagEmoji;
+    final label = location.isEmpty
+        ? 'Vyrax Free · Automatic'
+        : '$flag Vyrax Free · $location';
     final existing = profiles
         .where(
           (profile) => profile.id == kPowSystemProfileId,
@@ -796,7 +817,9 @@ class PowController extends ChangeNotifier {
           id: kPowSystemProfileId,
           order: -3,
         );
-    final proxyName = location.isEmpty ? 'Free' : 'Free · $location';
+    final proxyName = location.isEmpty
+        ? 'Free · Automatic'
+        : '$flag Free · $location';
     final core = ref.read(coreHandlerProvider);
     return newProfile.copyWith(
       label: label,

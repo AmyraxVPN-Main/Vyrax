@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:fl_clash/common/preferences.dart';
 import 'package:fl_clash/common/request.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/form/form.dart';
@@ -24,6 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/context_menu.dart';
 import '../helpers/glyph_finders.dart';
@@ -223,7 +225,12 @@ void main() {
   testWidgets('about view shows progress while checking for updates', (
     tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
+    await preferences.isInit;
     final container = _containerFor(tester);
+    container
+        .read(appSettingProvider.notifier)
+        .update((state) => state.copyWith(autoCheckUpdate: false));
     final originalAdapter = request.dio.httpClientAdapter;
     addTearDown(() => request.dio.httpClientAdapter = originalAdapter);
     final adapter = _PendingAdapter();

@@ -1,6 +1,5 @@
 import 'package:fl_clash/common/country_flag.dart';
 import 'package:fl_clash/common/string.dart';
-import 'package:flutter/material.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Auto-detects a country for config names that carry no flag emoji.
@@ -219,6 +218,19 @@ String flagIfMissing(String name) {
     return name;
   }
   return '${code.toUpperCase().countryFlagEmoji} $name';
+}
+
+/// Removes a leading ISO country token from names written by older/system
+/// profile versions. The profile card renders the flag separately, so keeping
+/// `CH` in `CH Vyrax Free` makes the country appear as text instead of the
+/// actual flag. Only an uppercase two-letter token at the beginning is
+/// touched; normal user labels remain unchanged.
+String profileLabelWithoutLeadingCountryCode(String name) {
+  final match = RegExp(r'^([A-Z]{2})\s+').firstMatch(name);
+  if (match == null || !configFlagCodes.containsKey(match.group(1))) {
+    return name;
+  }
+  return name.substring(match.end);
 }
 
 /// Flag badge derived purely from the config name: collapses to nothing

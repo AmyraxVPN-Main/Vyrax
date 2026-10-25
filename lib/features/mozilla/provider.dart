@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -88,6 +89,26 @@ class MozillaRuntime {
     if (_selected && ref.read(isStartProvider)) {
       await ref.read(setupActionProvider.notifier).setRunning(false);
     }
+    // Mozilla's generated profile is tied to the currently activated server
+    // list/account. Do not leave a stale profile visible after the user
+    // removes or switches that account.
+    final profiles = ref.read(profilesProvider);
+    if (profiles.any((profile) => profile.id == kMozillaSystemProfileId)) {
+      await ref.read(profilesProvider.notifier).del(kMozillaSystemProfileId);
+      await ref
+          .read(profilesActionProvider.notifier)
+          .clearEffect(kMozillaSystemProfileId);
+      if (ref.read(currentProfileIdProvider) == kMozillaSystemProfileId) {
+        final remaining = ref.read(profilesProvider);
+        ref.read(currentProfileIdProvider.notifier).value = remaining.isNotEmpty
+            ? remaining.first.id
+            : null;
+        if (remaining.isEmpty) {
+          await ref.read(setupActionProvider.notifier).setRunning(false);
+        }
+      }
+    }
+    _profileId = null;
   }
 
   Future<void> _renew() async {

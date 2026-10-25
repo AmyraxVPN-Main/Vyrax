@@ -402,9 +402,9 @@ class _QuickAccessChip extends StatelessWidget {
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
+              decoration: ShapeDecoration(
                 color: context.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
+                shape: AppShape.sm,
               ),
               child: Text(
                 badge!,

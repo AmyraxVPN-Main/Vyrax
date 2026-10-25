@@ -172,6 +172,7 @@ class Bootstrap {
     }
     await _initApp();
     globalState.isAttach = true;
+    _container.read(releaseMonitorProvider).start();
   }
 
   ProviderContainer get _container => globalState.container;
