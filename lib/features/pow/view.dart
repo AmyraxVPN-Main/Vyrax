@@ -325,7 +325,7 @@ class _PowViewState extends ConsumerState<PowView> {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
-                  if (!controller.isWindows)
+                  if (!controller.isSupported)
                     Text(
                       l.powWindowsOnly,
                       style: context.textTheme.bodySmall?.copyWith(
@@ -341,7 +341,7 @@ class _PowViewState extends ConsumerState<PowView> {
                           ? context.colorScheme.onPrimaryContainer
                           : null,
                     ),
-                    onPressed: busy || !controller.isWindows
+                    onPressed: busy || !controller.isSupported
                         ? null
                         : connected
                         ? () => unawaited(_disconnect())

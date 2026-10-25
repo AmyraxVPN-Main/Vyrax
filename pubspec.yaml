@@ -1,4 +1,4 @@
-﻿name: fl_clash
+name: fl_clash
 description: Vyrax by Amyrax, a free and open-source VPN client based on Mihomo.
 publish_to: 'none'
 version: 0.2.4+20005
@@ -108,6 +108,10 @@ flutter:
     - assets/pow/pow_server_entries.txt
     - path: assets/pow/
       platforms: [windows]
+    - path: assets/pow/linux/
+      platforms: [ linux ]
+    - path: assets/pow/macos/
+      platforms: [ macos ]
     - path: assets/images/tray/unix/
       platforms: [ linux ]
     - path: assets/images/tray/macos/

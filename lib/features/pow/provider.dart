@@ -6,6 +6,7 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/yaml_writer.dart';
 import 'package:fl_clash/features/spoof/provider.dart' as spoof;
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/plugins/pow.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/foundation.dart';
@@ -65,13 +66,19 @@ class PowController extends ChangeNotifier {
         final dir = Directory(await appPath.homeDirPath);
         _store = PowStore(dir);
         settings = _store!.snapshot();
-        _coordinator = PowCoordinator(
-          dir,
-          _store!,
-          logger: _onLog,
-        );
-        _coordinator!.status.addListener(_onStatus);
-        _coordinator!.onExitRegion = _onExitRegionNotice;
+        if (Platform.isAndroid) {
+          final android = PowAndroidEngine();
+          _android = android;
+          android.status.addListener(_onStatus);
+        } else {
+          _coordinator = PowCoordinator(
+            dir,
+            _store!,
+            logger: _onLog,
+          );
+          _coordinator!.status.addListener(_onStatus);
+          _coordinator!.onExitRegion = _onExitRegionNotice;
+        }
         _syncActiveServerRegion(notify: false);
         // The multi-server list UI is gone; collapse any leftover slots to
         // the active one so the store keeps a single switcher entry.
@@ -106,6 +113,7 @@ class PowController extends ChangeNotifier {
 
   PowStore? _store;
   PowCoordinator? _coordinator;
+  PowAndroidEngine? _android;
 
   pow_models.PowSettings settings = const pow_models.PowSettings().validated();
 
@@ -154,12 +162,20 @@ class PowController extends ChangeNotifier {
 
   String get outerLabel => status.outerLabel;
 
-  int get exitPort => _coordinator?.exitPort ?? 0;
+  int get exitPort => _android?.exitPort ?? _coordinator?.exitPort ?? 0;
 
   // A bound SOCKS port can exist briefly before the sidecars complete their
   // handshake.  Expose the coordinator's terminal state to the UI so the
   // first render never says Disconnect while the tunnel is only starting.
-  bool get connected => _coordinator?.connected ?? false;
+  bool get connected => _android?.connected ?? _coordinator?.connected ?? false;
+
+  bool get isAndroid => Platform.isAndroid;
+
+  bool get isSupported =>
+      Platform.isWindows ||
+      Platform.isLinux ||
+      Platform.isMacOS ||
+      Platform.isAndroid;
 
   bool get isWindows => Platform.isWindows;
 
@@ -343,7 +359,11 @@ class PowController extends ChangeNotifier {
     _notify();
     try {
       if (connected) {
-        await _coordinator?.disconnect();
+        if (Platform.isAndroid) {
+          await _android?.disconnect();
+        } else {
+          await _coordinator?.disconnect();
+        }
       }
       _store?.clearServers();
       await _removePowProfile();
@@ -415,16 +435,32 @@ class PowController extends ChangeNotifier {
     _cancelRetryTimer();
     _notify();
     try {
-      if (!isWindows) {
+      if (!isSupported) {
         throw const PowEngineException('windows-only');
       }
       await _stopSpoofIfActive();
+      if (Platform.isAndroid) {
+        final android = _android;
+        if (android == null) {
+          throw const PowEngineException('engine-missing');
+        }
+        await android.connect(settings);
+        if (android.exitPort != 0) {
+          await _applyVyraxFreeProfile(android.exitPort);
+        }
+        return;
+      }
       final coordinator = _coordinator;
       if (coordinator == null) {
         throw const PowEngineException('engine-missing');
       }
       await _installBinaries();
-      await coordinator.connect(settings);
+      // Desktop POSIX ships the Aether outer transport only (UAC's WARP-only
+      // exit); there is no Psiphon helper for these platforms.
+      final effective = Platform.isLinux || Platform.isMacOS
+          ? settings.copyWith(chainPsiphon: false, directPsiphonFirst: false)
+          : settings;
+      await coordinator.connect(effective);
       if (coordinator.exitPort != 0) {
         // Publish the local Vyrax Free profile as soon as the exit SOCKS is
         // listening. Waiting for Psiphon's region notice here made the
@@ -463,6 +499,23 @@ class PowController extends ChangeNotifier {
   Future<void> disconnect() async {
     final wasPowActive =
         ref.read(currentProfileIdProvider) == kPowSystemProfileId;
+    if (Platform.isAndroid) {
+      _manualStop = true;
+      _stopWatchdog(manual: true);
+      busy = true;
+      _notify();
+      try {
+        await _android?.disconnect();
+        await _removePowProfile();
+        if (wasPowActive) {
+          await ref.read(setupActionProvider.notifier).setRunning(false);
+        }
+      } finally {
+        busy = false;
+        _notify();
+      }
+      return;
+    }
     // A manual Disconnect must be able to cancel an automatic recovery
     // (it stops the tunnel underneath the in-flight connect), so only a
     // plain manual connect run locks the button like this.
@@ -473,7 +526,11 @@ class PowController extends ChangeNotifier {
       _manualStop = true;
       _stopWatchdog(manual: true);
       try {
-        await _coordinator?.disconnect(quiet: true);
+        if (Platform.isAndroid) {
+          await _android?.disconnect();
+        } else {
+          await _coordinator?.disconnect(quiet: true);
+        }
         await _removePowProfile();
       } finally {
         if (wasPowActive) {
@@ -877,6 +934,9 @@ class PowController extends ChangeNotifier {
     _stopWatchdog();
     _coordinator?.status.removeListener(_onStatus);
     _coordinator?.teardown();
+    _android?.status.removeListener(_onStatus);
+    _android?.dispose();
+    _android = null;
     super.dispose();
   }
 }

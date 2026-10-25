@@ -277,37 +277,66 @@ Future<void> followCoreLog(
 
 /// Bundled helper names with their pinned SHA-256 digests.
 class PowBinaries {
-  static const aether = 'aether.exe';
-  static const psiphon = 'uac-psiphon.exe';
-  static const singBox = 'sing-box.exe';
-  static const cronet = 'libcronet.dll';
+  static bool get _windows => Platform.isWindows;
+
+  static String get aether => _windows ? 'aether.exe' : 'aether';
+  static String get psiphon => 'uac-psiphon.exe';
+  static String get singBox => 'sing-box.exe';
+  static String get cronet => 'libcronet.dll';
   static const serverEntries = 'pow_server_entries.txt';
   static const singBoxLicense = 'sing-box-LICENSE';
 
   static const singBoxVersion = '1.13.14';
   static const aetherVersion = '1.6.0';
 
-  static const shas = <String, String>{
-    aether:
+  static const _windowsShas = <String, String>{
+    'aether.exe':
         '2308114e7885d13925de88fa5f897596cc164187de91a091499f2b721387ffbf',
-    psiphon:
+    'uac-psiphon.exe':
         '0ee79a117c2355ef27fedd906d0740c7648583b23964437ea7e8ff54214b8996',
-    singBox:
+    'sing-box.exe':
         'db0d779948214cf761011d154c3a5da36df20394fa01a9fc798f1dc39fe9d183',
-    cronet:
+    'libcronet.dll':
         'c7434cfa93c3041321dd19111c4de6c52b8a9531a65661ba45425d3c51ec69e2',
     serverEntries: '',
     singBoxLicense: '',
   };
 
-  static const bundled = [
-    aether,
-    psiphon,
-    singBox,
-    cronet,
+  /// Aether 1.6.0 built from UAC's own core/aether crate with the Linux
+  /// toolchain in WSL (x86_64-unknown-linux-gnu, stripped).
+  static const _linuxShas = <String, String>{
+    'aether': '4c9e4b07bbd030db6f9d56ef2a435d88b5773f25e8ee700534a66226a6e2d8a5',
+  };
+
+  // The macOS helper is produced by the macos-build workflow from core/aether
+  // for each runner architecture, so its digest is pinned by the workflow
+  // artifact rather than in source.
+  static const _macosShas = <String, String>{'aether': ''};
+
+  static Map<String, String> get shas {
+    if (_windows) return _windowsShas;
+    if (Platform.isMacOS) return _macosShas;
+    return _linuxShas;
+  }
+
+  static const _windowsBundled = [
+    'aether.exe',
+    'uac-psiphon.exe',
+    'sing-box.exe',
+    'libcronet.dll',
     serverEntries,
     singBoxLicense,
   ];
+
+  // Desktop POSIX builds ship only the Aether outer transport (UAC's
+  // WARP-only exit mode); the Psiphon helper is a Windows/Android artifact.
+  static const _posixBundled = ['aether'];
+
+  static List<String> get bundled => _windows ? _windowsBundled : _posixBundled;
+
+  static String assetPath(String name) => _windows
+      ? 'assets/pow/$name'
+      : 'assets/pow/${Platform.operatingSystem}/$name';
 }
 
 /// Extracts the bundled PoW helpers from the app assets into the data dir,
@@ -327,7 +356,7 @@ Future<void> installPowBinaries(
     }
     ByteData assetData;
     try {
-      assetData = await rootBundle.load('assets/pow/$name');
+      assetData = await rootBundle.load(PowBinaries.assetPath(name));
     } on Exception {
       throw PowEngineException('missing-bundle $name');
     }
@@ -341,6 +370,9 @@ Future<void> installPowBinaries(
       throw PowEngineException('checksum $name');
     }
     await target.writeAsBytes(bytes, flush: true);
+    if (!Platform.isWindows) {
+      await Process.run('chmod', ['+x', target.path]);
+    }
     onProgress?.call((i + 1) / total);
   }
 }

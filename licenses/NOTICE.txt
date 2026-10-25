@@ -14,3 +14,9 @@ Firefox Accounts / Guardian protocol work is adapted from FoxyVPN, copyright
 
 Mozilla, Firefox and Fastly names identify their respective third-party
 services. This port is not an endorsement, partnership or service guarantee.
+
+Vyrax Free (UAC PoW) on Android, Linux and macOS embeds the Aether core from
+UAC 2.0.8. Aether is licensed under AGPL-3.0-only; its license ships in
+Licenses/Aether-AGPL-3.0.txt and the source is included under core/aether.
+The Android build also embeds Psiphon (psiphontunnel 2.0.39) and UAC's
+server-entry list; see Licenses/ for the bundled notices.

@@ -107,6 +107,16 @@ jobs:
         run: |
           echo "version=$(sed -n 's/^version: *\([0-9][0-9.]*\).*/\1/p' pubspec.yaml | head -1)" >> "$GITHUB_OUTPUT"
 
+      - name: Build Aether helper (Vyrax Free WARP)
+        run: |
+          set -euxo pipefail
+          cargo build --release --bin aether --manifest-path core/aether/Cargo.toml
+          mkdir -p assets/pow/macos
+          cp core/aether/target/release/aether assets/pow/macos/aether
+          chmod +x assets/pow/macos/aether
+          codesign --force --sign - assets/pow/macos/aether
+          assets/pow/macos/aether --help | head -5
+
       - name: Shim connectivity_plus for the macOS 15 SDK
         if: matrix.arch == 'amd64'
         run: |
@@ -174,6 +184,14 @@ jobs:
           {
             echo "=== Info.plist ($app_path) ==="
             plutil -p "$app_path/Contents/Info.plist"
+            echo
+            echo "=== Bundled Aether helper ==="
+            aether_asset="$(find "$app_path" -path '*flutter_assets/assets/pow/macos/aether' | head -n 1)"
+            test -n "$aether_asset"
+            test -x "$aether_asset"
+            file "$aether_asset"
+            lipo -info "$aether_asset"
+            "$aether_asset" --help | head -5
             echo
             echo "=== Bundle file tree ==="
             find "$app_path" -type f | sort
