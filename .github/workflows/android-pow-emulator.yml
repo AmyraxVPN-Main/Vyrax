@@ -48,21 +48,7 @@ jobs:
             adb exec-out screencap -p > 05-panel.png
             adb logcat -c || true
             adb shell input tap 160 275
-            for i in 1 2 3 4 5 6; do
-              sleep 40
-              echo "=== t=$((i*40))s ===" >> state.txt
-              adb shell pidof com.amyrax.vyrax >> state.txt || echo "app-dead" >> state.txt
-              adb shell pidof com.amyrax.vyrax:uacpow >> state.txt || echo "engine-dead" >> state.txt
-              adb shell dumpsys window | grep mCurrentFocus >> state.txt || true
-              adb exec-out screencap -p > 06-connect-$((i*40))s.png
-              adb logcat -d -s VyraxPow:V | tail -8 >> state.txt || true
-            done
-            adb root || true
-            adb shell ls -l /data/tombstones > tombstones.txt 2>&1 || true
-            adb shell sh -c 'cat /data/tombstones/tombstone_* 2>/dev/null | head -300' > tombstone.txt 2>&1 || true
-            adb shell dumpsys activity processes > processes.txt 2>&1 || true
-            adb logcat -d > logcat-full.txt || true
-            adb shell dmesg > dmesg.txt 2>&1 || true
+            sh ci/monitor.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
