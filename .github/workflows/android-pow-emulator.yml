@@ -50,6 +50,17 @@ jobs:
             adb shell input tap 184 194
             sleep 8
             adb exec-out screencap -p > pow-panel.png
+            adb logcat -c || true
+            adb shell input tap 160 275
+            sleep 20
+            adb exec-out screencap -p > connect-20s.png
+            sleep 30
+            adb exec-out screencap -p > connect-50s.png
+            sleep 40
+            adb exec-out screencap -p > connect-90s.png
+            sleep 40
+            adb exec-out screencap -p > connect-130s.png
+            adb logcat -d -s VyraxPow:V Psiphon:V Aether:V > pow-run.txt || true
             adb logcat -d -s VyraxPow:V ActivityManager:I AndroidRuntime:E > pow.txt || true
             adb shell uiautomator dump /sdcard/ui.xml || true
             adb pull /sdcard/ui.xml ui.xml || true
