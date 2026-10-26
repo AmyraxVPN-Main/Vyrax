@@ -47,6 +47,9 @@ jobs:
             adb shell input tap 231 340
             sleep 10
             adb exec-out screencap -p > dashboard.png
+            adb shell input tap 184 194
+            sleep 8
+            adb exec-out screencap -p > pow-panel.png
             adb logcat -d -s VyraxPow:V ActivityManager:I AndroidRuntime:E > pow.txt || true
             adb shell uiautomator dump /sdcard/ui.xml || true
             adb pull /sdcard/ui.xml ui.xml || true
