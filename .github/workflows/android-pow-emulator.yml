@@ -52,16 +52,20 @@ jobs:
             adb exec-out screencap -p > pow-panel.png
             adb logcat -c || true
             adb shell input tap 160 275
-            sleep 45
-            adb exec-out screencap -p > connect-45s.png
-            sleep 45
-            adb exec-out screencap -p > connect-90s.png
-            sleep 45
-            adb exec-out screencap -p > connect-135s.png
-            sleep 45
+            sleep 60
+            adb exec-out screencap -p > connect-60s.png
+            sleep 60
+            adb exec-out screencap -p > connect-120s.png
+            sleep 60
             adb exec-out screencap -p > connect-180s.png
-            sleep 45
-            adb exec-out screencap -p > connect-225s.png
+            sleep 60
+            adb exec-out screencap -p > connect-240s.png
+            sleep 60
+            adb exec-out screencap -p > connect-300s.png
+            sleep 60
+            adb exec-out screencap -p > connect-360s.png
+            sleep 60
+            adb exec-out screencap -p > connect-420s.png
             adb logcat -d -s VyraxPow:V > pow-run.txt || true
             cat pow-run.txt | tail -40 || true
             adb logcat -d > logcat-full.txt || true
