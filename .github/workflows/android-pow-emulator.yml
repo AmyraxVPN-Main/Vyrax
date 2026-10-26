@@ -63,6 +63,7 @@ jobs:
             sleep 45
             adb exec-out screencap -p > connect-225s.png
             adb logcat -d -s VyraxPow:V > pow-run.txt || true
+            cat pow-run.txt | tail -40 || true
             adb logcat -d > logcat-full.txt || true
             adb shell dumpsys activity activities > activities.txt || true
       - uses: actions/upload-artifact@v4
