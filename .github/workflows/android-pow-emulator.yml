@@ -21,55 +21,48 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 4096
           script: |
             set -x
             adb install -r ci/app.apk
-            adb shell pm list packages | grep amyrax
+            adb shell pm clear com.amyrax.vyrax || true
             adb shell am start -n com.amyrax.vyrax/com.follow.clash.MainActivity
-            sleep 5
-            adb shell dumpsys window | grep mCurrentFocus || true
-            sleep 22
-            adb exec-out screencap -p > home.png
+            sleep 20
+            adb exec-out screencap -p > 01-home.png
             for i in 1 2 3 4 5 6 7 8; do adb shell input swipe 160 560 160 140 250; sleep 1; done
-            sleep 2
-            adb exec-out screencap -p > disclaimer-bottom.png
+            adb exec-out screencap -p > 02-disclaimer.png
             adb shell input tap 232 602
             sleep 3
             adb shell input tap 232 602
-            sleep 8
-            adb exec-out screencap -p > after-agree.png
+            sleep 6
+            adb exec-out screencap -p > 03-after-agree.png
             adb shell input tap 160 520
             sleep 2
             adb shell input text "The%sSoftware%sitself%sdoes%snot%sprovide%sany%sproxy%sserver,%snode,%ssubscription,%sor%snetwork%saccess%sservice,%sand%shas%sno%spartnership,%sagency,%sor%sguarantee%srelationship%swith%sany%sprovider%sof%ssuch%sservices."
             sleep 3
-            adb exec-out screencap -p > statement-typed.png
             adb shell input tap 231 340
             sleep 10
-            adb exec-out screencap -p > dashboard.png
+            adb exec-out screencap -p > 04-dashboard.png
             adb shell input tap 184 194
             sleep 8
-            adb exec-out screencap -p > pow-panel.png
+            adb exec-out screencap -p > 05-panel.png
             adb logcat -c || true
             adb shell input tap 160 275
-            sleep 60
-            adb exec-out screencap -p > connect-60s.png
-            sleep 60
-            adb exec-out screencap -p > connect-120s.png
-            sleep 60
-            adb exec-out screencap -p > connect-180s.png
-            sleep 60
-            adb exec-out screencap -p > connect-240s.png
-            sleep 60
-            adb exec-out screencap -p > connect-300s.png
-            sleep 60
-            adb exec-out screencap -p > connect-360s.png
-            sleep 60
-            adb exec-out screencap -p > connect-420s.png
-            adb logcat -d -s VyraxPow:V > pow-run.txt || true
-            cat pow-run.txt | tail -40 || true
+            for i in 1 2 3 4 5 6; do
+              sleep 40
+              echo "=== t=$((i*40))s ===" >> state.txt
+              adb shell pidof com.amyrax.vyrax >> state.txt || echo "app-dead" >> state.txt
+              adb shell pidof com.amyrax.vyrax:uacpow >> state.txt || echo "engine-dead" >> state.txt
+              adb shell dumpsys window | grep mCurrentFocus >> state.txt || true
+              adb exec-out screencap -p > 06-connect-$((i*40))s.png
+              adb logcat -d -s VyraxPow:V | tail -8 >> state.txt || true
+            done
+            adb root || true
+            adb shell ls -l /data/tombstones > tombstones.txt 2>&1 || true
+            adb shell sh -c 'cat /data/tombstones/tombstone_* 2>/dev/null | head -300' > tombstone.txt 2>&1 || true
+            adb shell dumpsys activity processes > processes.txt 2>&1 || true
             adb logcat -d > logcat-full.txt || true
-            adb shell dumpsys activity activities > activities.txt || true
+            adb shell dmesg > dmesg.txt 2>&1 || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -77,6 +70,3 @@ jobs:
           path: |
             *.png
             *.txt
-            ui.xml
-            activities.txt
-            pow.txt
