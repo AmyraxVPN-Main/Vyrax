@@ -1,0 +1,78 @@
+name: android-pow-emulator
+on:
+  push:
+    branches: [vyrax-0.2.4-emulator]
+  workflow_dispatch:
+jobs:
+  pow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Boot emulator and install Vyrax
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -x
+            adb install -r ci/app.apk
+            adb shell pm list packages | grep amyrax
+            adb shell am start -n com.amyrax.vyrax/com.follow.clash.MainActivity
+            sleep 5
+            adb shell dumpsys window | grep mCurrentFocus || true
+            sleep 22
+            adb exec-out screencap -p > home.png
+            for i in 1 2 3 4 5 6 7 8; do adb shell input swipe 160 560 160 140 250; sleep 1; done
+            sleep 2
+            adb exec-out screencap -p > disclaimer-bottom.png
+            adb shell input tap 232 602
+            sleep 3
+            adb shell input tap 232 602
+            sleep 8
+            adb exec-out screencap -p > after-agree.png
+            adb shell input tap 160 520
+            sleep 2
+            adb shell input text "The%sSoftware%sitself%sdoes%snot%sprovide%sany%sproxy%sserver,%snode,%ssubscription,%sor%snetwork%saccess%sservice,%sand%shas%sno%spartnership,%sagency,%sor%sguarantee%srelationship%swith%sany%sprovider%sof%ssuch%sservices."
+            sleep 3
+            adb exec-out screencap -p > statement-typed.png
+            adb shell input tap 231 340
+            sleep 10
+            adb exec-out screencap -p > dashboard.png
+            adb shell input tap 184 194
+            sleep 8
+            adb exec-out screencap -p > pow-panel.png
+            adb logcat -c || true
+            adb shell input tap 160 275
+            sleep 45
+            adb exec-out screencap -p > connect-45s.png
+            sleep 45
+            adb exec-out screencap -p > connect-90s.png
+            sleep 45
+            adb exec-out screencap -p > connect-135s.png
+            sleep 45
+            adb exec-out screencap -p > connect-180s.png
+            sleep 45
+            adb exec-out screencap -p > connect-225s.png
+            adb logcat -d -s VyraxPow:V > pow-run.txt || true
+            cat pow-run.txt | tail -40 || true
+            adb logcat -d > logcat-full.txt || true
+            adb shell dumpsys activity activities > activities.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pow-emulator-home
+          path: |
+            *.png
+            *.txt
+            ui.xml
+            activities.txt
+            pow.txt
