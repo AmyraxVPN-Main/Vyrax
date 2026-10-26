@@ -26,8 +26,11 @@ jobs:
             set -x
             adb install -r ci/app.apk
             adb shell pm list packages | grep amyrax
-            adb shell am start -n com.amyrax.vyrax/.MainActivity
-            sleep 30
+            adb shell am start -n com.amyrax.vyrax/com.follow.clash.MainActivity
+            sleep 5
+            adb shell dumpsys window | grep mCurrentFocus || true
+            sleep 25
+            adb logcat -d -s VyraxPow:V ActivityManager:I AndroidRuntime:E > pow.txt || true
             adb exec-out screencap -p > home.png
             adb shell uiautomator dump /sdcard/ui.xml || true
             adb pull /sdcard/ui.xml ui.xml || true
