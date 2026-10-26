@@ -44,6 +44,9 @@ jobs:
             adb shell input text "The%sSoftware%sitself%sdoes%snot%sprovide%sany%sproxy%sserver,%snode,%ssubscription,%sor%snetwork%saccess%sservice,%sand%shas%sno%spartnership,%sagency,%sor%sguarantee%srelationship%swith%sany%sprovider%sof%ssuch%sservices."
             sleep 3
             adb exec-out screencap -p > statement-typed.png
+            adb shell input tap 231 340
+            sleep 10
+            adb exec-out screencap -p > dashboard.png
             adb logcat -d -s VyraxPow:V ActivityManager:I AndroidRuntime:E > pow.txt || true
             adb shell uiautomator dump /sdcard/ui.xml || true
             adb pull /sdcard/ui.xml ui.xml || true
