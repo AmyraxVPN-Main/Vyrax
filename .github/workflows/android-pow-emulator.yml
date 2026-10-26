@@ -29,9 +29,12 @@ jobs:
             adb shell am start -n com.amyrax.vyrax/com.follow.clash.MainActivity
             sleep 5
             adb shell dumpsys window | grep mCurrentFocus || true
-            sleep 25
-            adb logcat -d -s VyraxPow:V ActivityManager:I AndroidRuntime:E > pow.txt || true
+            sleep 22
             adb exec-out screencap -p > home.png
+            for i in 1 2 3 4 5 6 7 8; do adb shell input swipe 160 560 160 140 250; sleep 1; done
+            sleep 2
+            adb exec-out screencap -p > disclaimer-bottom.png
+            adb logcat -d -s VyraxPow:V ActivityManager:I AndroidRuntime:E > pow.txt || true
             adb shell uiautomator dump /sdcard/ui.xml || true
             adb pull /sdcard/ui.xml ui.xml || true
             adb logcat -d > logcat.txt || true
