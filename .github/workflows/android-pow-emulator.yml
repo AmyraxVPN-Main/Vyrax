@@ -44,7 +44,8 @@ jobs:
         with:
           name: pow-emulator-home
           path: |
-            home.png
+            *.png
             ui.xml
             logcat.txt
             activities.txt
+            pow.txt
